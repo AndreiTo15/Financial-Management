@@ -38,7 +38,6 @@
     </script>
 
     <style>
-        /* Custom iOS Style Glassmorphism & Scrollbar */
         body {
             -webkit-tap-highlight-color: transparent;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -58,7 +57,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Hide Scrollbars while keeping functionality */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -67,7 +65,6 @@
             scrollbar-width: none;
         }
 
-        /* Mobile safe areas for iPhone notch & bar */
         .pb-safe {
             padding-bottom: env(safe-area-inset-bottom, 16px);
         }
@@ -395,11 +392,11 @@
                     <input type="text" id="supabase-url" placeholder="https://xyz.supabase.co" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
                 </div>
                 <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">API Key (anon / public)</label>
+                    <label class="block text-[11px] text-slate-400 mb-1">API Key (anon / publishable)</label>
                     <input type="password" id="supabase-key" placeholder="eyJhbGciOi..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
                 </div>
                 <button onclick="saveSupabaseSettings()" class="w-full py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition">
-                    Connetti & Sincronizza
+                    Connetti & Scarica Ora
                 </button>
             </div>
 
@@ -486,7 +483,7 @@
             syncToCloud();
         }
 
-        // --- SUPABASE CLOUD SYNC ---
+        // --- SUPABASE CLOUD SYNC & REALTIME ---
         function initSupabase() {
             const url = localStorage.getItem('fin_sp_url') || '';
             const key = localStorage.getItem('fin_sp_key') || '';
@@ -496,6 +493,7 @@
                     supabaseClient = supabase.createClient(url, key);
                     updateCloudBadge('cloud');
                     loadFromCloud();
+                    subscribeToRealtime();
                 } catch (err) {
                     console.error("Supabase Error:", err);
                     updateCloudBadge('error');
@@ -512,13 +510,14 @@
                     .from('finance_store')
                     .select('data')
                     .eq('id', 'main_data')
-                    .single();
+                    .maybeSingle();
 
                 if (data && data.data) {
                     state = data.data;
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                     renderApp();
                 } else {
+                    // Se non ci sono dati sul cloud, salviamo quelli locali iniziali
                     syncToCloud();
                 }
             } catch (e) {
@@ -537,6 +536,20 @@
             }
         }
 
+        function subscribeToRealtime() {
+            if (!supabaseClient) return;
+            supabaseClient
+                .channel('public:finance_store')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'finance_store' }, payload => {
+                    if (payload.new && payload.new.data) {
+                        state = payload.new.data;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                        renderApp();
+                    }
+                })
+                .subscribe();
+        }
+
         function saveSupabaseSettings() {
             const url = document.getElementById('supabase-url').value.trim();
             const key = document.getElementById('supabase-key').value.trim();
@@ -545,7 +558,7 @@
             localStorage.setItem('fin_sp_key', key);
 
             closeModal('modal-settings');
-            showToast('Credenziali salvate!');
+            showToast('Connessione Cloud in corso...');
             initSupabase();
         }
 
@@ -574,7 +587,6 @@
             checkSubscriptionBanner();
         }
 
-        // Privacy Toggle
         function togglePrivacy() {
             isPrivacyActive = !isPrivacyActive;
             const btn = document.getElementById('privacy-btn');
@@ -592,7 +604,6 @@
         function renderBalance() {
             document.getElementById('total-balance').textContent = formatMoney(state.balance);
 
-            // Compute current month income / expense
             const now = new Date();
             const currentYearMonth = now.toISOString().slice(0, 7);
 
@@ -767,7 +778,6 @@
 
         function openAddModal(type) {
             setTransType(type);
-            // Default current date/time
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('trans-datetime').value = now.toISOString().slice(0, 16);
@@ -817,7 +827,6 @@
             closeModal('modal-transaction');
             showToast(type === 'INCOME' ? 'Entrata registrata!' : 'Spesa registrata!');
 
-            // Reset form
             document.getElementById('trans-form').reset();
         }
 
@@ -878,7 +887,6 @@
 
             state.subscriptions.forEach(s => {
                 if (s.lastChargedMonth !== currentMonth) {
-                    // Create transaction
                     const now = new Date().toISOString().slice(0, 16);
                     state.transactions.push({
                         id: Date.now() + Math.random(),
@@ -910,7 +918,6 @@
             const ctx = canvas.getContext('2d');
             const now = new Date().toISOString().slice(0, 7);
 
-            // Group expenses by tag for current month
             const tagTotals = {};
             state.transactions.forEach(t => {
                 if (t.type === 'EXPENSE' && t.timestamp.startsWith(now)) {
@@ -957,7 +964,6 @@
                 }
             });
 
-            // Render breakdown list
             const breakdownList = document.getElementById('tag-breakdown-list');
             if (breakdownList) {
                 breakdownList.innerHTML = '';
@@ -1076,7 +1082,6 @@
             }
         }
 
-        // Initialize App on window load
         window.onload = function() {
             renderApp();
             initSupabase();
