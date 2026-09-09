@@ -1,1830 +1,635 @@
 <!DOCTYPE html>
 <html lang="it" class="h-full bg-slate-950 text-slate-100">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gestione Finanze</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for statistics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- CONFIGURAZIONE SUPABASE: inserisci qui Project URL e anon/publishable key -->
-    <script>
-        const SUPABASE_CONFIG = {
-            url: 'https://ybwnfijzqlkgwdrbdtxg.supabase.co/',
-            anonKey: 'sb_publishable_Rn2pdpsPqLjDmYMfHcvebw_juC1jv0J'
-        };
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#ecfdf5',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                        }
-                    }
-                }
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#020617">
+  <title>Gestione Finanze V2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    const SUPABASE_CONFIG = {
+      url: 'https://ybwnfijzqlkgwdrbdtxg.supabase.co/',
+      anonKey: 'sb_publishable_Rn2pdpsPqLjDmYMfHcvebw_juC1jv0J'
+    };
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','sans-serif'] },
+          colors: { brand: { 500:'#10b981',600:'#059669',700:'#047857' } }
         }
-    </script>
-
-    <style>
-        body {
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .glass-nav {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom, 16px);
-        }
-        .pt-safe {
-            padding-top: env(safe-area-inset-top, 16px);
-        }
-
-        /* Thin styled scrollbar for the internal recent-transactions scroll area */
-        .styled-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
-        }
-        .styled-scrollbar::-webkit-scrollbar {
-            width: 5px;
-        }
-        .styled-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .styled-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.35);
-            border-radius: 999px;
-        }
-        .styled-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(148, 163, 184, 0.55);
-        }
-    </style>
+      }
+    };
+  </script>
+  <style>
+    body{font-family:Inter,sans-serif;-webkit-tap-highlight-color:transparent}
+    .glass{background:rgba(30,41,59,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)}
+    .navglass{background:rgba(15,23,42,.92);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.1)}
+    .scroll::-webkit-scrollbar{width:5px;height:5px}.scroll::-webkit-scrollbar-thumb{background:#475569;border-radius:99px}
+    .page{display:none}.page.active{display:block}
+    .modal{display:none}.modal.open{display:flex}
+    .privacy .money{filter:blur(6px);user-select:none}
+    .light body{background:#f8fafc;color:#0f172a}.light .bg-slate-950{background:#f8fafc!important}
+    .light .bg-slate-900{background:#fff!important}.light .bg-slate-800{background:#e2e8f0!important}
+    .light .text-white{color:#0f172a!important}.light .text-slate-100{color:#0f172a!important}
+    .light .text-slate-300,.light .text-slate-400{color:#475569!important}
+    .light .border-slate-800{border-color:#cbd5e1!important}.light .glass{background:rgba(255,255,255,.9)}
+  </style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+<body class="min-h-full bg-slate-950 text-slate-100 pb-24">
 
-    <!-- AUTH SCREEN -->
-    <div id="auth-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="w-full max-w-md">
-            <div class="text-center mb-7">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
-                    <i class="fa-solid fa-wallet text-white text-2xl"></i>
-                </div>
-                <h1 class="text-2xl font-extrabold text-white">Gestione Finanze</h1>
-                <p class="text-sm text-slate-400 mt-1">I tuoi dati, sincronizzati su tutti i dispositivi</p>
-            </div>
-
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-                <div class="flex gap-2 p-1 bg-slate-950 rounded-2xl mb-6">
-                    <button id="auth-tab-login" onclick="showAuthMode('login')" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition">Accedi</button>
-                    <button id="auth-tab-register" onclick="showAuthMode('register')" class="flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition">Registrati</button>
-                </div>
-
-                <form id="login-form" onsubmit="loginUser(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
-                        <input id="login-email" type="email" required autocomplete="email" placeholder="nome@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Password</label>
-                        <input id="login-password" type="password" required autocomplete="current-password" placeholder="La tua password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                        <div class="text-right mt-2">
-                            <button type="button" onclick="showForgotPasswordForm()" class="text-xs font-semibold text-brand-400 hover:text-brand-300 transition">
-                                Password dimenticata?
-                            </button>
-                        </div>
-                    </div>
-                    <button id="login-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">Accedi</button>
-                </form>
-
-                <form id="register-form" onsubmit="registerUser(event)" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Username</label>
-                        <input id="register-username" type="text" required minlength="2" maxlength="30" autocomplete="username" placeholder="Il tuo nome utente" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
-                        <input id="register-email" type="email" required autocomplete="email" placeholder="nome@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Password</label>
-                        <input id="register-password" type="password" required minlength="6" autocomplete="new-password" placeholder="Almeno 6 caratteri" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <button id="register-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">Crea account</button>
-                    <p class="text-[11px] text-slate-500 text-center">Potrebbe essere necessario confermare l'email, in base alle impostazioni del progetto Supabase.</p>
-                </form>
-
-                <form id="forgot-password-form" onsubmit="requestPasswordReset(event)" class="space-y-4 hidden">
-                    <div class="text-center mb-2">
-                        <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-white">Recupera password</h3>
-                        <p class="text-xs text-slate-400 mt-1">Inserisci l'email del tuo account. Ti invieremo un link per impostare una nuova password.</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
-                        <input id="forgot-email" type="email" required autocomplete="email" placeholder="nome@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <button id="forgot-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">
-                        Invia email di recupero
-                    </button>
-                    <button type="button" onclick="showAuthMode('login')" class="w-full py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition">
-                        Torna all'accesso
-                    </button>
-                </form>
-
-                <form id="reset-password-form" onsubmit="saveNewPassword(event)" class="space-y-4 hidden">
-                    <div class="text-center mb-2">
-                        <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                            <i class="fa-solid fa-lock"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-white">Imposta nuova password</h3>
-                        <p class="text-xs text-slate-400 mt-1">Scegli la nuova password per il tuo account.</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Nuova password</label>
-                        <input id="reset-password" type="password" required minlength="6" autocomplete="new-password" placeholder="Almeno 6 caratteri" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Conferma password</label>
-                        <input id="reset-password-confirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Ripeti la password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <button id="reset-submit" type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold transition">
-                        Salva nuova password
-                    </button>
-                </form>
-
-                <div id="auth-message" class="hidden mt-4 p-3 rounded-xl text-xs font-medium"></div>
-            </div>
-        </div>
+<!-- AUTH -->
+<div id="auth-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4 overflow-auto">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-7">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+        <i class="fa-solid fa-wallet text-white text-2xl"></i>
+      </div>
+      <h1 class="text-2xl font-extrabold text-white">Gestione Finanze</h1>
+      <p class="text-sm text-slate-400 mt-1">V2 · Budget, patrimonio, obiettivi e sincronizzazione</p>
     </div>
-
-    <!-- Top Header -->
-    <header class="pt-safe sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60 px-4 py-3 sm:px-8">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
-                    <i class="fa-solid fa-wallet text-white text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white leading-tight">Finanze</h1>
-                    <p class="text-xs text-slate-400 font-medium">Gestione Personale</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button onclick="togglePrivacy()" id="privacy-btn" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition active:scale-95" title="Nascondi/Mostra Importi">
-                    <i class="fa-solid fa-eye text-sm"></i>
-                </button>
-                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition active:scale-95" title="Impostazioni">
-                    <i class="fa-solid fa-sliders text-sm"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto max-w-4xl w-full mx-auto px-4 py-6 sm:px-8 pb-32">
-
-        <!-- VIEW: DASHBOARD -->
-        <section id="view-dashboard" class="space-y-6 flex flex-col">
-            <!-- Balance Card -->
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 border border-slate-800 shadow-2xl">
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Saldo Attuale</span>
-                    <span id="cloud-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Locale (No Cloud)
-                    </span>
-                </div>
-                <div class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-6" id="total-balance">
-                    € --
-                </div>
-
-                <!-- Monthly Quick Summary -->
-                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800/80">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                            <i class="fa-solid fa-arrow-down-left text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-400 font-medium">Entrate Mese</p>
-                            <p class="text-sm font-bold text-emerald-400" id="month-income">€ --</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
-                            <i class="fa-solid fa-arrow-up-right text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-400 font-medium">Uscite Mese</p>
-                            <p class="text-sm font-bold text-rose-400" id="month-expenses">€ --</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Action Buttons -->
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="openAddModal('INCOME')" class="flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-900/30 transition active:scale-95">
-                    <i class="fa-solid fa-plus-circle"></i> Aggiungi Entrata
-                </button>
-                <button onclick="openAddModal('EXPENSE')" class="flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm shadow-lg shadow-rose-900/30 transition active:scale-95">
-                    <i class="fa-solid fa-minus-circle"></i> Registra Spesa
-                </button>
-            </div>
-
-            <!-- Subscription Alert Card -->
-            <div id="sub-check-banner" class="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 border-amber-500/30 bg-amber-500/5">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-calendar-check text-base"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-amber-300">Abbonamenti del Mese</h4>
-                        <p class="text-[11px] text-slate-400">Verifica o addebita gli abbonamenti di questo mese.</p>
-                    </div>
-                </div>
-                <button onclick="processSubscriptions(true)" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold transition flex-shrink-0">
-                    Processa Ora
-                </button>
-            </div>
-
-            <!-- Recent Transactions Widget -->
-            <div class="space-y-3 flex-1 min-h-0 flex flex-col">
-                <div class="flex justify-between items-center px-1">
-                    <h3 class="text-sm font-bold text-slate-300">Ultime Transazioni</h3>
-                    <button onclick="switchTab('transactions')" class="text-xs text-brand-500 hover:underline font-medium">Vedi tutte</button>
-                </div>
-                <div id="dashboard-recent-list" class="space-y-2 overflow-y-auto overscroll-contain max-h-72 pr-1 styled-scrollbar">
-                    <!-- Dynamic rendering -->
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW: TRANSACTIONS -->
-        <section id="view-transactions" class="space-y-5 hidden">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-bold text-white">Storico Movimenti</h2>
-                <button onclick="openAddModal('EXPENSE')" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white text-xs font-semibold shadow hover:bg-brand-500 transition">
-                    + Nuova
-                </button>
-            </div>
-
-            <!-- Search & Filters -->
-            <div class="flex gap-2">
-                <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="text" id="search-input" oninput="renderTransactions()" placeholder="Cerca per nota o tag..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
-                </div>
-                <select id="filter-type" onchange="renderTransactions()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brand-500">
-                    <option value="ALL">Tutti</option>
-                    <option value="INCOME">Entrate</option>
-                    <option value="EXPENSE">Uscite</option>
-                </select>
-            </div>
-
-            <!-- Full List -->
-            <div id="full-transactions-list" class="space-y-2">
-                <!-- Dynamic rendering -->
-            </div>
-        </section>
-
-        <!-- VIEW: SUBSCRIPTIONS -->
-        <section id="view-subscriptions" class="space-y-5 hidden">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-lg font-bold text-white">Abbonamenti Ricorrenti</h2>
-                    <p class="text-xs text-slate-400">Spese fisse addebitate ogni mese</p>
-                </div>
-                <button onclick="openAddSubModal()" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white text-xs font-semibold shadow hover:bg-brand-500 transition">
-                    + Nuovo
-                </button>
-            </div>
-
-            <div class="p-4 rounded-2xl glass-card border border-slate-800 flex items-center justify-between">
-                <div>
-                    <span class="text-xs text-slate-400 font-medium">Totale Abbonamenti</span>
-                    <p class="text-lg font-bold text-white" id="total-subs-amount">€ 0.00 /mese</p>
-                </div>
-                <button onclick="processSubscriptions(true)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-2">
-                    <i class="fa-solid fa-rotate-right text-brand-500"></i> Verifica Addebiti
-                </button>
-            </div>
-
-            <div id="subscriptions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <!-- Dynamic rendering -->
-            </div>
-        </section>
-
-        <!-- VIEW: STATISTICS -->
-        <section id="view-stats" class="space-y-5 hidden">
-            <h2 class="text-lg font-bold text-white">Analisi Spese</h2>
-
-            <!-- Chart Card -->
-            <div class="glass-card rounded-2xl p-5 border border-slate-800">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Ripartizione per Tag (Questo Mese)</h3>
-                <div class="relative w-full h-64 flex items-center justify-center">
-                    <canvas id="expenseChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Tag Breakdown List -->
-            <div class="glass-card rounded-2xl p-5 border border-slate-800">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Dettaglio Categorie</h3>
-                <div id="tag-breakdown-list" class="space-y-3">
-                    <!-- Dynamic rendering -->
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Bottom Mobile Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 z-40 glass-nav pb-safe px-4 pt-2">
-        <div class="max-w-md mx-auto flex justify-around items-center text-center">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 p-2 text-brand-500 font-semibold transition">
-                <i class="fa-solid fa-house text-lg"></i>
-                <span class="text-[10px]">Home</span>
-            </button>
-            <button onclick="switchTab('transactions')" id="nav-transactions" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition">
-                <i class="fa-solid fa-receipt text-lg"></i>
-                <span class="text-[10px]">Movimenti</span>
-            </button>
-            <button onclick="switchTab('subscriptions')" id="nav-subscriptions" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition">
-                <i class="fa-solid fa-arrows-rotate text-lg"></i>
-                <span class="text-[10px]">Abbonamenti</span>
-            </button>
-            <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition">
-                <i class="fa-solid fa-chart-pie text-lg"></i>
-                <span class="text-[10px]">Statistiche</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- MODAL: ADD TRANSACTION -->
-    <div id="modal-transaction" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-200">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-base font-bold text-white" id="modal-trans-title">Nuova Transazione</h3>
-                <button onclick="closeModal('modal-transaction')" class="p-1 text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <form id="trans-form" onsubmit="handleSaveTransaction(event)" class="space-y-4">
-                <input type="hidden" id="trans-type" value="EXPENSE">
-                <input type="hidden" id="trans-edit-id" value="">
-
-                <!-- Type Selector Tabs -->
-                <div class="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800">
-                    <button type="button" id="btn-type-expense" onclick="setTransType('EXPENSE')" class="py-2 rounded-lg text-xs font-bold bg-rose-600 text-white transition">Spesa</button>
-                    <button type="button" id="btn-type-income" onclick="setTransType('INCOME')" class="py-2 rounded-lg text-xs font-bold text-slate-400 transition">Entrata</button>
-                </div>
-
-                <!-- Amount -->
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Importo (€)</label>
-                    <div class="relative">
-                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
-                        <input type="number" step="0.01" id="trans-amount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-2.5 text-lg font-bold text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                </div>
-
-                <!-- Preset Tags -->
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Tag / Categoria</label>
-                    <div class="flex flex-wrap gap-1.5 mb-2" id="preset-tags">
-                        <!-- Rendered by JS -->
-                    </div>
-                    <input type="text" id="trans-tag" required placeholder="es. spesa, stipendio, svago" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                </div>
-
-                <!-- Description -->
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Descrizione / Nota</label>
-                    <input type="text" id="trans-desc" placeholder="es. Supermercato Conad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                </div>
-
-                <!-- Date and Time -->
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Data e Ora</label>
-                    <input type="datetime-local" id="trans-datetime" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="trans-submit-btn" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition mt-2">
-                    Salva Transazione
-                </button>
-            </form>
-        </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div id="auth-tabs" class="flex gap-2 p-1 bg-slate-950 rounded-2xl mb-6">
+        <button id="tab-login" onclick="authMode('login')" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold">Accedi</button>
+        <button id="tab-register" onclick="authMode('register')" class="flex-1 py-2.5 rounded-xl text-slate-400 text-sm font-bold">Registrati</button>
+      </div>
+      <form id="login-form" onsubmit="login(event)" class="space-y-4">
+        <input id="login-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <input id="login-password" type="password" required placeholder="Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <div class="text-right"><button type="button" onclick="authMode('forgot')" class="text-xs text-emerald-400 font-semibold">Password dimenticata?</button></div>
+        <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Accedi</button>
+      </form>
+      <form id="register-form" onsubmit="register(event)" class="space-y-4 hidden">
+        <input id="reg-user" required minlength="2" maxlength="30" placeholder="Username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <input id="reg-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <input id="reg-password" type="password" minlength="6" required placeholder="Password (min. 6 caratteri)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Crea account</button>
+      </form>
+      <form id="forgot-form" onsubmit="forgotPassword(event)" class="space-y-4 hidden">
+        <h3 class="font-bold text-white">Recupera password</h3>
+        <p class="text-xs text-slate-400">Riceverai una mail con il link per scegliere una nuova password.</p>
+        <input id="forgot-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Invia email</button>
+        <button type="button" onclick="authMode('login')" class="w-full text-xs text-slate-400">Torna all'accesso</button>
+      </form>
+      <form id="reset-form" onsubmit="updatePassword(event)" class="space-y-4 hidden">
+        <h3 class="font-bold text-white">Imposta nuova password</h3>
+        <input id="new-password" type="password" minlength="6" required placeholder="Nuova password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <input id="new-password2" type="password" minlength="6" required placeholder="Ripeti password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+        <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva nuova password</button>
+      </form>
+      <div id="auth-msg" class="hidden mt-4 p-3 rounded-xl text-xs"></div>
     </div>
+  </div>
+</div>
 
-    <!-- MODAL: ADD SUBSCRIPTION -->
-    <div id="modal-sub" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-base font-bold text-white">Nuovo Abbonamento</h3>
-                <button onclick="closeModal('modal-sub')" class="p-1 text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
+<!-- EMAIL CONFIRM -->
+<div id="email-modal" class="modal fixed inset-0 z-[120] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-6 max-w-md w-full text-center">
+    <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i class="fa-solid fa-envelope-circle-check text-2xl"></i></div>
+    <h3 class="font-bold text-xl text-white">Controlla la tua email</h3>
+    <p class="text-sm text-slate-300 mt-2">Abbiamo inviato una mail di conferma a <strong id="email-confirm-address"></strong>. Aprila e clicca sul link per completare la registrazione.</p>
+    <button onclick="closeModal('email-modal');authMode('login')" class="mt-5 w-full py-3 bg-brand-600 rounded-xl font-bold">Ho capito</button>
+  </div>
+</div>
 
-            <form id="sub-form" onsubmit="handleSaveSubscription(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Nome Servizio / Abbonamento</label>
-                    <input type="text" id="sub-name" required placeholder="es. Netflix, Palestra, Spotify" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Importo Mensile (€)</label>
-                        <input type="number" step="0.01" id="sub-amount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Giorno Addebito</label>
-                        <input type="number" min="1" max="31" id="sub-day" value="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Tag</label>
-                    <select id="sub-tag" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
-                        <option value="">Seleziona un tag</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition mt-2">
-                    Aggiungi Abbonamento
-                </button>
-            </form>
-        </div>
+<header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur border-b border-slate-800">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex gap-3 items-center">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
+      <div><h1 class="font-bold text-white">Finanze</h1><p id="header-subtitle" class="text-xs text-slate-400">Gestione personale</p></div>
     </div>
-
-    <!-- MODAL: SETTINGS & INITIAL BALANCE & SUPABASE -->
-    <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
-            <div class="flex justify-between items-center">
-                <h3 class="text-base font-bold text-white">Impostazioni & Dati</h3>
-                <button onclick="closeModal('modal-settings')" class="p-1 text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <!-- Account -->
-            <div class="space-y-3 pt-2 border-t border-slate-800">
-                <label class="block text-xs font-bold text-brand-500 uppercase tracking-wider">Il tuo account</label>
-                <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p id="profile-username" class="text-sm font-bold text-white truncate">Account</p>
-                            <p id="profile-email" class="text-[11px] text-slate-500 truncate">--</p>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="logoutUser()" class="w-full py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition">
-                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Esci dall'account
-                </button>
-            </div>
-
-            <!-- Modify Balance -->
-            <div class="space-y-2 pt-4 border-t border-slate-800">
-                <label class="block text-xs font-medium text-slate-400">Rettifica Saldo Attuale (€)</label>
-                <div class="flex gap-2">
-                    <input type="number" step="0.01" id="settings-balance" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                    <button onclick="updateBalanceFromSettings()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 transition">Aggiorna</button>
-                </div>
-            </div>
-
-            <!-- Export / Import -->
-            <div class="space-y-2 pt-4 border-t border-slate-800">
-                <label class="block text-xs font-medium text-slate-400">Backup & Trasferimento Dati</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="exportDataJSON()" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
-                        <i class="fa-solid fa-download mr-1"></i> Esporta JSON
-                    </button>
-                    <label class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 text-center cursor-pointer transition">
-                        <i class="fa-solid fa-upload mr-1"></i> Importa JSON
-                        <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
-                    </label>
-                </div>
-            </div>
-
-            <!-- Reset Data -->
-            <div class="pt-4 border-t border-slate-800">
-                <button onclick="resetAllData()" class="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition">
-                    Ripristino Dati Iniziali Demo
-                </button>
-            </div>
-        </div>
+    <div class="flex gap-2">
+      <button onclick="togglePrivacy()" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-eye"></i></button>
+      <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-circle-half-stroke"></i></button>
+      <button onclick="openModal('settings-modal')" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-gear"></i></button>
     </div>
+  </div>
+</header>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    
-    <!-- Popup conferma email dopo registrazione -->
-    <div id="modal-email-confirmation" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6">
-            <div class="flex items-center justify-center w-14 h-14 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 mb-4">
-                <i class="fa-solid fa-envelope-circle-check text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-white text-center mb-2">Controlla la tua email</h3>
-            <p class="text-slate-300 text-sm text-center leading-relaxed">
-                Abbiamo inviato una mail di conferma a
-                <strong id="confirmation-email-address" class="text-white break-all"></strong>.
-            </p>
-            <p class="text-slate-400 text-sm text-center mt-3 leading-relaxed">
-                Apri il messaggio e clicca sul link di conferma per completare la creazione dell'account. Dopo la conferma potrai effettuare l'accesso.
-            </p>
-            <button type="button"
-                    onclick="closeEmailConfirmationModal()"
-                    class="w-full mt-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">
-                Ho capito
-            </button>
-        </div>
+<main class="max-w-6xl mx-auto p-4">
+
+<section id="page-home" class="page active space-y-5">
+  <div id="subscription-alert" class="hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs"></div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Saldo</p><p id="kpi-balance" class="money text-xl font-extrabold mt-1">€0,00</p></div>
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Entrate mese</p><p id="kpi-income" class="money text-xl font-extrabold text-emerald-400 mt-1">€0,00</p></div>
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Spese mese</p><p id="kpi-expense" class="money text-xl font-extrabold text-rose-400 mt-1">€0,00</p></div>
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Investimenti mese</p><p id="kpi-investment" class="money text-xl font-extrabold text-cyan-400 mt-1">€0,00</p></div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-4">
+    <div class="glass rounded-2xl p-4 lg:col-span-2">
+      <div class="flex justify-between items-center mb-3"><h2 class="font-bold">Andamento mensile</h2><span id="mom-text" class="text-xs text-slate-400"></span></div>
+      <div class="h-64"><canvas id="monthly-chart"></canvas></div>
     </div>
-
-<div id="toast" class="fixed top-5 right-5 left-5 sm:left-auto z-50 transform translate-y-[-150%] transition-transform duration-300 pointer-events-none">
-        <div class="bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
-            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-            <span id="toast-message" class="text-xs font-semibold">Operazione completata</span>
-        </div>
+    <div class="glass rounded-2xl p-4">
+      <h2 class="font-bold mb-3">Spese per categoria</h2>
+      <div class="h-64"><canvas id="category-chart"></canvas></div>
     </div>
-
-    <script>
-        // --- DATA STATE MANAGEMENT ---
-        const STORAGE_KEY_PREFIX = 'my_finance_app_data_v1_';
-        let isPrivacyActive = false;
-        let myChart = null;
-        let supabaseClient = null;
-        let currentUser = null;
-        let currentProfile = null;
-        let realtimeChannel = null;
-        let isLoadingCloud = false;
-
-        const defaultTags = [
-            'stipendio', 'spesa', 'ristorante', 'svago', 'bollette', 'sport',
-            'casa', 'trasporti', 'streaming', 'musica', 'salute', 'viaggi', 'investimenti'
-        ];
-
-        const tagIcons = {
-            stipendio: 'fa-money-bill-wave',
-            lavoro: 'fa-briefcase',
-            spesa: 'fa-cart-shopping',
-            supermercato: 'fa-cart-shopping',
-            ristorante: 'fa-utensils',
-            cibo: 'fa-utensils',
-            svago: 'fa-gamepad',
-            bollette: 'fa-file-invoice-dollar',
-            sport: 'fa-dumbbell',
-            palestra: 'fa-dumbbell',
-            casa: 'fa-house',
-            affitto: 'fa-house',
-            trasporti: 'fa-car-side',
-            auto: 'fa-car',
-            benzina: 'fa-gas-pump',
-            streaming: 'fa-tv',
-            musica: 'fa-music',
-            salute: 'fa-heart-pulse',
-            farmacia: 'fa-pills',
-            viaggi: 'fa-plane',
-            vacanze: 'fa-umbrella-beach',
-            shopping: 'fa-bag-shopping',
-            regali: 'fa-gift',
-            telefono: 'fa-mobile-screen-button',
-            internet: 'fa-wifi',
-            abbonamenti: 'fa-repeat',
-            investimenti: 'fa-chart-line'
-        };
-
-        function normalizeTag(tag) {
-            return String(tag || '').toLowerCase().trim();
-        }
-
-        function getTagIcon(tag) {
-            const normalized = normalizeTag(tag);
-            if (tagIcons[normalized]) return tagIcons[normalized];
-
-            // Per tag personalizzati prova a riconoscere parole chiave comuni.
-            for (const [keyword, icon] of Object.entries(tagIcons)) {
-                if (normalized.includes(keyword)) return icon;
-            }
-            return 'fa-tag';
-        }
-
-        const defaultData = {
-            balance: 3184.51,
-            transactions: [
-                { id: 1, type: 'INCOME', amount: 1800.00, tag: 'stipendio', description: 'Stipendio Mese', timestamp: '2026-09-01T09:00:00' },
-                { id: 2, type: 'EXPENSE', amount: 12.99, tag: 'streaming', description: 'Abbonamento: Netflix', timestamp: '2026-09-01T10:15:00' },
-                { id: 3, type: 'EXPENSE', amount: 45.00, tag: 'sport', description: 'Abbonamento: Palestra', timestamp: '2026-09-01T10:15:00' },
-                { id: 4, type: 'EXPENSE', amount: 42.50, tag: 'spesa', description: 'Supermercato Conad', timestamp: '2026-09-05T18:30:00' },
-                { id: 5, type: 'EXPENSE', amount: 15.00, tag: 'ristorante', description: 'Pizza con amici', timestamp: '2026-09-07T21:00:00' }
-            ],
-            subscriptions: [
-                { id: 1, name: 'Netflix', amount: 12.99, tag: 'streaming', day: 1, lastChargedMonth: '2026-09' },
-                { id: 2, name: 'Palestra', amount: 45.00, tag: 'sport', day: 1, lastChargedMonth: '2026-09' },
-                { id: 3, name: 'Spotify', amount: 9.99, tag: 'musica', day: 15, lastChargedMonth: '' }
-            ]
-        };
-
-        function createEmptyData() {
-            return { balance: 0, transactions: [], subscriptions: [] };
-        }
-
-        function cloneData(data) {
-            return JSON.parse(JSON.stringify(data));
-        }
-
-        let state = createEmptyData();
-
-        function storageKey() {
-            return currentUser ? `${STORAGE_KEY_PREFIX}${currentUser.id}` : null;
-        }
-
-        function loadLocalData() {
-            const key = storageKey();
-            if (!key) return createEmptyData();
-            try {
-                const saved = localStorage.getItem(key);
-                if (saved) return JSON.parse(saved);
-            } catch (e) {
-                console.error('Error loading local data', e);
-            }
-            return createEmptyData();
-        }
-
-        function cacheLocalData() {
-            const key = storageKey();
-            if (!key || !currentUser) return;
-            localStorage.setItem(key, JSON.stringify(state));
-        }
-
-        function saveData() {
-            if (!currentUser) return;
-            cacheLocalData();
-            renderApp();
-            syncToCloud();
-        }
-
-        // --- SUPABASE AUTH + CLOUD SYNC + REALTIME ---
-        let isPasswordRecoveryMode = false;
-
-        function showAuthMode(mode) {
-            const login = document.getElementById('login-form');
-            const register = document.getElementById('register-form');
-            const forgot = document.getElementById('forgot-password-form');
-            const reset = document.getElementById('reset-password-form');
-            const tabs = document.getElementById('auth-tab-login')?.parentElement;
-            const loginTab = document.getElementById('auth-tab-login');
-            const registerTab = document.getElementById('auth-tab-register');
-
-            login.classList.add('hidden');
-            register.classList.add('hidden');
-            forgot?.classList.add('hidden');
-            reset?.classList.add('hidden');
-
-            if (tabs) tabs.classList.remove('hidden');
-
-            if (mode === 'login') {
-                isPasswordRecoveryMode = false;
-                login.classList.remove('hidden');
-                loginTab.className = 'flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition';
-                registerTab.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition';
-            } else if (mode === 'register') {
-                isPasswordRecoveryMode = false;
-                register.classList.remove('hidden');
-                loginTab.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition';
-                registerTab.className = 'flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition';
-            } else if (mode === 'forgot') {
-                forgot?.classList.remove('hidden');
-                if (tabs) tabs.classList.add('hidden');
-            } else if (mode === 'reset') {
-                isPasswordRecoveryMode = true;
-                reset?.classList.remove('hidden');
-                if (tabs) tabs.classList.add('hidden');
-            }
-
-            clearAuthMessage();
-        }
-
-        function showForgotPasswordForm() {
-            const loginEmail = document.getElementById('login-email')?.value.trim();
-            showAuthMode('forgot');
-            if (loginEmail) document.getElementById('forgot-email').value = loginEmail;
-        }
-
-        function showAuthMessage(message, type = 'error') {
-            const box = document.getElementById('auth-message');
-            box.textContent = message;
-            box.className = type === 'success'
-                ? 'mt-4 p-3 rounded-xl text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-300'
-                : 'mt-4 p-3 rounded-xl text-xs font-medium bg-rose-500/10 border border-rose-500/20 text-rose-300';
-        }
-
-        function clearAuthMessage() {
-            const box = document.getElementById('auth-message');
-            box.className = 'hidden mt-4 p-3 rounded-xl text-xs font-medium';
-            box.textContent = '';
-        }
-
-        function setAuthLoading(buttonId, loading, normalText) {
-            const button = document.getElementById(buttonId);
-            if (!button) return;
-            button.disabled = loading;
-            button.textContent = loading ? 'Attendere...' : normalText;
-            button.classList.toggle('opacity-60', loading);
-        }
-
-        function validateSupabaseConfig() {
-            return SUPABASE_CONFIG.url &&
-                   SUPABASE_CONFIG.anonKey &&
-                   !SUPABASE_CONFIG.url.includes('INSERISCI_') &&
-                   !SUPABASE_CONFIG.anonKey.includes('INSERISCI_');
-        }
-
-        async function initSupabase() {
-            if (!validateSupabaseConfig()) {
-                updateCloudBadge('error');
-                showAuthMessage('Configura SUPABASE_CONFIG nel file HTML con Project URL e anon/publishable key.', 'error');
-                return;
-            }
-
-            try {
-                supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-
-                const { data, error } = await supabaseClient.auth.getSession();
-                if (error) throw error;
-
-                const recoveryHint =
-                    window.location.hash.includes('type=recovery') ||
-                    window.location.search.includes('type=recovery');
-
-                if (data.session?.user && !recoveryHint) {
-                    await handleAuthenticatedUser(data.session.user);
-                } else {
-                    if (recoveryHint) {
-                        isPasswordRecoveryMode = true;
-                        currentUser = data.session?.user || null;
-                        showAuthMode('reset');
-                    }
-                    showAuthScreen();
-                    updateCloudBadge('local');
-                }
-
-                supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                    if (event === 'PASSWORD_RECOVERY') {
-                        isPasswordRecoveryMode = true;
-                        currentUser = session?.user || null;
-                        showAuthScreen();
-                        showAuthMode('reset');
-                        showAuthMessage('Link di recupero verificato. Inserisci la tua nuova password.', 'success');
-                    } else if (event === 'SIGNED_IN' && session?.user && !isPasswordRecoveryMode) {
-                        await handleAuthenticatedUser(session.user);
-                    } else if (event === 'SIGNED_OUT') {
-                        handleSignedOut();
-                    }
-                });
-            } catch (err) {
-                console.error('Supabase initialization error:', err);
-                updateCloudBadge('error');
-                showAuthMessage('Impossibile collegarsi a Supabase. Controlla Project URL e anon/publishable key.');
-            }
-        }
-
-        async function handleAuthenticatedUser(user) {
-            currentUser = user;
-            currentProfile = null;
-            state = loadLocalData();
-            hideAuthScreen();
-            updateCloudBadge('cloud');
-            renderApp();
-
-            await loadProfile();
-            updateProfileUI();
-            await loadFromCloud();
-            subscribeToRealtime();
-            processSubscriptions(false);
-            renderApp();
-        }
-
-        function handleSignedOut() {
-            if (realtimeChannel && supabaseClient) {
-                supabaseClient.removeChannel(realtimeChannel);
-                realtimeChannel = null;
-            }
-            currentUser = null;
-            currentProfile = null;
-            state = createEmptyData();
-            showAuthScreen();
-            updateCloudBadge('local');
-        }
-
-        function showAuthScreen() {
-            document.getElementById('auth-screen')?.classList.remove('hidden');
-        }
-
-        function hideAuthScreen() {
-            document.getElementById('auth-screen')?.classList.add('hidden');
-        }
-
-        async function registerUser(event) {
-            event.preventDefault();
-            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
-
-            const username = document.getElementById('register-username').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const password = document.getElementById('register-password').value;
-
-            if (username.length < 2) return showAuthMessage('Lo username deve contenere almeno 2 caratteri.');
-            if (password.length < 6) return showAuthMessage('La password deve contenere almeno 6 caratteri.');
-
-            setAuthLoading('register-submit', true, 'Crea account');
-            clearAuthMessage();
-
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: { username }
-                    }
-                });
-
-                if (error) throw error;
-
-                if (data.session) {
-                    showAuthMessage('Account creato. Accesso effettuato!', 'success');
-                } else {
-                    clearAuthMessage();
-                    document.getElementById('register-form')?.reset();
-                    showEmailConfirmationModal(email);
-                }
-            } catch (err) {
-                console.error(err);
-                showAuthMessage(authErrorMessage(err));
-            } finally {
-                setAuthLoading('register-submit', false, 'Crea account');
-            }
-        }
-
-        async function loginUser(event) {
-            event.preventDefault();
-            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
-
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-
-            setAuthLoading('login-submit', true, 'Accedi');
-            clearAuthMessage();
-
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                if (data.user) await handleAuthenticatedUser(data.user);
-            } catch (err) {
-                console.error(err);
-                showAuthMessage(authErrorMessage(err));
-            } finally {
-                setAuthLoading('login-submit', false, 'Accedi');
-            }
-        }
-
-
-        function getPasswordResetRedirectUrl() {
-            // Mantiene il percorso GitHub Pages corrente ma rimuove query/hash.
-            return window.location.origin + window.location.pathname;
-        }
-
-        async function requestPasswordReset(event) {
-            event.preventDefault();
-            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
-
-            const email = document.getElementById('forgot-email').value.trim();
-            if (!email) return;
-
-            setAuthLoading('forgot-submit', true, 'Invia email di recupero');
-            clearAuthMessage();
-
-            try {
-                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: getPasswordResetRedirectUrl()
-                });
-                if (error) throw error;
-
-                showAuthMessage(
-                    `Se l'indirizzo ${email} è associato a un account, riceverai una mail con il link per reimpostare la password.`,
-                    'success'
-                );
-            } catch (err) {
-                console.error(err);
-                showAuthMessage(authErrorMessage(err));
-            } finally {
-                setAuthLoading('forgot-submit', false, 'Invia email di recupero');
-            }
-        }
-
-        async function saveNewPassword(event) {
-            event.preventDefault();
-            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
-
-            const password = document.getElementById('reset-password').value;
-            const confirmPassword = document.getElementById('reset-password-confirm').value;
-
-            if (password.length < 6) {
-                return showAuthMessage('La nuova password deve contenere almeno 6 caratteri.');
-            }
-            if (password !== confirmPassword) {
-                return showAuthMessage('Le due password non coincidono.');
-            }
-
-            setAuthLoading('reset-submit', true, 'Salva nuova password');
-            clearAuthMessage();
-
-            try {
-                const { error } = await supabaseClient.auth.updateUser({ password });
-                if (error) throw error;
-
-                isPasswordRecoveryMode = false;
-                document.getElementById('reset-password-form')?.reset();
-                showAuthMessage('Password aggiornata correttamente. Ora puoi continuare a usare il tuo account.', 'success');
-
-                // Rimuove i token di recovery dall'URL senza ricaricare la pagina.
-                if (window.history?.replaceState) {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-
-                const { data } = await supabaseClient.auth.getUser();
-                if (data?.user) {
-                    setTimeout(() => handleAuthenticatedUser(data.user), 900);
-                } else {
-                    setTimeout(() => showAuthMode('login'), 900);
-                }
-            } catch (err) {
-                console.error(err);
-                showAuthMessage(authErrorMessage(err));
-            } finally {
-                setAuthLoading('reset-submit', false, 'Salva nuova password');
-            }
-        }
-
-        async function logoutUser() {
-            if (!supabaseClient) return;
-            try {
-                await supabaseClient.auth.signOut();
-                closeModal('modal-settings');
-            } catch (err) {
-                console.error(err);
-                showToast('Errore durante il logout.');
-            }
-        }
-
-        function authErrorMessage(err) {
-            const msg = (err?.message || '').toLowerCase();
-            if (msg.includes('invalid login credentials')) return 'Email o password non corretti.';
-            if (msg.includes('email not confirmed')) return 'Devi prima confermare il tuo indirizzo email.';
-            if (msg.includes('password should be at least')) return 'La password è troppo corta.';
-            if (msg.includes('same password')) return 'Scegli una password diversa da quella attuale.';
-            if (msg.includes('otp expired') || msg.includes('token has expired')) return 'Il link di recupero è scaduto. Richiedine uno nuovo.';
-            if (msg.includes('user already registered')) return 'Esiste già un account con questa email.';
-            if (msg.includes('password')) return 'La password non rispetta i requisiti di Supabase.';
-            return err?.message || 'Si è verificato un errore. Riprova.';
-        }
-
-        async function loadFromCloud() {
-            if (!supabaseClient || !currentUser || isLoadingCloud) return;
-            isLoadingCloud = true;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('finance_store')
-                    .select('data')
-                    .eq('id', 'main_data')
-                    .eq('user_id', currentUser.id)
-                    .maybeSingle();
-
-                if (error) throw error;
-
-                if (data?.data) {
-                    state = data.data;
-                    cacheLocalData();
-                    renderApp();
-                } else {
-                    state = loadLocalData();
-                    await syncToCloud();
-                }
-            } catch (e) {
-                console.error('Error reading Cloud:', e);
-                updateCloudBadge('error');
-                showToast('Errore nella sincronizzazione Cloud.');
-            } finally {
-                isLoadingCloud = false;
-            }
-        }
-
-        async function syncToCloud() {
-            if (!supabaseClient || !currentUser || isLoadingCloud) return;
-            try {
-                const { error } = await supabaseClient
-                    .from('finance_store')
-                    .upsert({
-                        id: 'main_data',
-                        user_id: currentUser.id,
-                        data: state,
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: 'id,user_id' });
-
-                if (error) throw error;
-                updateCloudBadge('cloud');
-            } catch (e) {
-                console.error('Error saving Cloud:', e);
-                updateCloudBadge('error');
-            }
-        }
-
-        function subscribeToRealtime() {
-            if (!supabaseClient || !currentUser) return;
-
-            if (realtimeChannel) {
-                supabaseClient.removeChannel(realtimeChannel);
-                realtimeChannel = null;
-            }
-
-            realtimeChannel = supabaseClient
-                .channel(`finance_store_${currentUser.id}`)
-                .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: 'finance_store',
-                    filter: `user_id=eq.${currentUser.id}`
-                }, payload => {
-                    if (!payload.new || payload.new.user_id !== currentUser.id) return;
-                    if (payload.new.data) {
-                        state = payload.new.data;
-                        cacheLocalData();
-                        processSubscriptions(false);
-                        renderApp();
-                    }
-                })
-                .subscribe((status) => {
-                    if (status === 'SUBSCRIBED') updateCloudBadge('cloud');
-                });
-        }
-
-        async function loadProfile() {
-            if (!supabaseClient || !currentUser) return null;
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .select('id, username, email, created_at')
-                    .eq('id', currentUser.id)
-                    .maybeSingle();
-
-                if (error) throw error;
-
-                currentProfile = data || null;
-                return currentProfile;
-            } catch (err) {
-                console.error('Error loading profile:', err);
-                currentProfile = null;
-                showToast('Profilo non disponibile. I dati finanziari restano accessibili.');
-                return null;
-            }
-        }
-
-        function updateProfileUI() {
-            if (!currentUser) return;
-
-            const username = currentProfile?.username
-                || currentUser.user_metadata?.username
-                || currentUser.email?.split('@')[0]
-                || 'Utente';
-
-            const email = currentProfile?.email
-                || currentUser.email
-                || '';
-
-            const usernameEl = document.getElementById('profile-username');
-            const emailEl = document.getElementById('profile-email');
-
-            if (usernameEl) usernameEl.textContent = username;
-            if (emailEl) emailEl.textContent = email;
-        }
-
-        function updateCloudBadge(status) {
-            const badge = document.getElementById('cloud-badge');
-            if (!badge) return;
-
-            if (status === 'cloud') {
-                badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Attivo`;
-            } else if (status === 'error') {
-                badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20";
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Errore Cloud`;
-            } else {
-                badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Locale (No Cloud)`;
-            }
-        }
-
-        function renderApp() {
-            renderBalance();
-            renderDashboardRecent();
-            renderTransactions();
-            renderSubscriptions();
-            renderPresetTags();
-            checkSubscriptionBanner();
-        }
-
-        function togglePrivacy() {
-            isPrivacyActive = !isPrivacyActive;
-            const btn = document.getElementById('privacy-btn');
-            btn.innerHTML = isPrivacyActive ? '<i class="fa-solid fa-eye-slash text-sm text-brand-500"></i>' : '<i class="fa-solid fa-eye text-sm"></i>';
-            renderBalance();
-            renderDashboardRecent();
-            renderTransactions();
-        }
-
-        function formatMoney(amount) {
-            if (isPrivacyActive) return '€ ••••';
-            return '€ ' + amount.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function renderBalance() {
-            document.getElementById('total-balance').textContent = formatMoney(state.balance);
-
-            const now = new Date();
-            const currentYearMonth = now.toISOString().slice(0, 7);
-
-            let income = 0;
-            let expense = 0;
-
-            state.transactions.forEach(t => {
-                if (t.timestamp.startsWith(currentYearMonth)) {
-                    if (t.type === 'INCOME') income += t.amount;
-                    if (t.type === 'EXPENSE') expense += t.amount;
-                }
-            });
-
-            document.getElementById('month-income').textContent = formatMoney(income);
-            document.getElementById('month-expenses').textContent = formatMoney(expense);
-        }
-
-        function renderDashboardRecent() {
-            const container = document.getElementById('dashboard-recent-list');
-            container.innerHTML = '';
-
-            const recent = [...state.transactions]
-                .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 4);
-
-            if (recent.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Nessuna transazione registrata.</p>`;
-                return;
-            }
-
-            recent.forEach(t => {
-                container.appendChild(createTransactionCard(t));
-            });
-        }
-
-        function renderTransactions() {
-            const container = document.getElementById('full-transactions-list');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const search = document.getElementById('search-input')?.value.toLowerCase() || '';
-            const typeFilter = document.getElementById('filter-type')?.value || 'ALL';
-
-            let filtered = state.transactions.filter(t => {
-                const matchesSearch = t.tag.toLowerCase().includes(search) || (t.description && t.description.toLowerCase().includes(search));
-                const matchesType = typeFilter === 'ALL' || t.type === typeFilter;
-                return matchesSearch && matchesType;
-            });
-
-            filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Nessun movimento trovato.</p>`;
-                return;
-            }
-
-            filtered.forEach(t => {
-                container.appendChild(createTransactionCard(t, true));
-            });
-        }
-
-        function createTransactionCard(t, allowDelete = false) {
-            const div = document.createElement('div');
-            div.className = 'glass-card p-3.5 rounded-2xl flex items-center justify-between gap-3 border border-slate-800/80 hover:border-slate-700 transition';
-
-            const isIncome = t.type === 'INCOME';
-            const iconClass = isIncome
-                ? 'text-emerald-400 bg-emerald-500/10'
-                : 'text-rose-400 bg-rose-500/10';
-            const amountColor = isIncome ? 'text-emerald-400' : 'text-slate-100';
-            const sign = isIncome ? '+' : '-';
-            const tagIcon = getTagIcon(t.tag);
-
-            const dateObj = new Date(t.timestamp);
-            const formattedDate = dateObj.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) + ' ' + dateObj.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-
-            div.innerHTML = `
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-9 h-9 rounded-xl ${iconClass} flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid ${tagIcon}"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs font-bold text-white truncate">${t.description || '#' + t.tag}</p>
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <span class="text-[10px] text-slate-400">${formattedDate}</span>
-                            <span class="text-[10px] px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded-md inline-flex items-center gap-1">
-                                <i class="fa-solid ${tagIcon} text-[9px]"></i>
-                                #${t.tag}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1 flex-shrink-0">
-                    <span class="text-xs font-bold ${amountColor} mr-1">${sign}${formatMoney(t.amount)}</span>
-                    <button onclick="openEditTransaction(${t.id})" class="p-2 text-slate-500 hover:text-brand-400 text-xs transition rounded-lg hover:bg-slate-800/60" title="Modifica Transazione">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    ${allowDelete ? `
-                        <button onclick="deleteTransaction(${t.id})" class="p-2 text-slate-500 hover:text-rose-400 text-xs transition rounded-lg hover:bg-slate-800/60" title="Elimina Transazione">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            `;
-            return div;
-        }
-
-        function renderSubscriptions() {
-            const container = document.getElementById('subscriptions-list');
-            if (!container) return;
-            container.innerHTML = '';
-
-            let totalSubs = 0;
-            const currentMonth = new Date().toISOString().slice(0, 7);
-
-            if (state.subscriptions.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6 col-span-full">Nessun abbonamento salvato.</p>`;
-                document.getElementById('total-subs-amount').textContent = `€ 0.00 /mese`;
-                return;
-            }
-
-            state.subscriptions.forEach(s => {
-                totalSubs += s.amount;
-                const isCharged = s.lastChargedMonth === currentMonth;
-
-                const card = document.createElement('div');
-                card.className = 'glass-card p-4 rounded-2xl border border-slate-800/80 flex flex-col justify-between gap-3 relative group';
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="text-sm font-bold text-white">${s.name}</h4>
-                            <span class="text-[10px] px-2 py-0.5 bg-slate-800 text-slate-300 rounded-full font-medium">#${s.tag}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-extrabold text-white">€ ${s.amount.toFixed(2)}</span>
-                            <button onclick="deleteSubscription(${s.id})" class="p-1.5 text-slate-500 hover:text-rose-400 text-xs transition rounded-lg hover:bg-slate-800/80" title="Elimina Abbonamento">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-800/60 text-xs">
-                        <span class="text-[11px] text-slate-400">Giorno addebito: <strong class="text-slate-200">${s.day}</strong></span>
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${isCharged ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
-                            ${isCharged ? 'Addebitato' : 'Da addebitare'}
-                        </span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-
-            document.getElementById('total-subs-amount').textContent = `€ ${totalSubs.toFixed(2)} /mese`;
-        }
-
-        function renderPresetTags() {
-            const container = document.getElementById('preset-tags');
-            if (!container) return;
-            container.innerHTML = '';
-
-            defaultTags.forEach(tag => {
-                const pill = document.createElement('button');
-                pill.type = 'button';
-                pill.className = 'px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition flex items-center gap-1.5';
-                pill.innerHTML = `<i class="fa-solid ${getTagIcon(tag)} text-[10px]"></i><span>#${tag}</span>`;
-                pill.onclick = () => {
-                    document.getElementById('trans-tag').value = tag;
-                };
-                container.appendChild(pill);
-            });
-        }
-
-        function populateSubscriptionTagOptions() {
-            const select = document.getElementById('sub-tag');
-            if (!select) return;
-
-            const currentValue = select.value;
-            select.innerHTML = '<option value="">Seleziona un tag</option>';
-
-            defaultTags.forEach(tag => {
-                const option = document.createElement('option');
-                option.value = tag;
-                option.textContent = `#${tag}`;
-                select.appendChild(option);
-            });
-
-            if (currentValue && defaultTags.includes(currentValue)) {
-                select.value = currentValue;
-            }
-        }
-
-        function checkSubscriptionBanner() {
-            const today = new Date();
-            const currentMonth = today.toISOString().slice(0, 7);
-            const currentDay = today.getDate();
-
-            // Mostra il banner se ci sono abbonamenti del mese non ancora addebitati ma con giorno di addebito già giunto/superato
-            const pending = state.subscriptions.some(s => s.lastChargedMonth !== currentMonth && currentDay >= s.day);
-            const banner = document.getElementById('sub-check-banner');
-            if (banner) {
-                if (pending) {
-                    banner.classList.remove('hidden');
-                } else {
-                    banner.classList.add('hidden');
-                }
-            }
-        }
-
-        function openAddModal(type) {
-            const form = document.getElementById('trans-form');
-            form.reset();
-
-            document.getElementById('trans-edit-id').value = '';
-            document.getElementById('modal-trans-title').textContent = 'Nuova Transazione';
-            document.getElementById('trans-submit-btn').textContent = 'Salva Transazione';
-
-            setTransType(type);
-
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('trans-datetime').value = now.toISOString().slice(0, 16);
-
-            document.getElementById('modal-transaction').classList.remove('hidden');
-        }
-
-        function openEditTransaction(id) {
-            const transaction = state.transactions.find(t => t.id === id);
-            if (!transaction) return;
-
-            document.getElementById('trans-edit-id').value = String(transaction.id);
-            document.getElementById('modal-trans-title').textContent = 'Modifica Transazione';
-            document.getElementById('trans-submit-btn').textContent = 'Salva Modifiche';
-
-            setTransType(transaction.type);
-            document.getElementById('trans-amount').value = transaction.amount;
-            document.getElementById('trans-tag').value = transaction.tag || '';
-            document.getElementById('trans-desc').value = transaction.description || '';
-
-            const date = new Date(transaction.timestamp);
-            if (!isNaN(date.getTime())) {
-                const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-                document.getElementById('trans-datetime').value = localDate.toISOString().slice(0, 16);
-            } else {
-                document.getElementById('trans-datetime').value = transaction.timestamp || '';
-            }
-
-            document.getElementById('modal-transaction').classList.remove('hidden');
-        }
-
-        function setTransType(type) {
-            document.getElementById('trans-type').value = type;
-            const btnExpense = document.getElementById('btn-type-expense');
-            const btnIncome = document.getElementById('btn-type-income');
-
-            if (type === 'EXPENSE') {
-                btnExpense.className = 'py-2 rounded-lg text-xs font-bold bg-rose-600 text-white transition';
-                btnIncome.className = 'py-2 rounded-lg text-xs font-bold text-slate-400 transition';
-            } else {
-                btnIncome.className = 'py-2 rounded-lg text-xs font-bold bg-emerald-600 text-white transition';
-                btnExpense.className = 'py-2 rounded-lg text-xs font-bold text-slate-400 transition';
-            }
-        }
-
-        function handleSaveTransaction(e) {
-            e.preventDefault();
-
-            const editIdRaw = document.getElementById('trans-edit-id').value;
-            const type = document.getElementById('trans-type').value;
-            const amount = parseFloat(document.getElementById('trans-amount').value);
-            const tag = normalizeTag(document.getElementById('trans-tag').value);
-            const desc = document.getElementById('trans-desc').value.trim();
-            const datetime = document.getElementById('trans-datetime').value;
-
-            if (isNaN(amount) || amount <= 0 || !tag || !datetime) return;
-
-            if (editIdRaw) {
-                const editId = Number(editIdRaw);
-                const index = state.transactions.findIndex(t => t.id === editId);
-
-                if (index !== -1) {
-                    const oldTransaction = state.transactions[index];
-
-                    // Annulla l'effetto della vecchia transazione sul saldo.
-                    if (oldTransaction.type === 'INCOME') state.balance -= oldTransaction.amount;
-                    if (oldTransaction.type === 'EXPENSE') state.balance += oldTransaction.amount;
-
-                    const updatedTransaction = {
-                        ...oldTransaction,
-                        type,
-                        amount,
-                        tag,
-                        description: desc,
-                        timestamp: datetime
-                    };
-
-                    state.transactions[index] = updatedTransaction;
-
-                    // Applica l'effetto dei nuovi valori sul saldo.
-                    if (type === 'INCOME') state.balance += amount;
-                    if (type === 'EXPENSE') state.balance -= amount;
-
-                    saveData();
-                    closeModal('modal-transaction');
-                    document.getElementById('trans-form').reset();
-                    document.getElementById('trans-edit-id').value = '';
-                    showToast('Transazione modificata!');
-                    return;
-                }
-            }
-
-            const newTrans = {
-                id: Date.now(),
-                type,
-                amount,
-                tag,
-                description: desc,
-                timestamp: datetime
-            };
-
-            state.transactions.push(newTrans);
-
-            if (type === 'INCOME') state.balance += amount;
-            if (type === 'EXPENSE') state.balance -= amount;
-
-            saveData();
-            closeModal('modal-transaction');
-            showToast(type === 'INCOME' ? 'Entrata registrata!' : 'Spesa registrata!');
-
-            document.getElementById('trans-form').reset();
-            document.getElementById('trans-edit-id').value = '';
-        }
-
-        function deleteTransaction(id) {
-            const index = state.transactions.findIndex(t => t.id === id);
-            if (index !== -1) {
-                const t = state.transactions[index];
-                if (t.type === 'INCOME') state.balance -= t.amount;
-                if (t.type === 'EXPENSE') state.balance += t.amount;
-
-                state.transactions.splice(index, 1);
-                saveData();
-                showToast('Transazione eliminata');
-            }
-        }
-
-        function deleteSubscription(id) {
-            const index = state.subscriptions.findIndex(s => s.id === id);
-            if (index !== -1) {
-                const sub = state.subscriptions[index];
-                state.subscriptions.splice(index, 1);
-                saveData();
-                showToast(`Abbonamento '${sub.name}' rimosso`);
-            }
-        }
-
-        function openAddSubModal() {
-            const form = document.getElementById('sub-form');
-            if (form) form.reset();
-            populateSubscriptionTagOptions();
-            document.getElementById('modal-sub').classList.remove('hidden');
-        }
-
-        function handleSaveSubscription(e) {
-            e.preventDefault();
-            const name = document.getElementById('sub-name').value.trim();
-            const amount = parseFloat(document.getElementById('sub-amount').value);
-            const day = parseInt(document.getElementById('sub-day').value);
-            const tag = document.getElementById('sub-tag').value.toLowerCase().trim();
-
-            if (!name || isNaN(amount) || amount <= 0 || !tag || !defaultTags.includes(tag)) {
-                showToast('Seleziona un tag valido per l\'abbonamento.');
-                return;
-            }
-
-            const newSub = {
-                id: Date.now(),
-                name: name,
-                amount: amount,
-                day: day,
-                tag: tag,
-                lastChargedMonth: ''
-            };
-
-            state.subscriptions.push(newSub);
-
-            // Salva subito il nuovo abbonamento (persiste su localStorage e aggiorna la UI),
-            // indipendentemente dal fatto che venga addebitato subito o meno
-            saveData();
-
-            closeModal('modal-sub');
-            document.getElementById('sub-form').reset();
-
-            // Addebita subito se il giorno del mese corrente è già giunto o passato
-            processSubscriptions(true);
-            showToast('Abbonamento aggiunto!');
-        }
-
-        // Processa gli addebiti automatici degli abbonamenti
-        function processSubscriptions(showToastIfNone = false) {
-            const today = new Date();
-            const currentYearMonth = today.toISOString().slice(0, 7);
-            const currentDay = today.getDate();
-            let processedCount = 0;
-
-            state.subscriptions.forEach(s => {
-                // Se non è stato ancora addebitato per questo mese E il giorno del mese è già passato o è oggi
-                if (s.lastChargedMonth !== currentYearMonth && currentDay >= s.day) {
-                    // Crea la data specifica dell'addebito
-                    const year = today.getFullYear();
-                    const month = String(today.getMonth() + 1).padStart(2, '0');
-                    const dayStr = String(s.day).padStart(2, '0');
-                    const chargeTimestamp = `${year}-${month}-${dayStr}T00:00:00`;
-
-                    state.transactions.push({
-                        id: Date.now() + Math.random(),
-                        type: 'EXPENSE',
-                        amount: s.amount,
-                        tag: s.tag,
-                        description: `Abbonamento: ${s.name}`,
-                        timestamp: chargeTimestamp
-                    });
-
-                    state.balance -= s.amount;
-                    s.lastChargedMonth = currentYearMonth;
-                    processedCount++;
-                }
-            });
-
-            if (processedCount > 0) {
-                saveData();
-                showToast(`${processedCount} abbonamento/i addebitato/i!`);
-            } else if (showToastIfNone) {
-                showToast('Tutti gli abbonamenti del mese sono aggiornati.');
-            }
-        }
-
-        function renderChart() {
-            const canvas = document.getElementById('expenseChart');
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-            const now = new Date().toISOString().slice(0, 7);
-
-            const tagTotals = {};
-            state.transactions.forEach(t => {
-                if (t.type === 'EXPENSE' && t.timestamp.startsWith(now)) {
-                    tagTotals[t.tag] = (tagTotals[t.tag] || 0) + t.amount;
-                }
-            });
-
-            const labels = Object.keys(tagTotals).map(t => '#' + t);
-            const data = Object.values(tagTotals);
-
-            if (myChart) myChart.destroy();
-
-            if (data.length === 0) {
-                const breakdownList = document.getElementById('tag-breakdown-list');
-                if (breakdownList) breakdownList.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">Nessuna spesa per questo mese.</p>`;
-                return;
-            }
-
-            const colors = ['#10b981', '#f43f5e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1'];
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors.slice(0, data.length),
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#94a3b8',
-                                font: { size: 11, family: 'Inter' }
-                            }
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-
-            const breakdownList = document.getElementById('tag-breakdown-list');
-            if (breakdownList) {
-                breakdownList.innerHTML = '';
-                const totalExpenseMonth = data.reduce((a,b) => a+b, 0);
-
-                Object.keys(tagTotals).forEach((tag, idx) => {
-                    const amt = tagTotals[tag];
-                    const percentage = ((amt / totalExpenseMonth) * 100).toFixed(1);
-
-                    const row = document.createElement('div');
-                    row.className = 'flex items-center justify-between text-xs';
-                    row.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${colors[idx % colors.length]}"></span>
-                            <span class="font-semibold text-slate-200">#${tag}</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-slate-400 font-medium">${percentage}%</span>
-                            <span class="font-bold text-white">€ ${amt.toFixed(2)}</span>
-                        </div>
-                    `;
-                    breakdownList.appendChild(row);
-                });
-            }
-        }
-
-        function switchTab(tabName) {
-            ['dashboard', 'transactions', 'subscriptions', 'stats'].forEach(t => {
-                document.getElementById(`view-${t}`).classList.add('hidden');
-                const navBtn = document.getElementById(`nav-${t}`);
-                if (navBtn) {
-                    navBtn.className = 'flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition';
-                }
-            });
-
-            document.getElementById(`view-${tabName}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`nav-${tabName}`);
-            if (activeBtn) {
-                activeBtn.className = 'flex flex-col items-center gap-1 p-2 text-brand-500 font-semibold transition';
-            }
-
-            if (tabName === 'stats') {
-                renderChart();
-            }
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function openSettingsModal() {
-            document.getElementById('settings-balance').value = Number(state.balance || 0).toFixed(2);
-            updateProfileUI();
-            document.getElementById('modal-settings').classList.remove('hidden');
-        }
-
-        function updateBalanceFromSettings() {
-            const val = parseFloat(document.getElementById('settings-balance').value);
-            if (!isNaN(val)) {
-                state.balance = val;
-                saveData();
-                closeModal('modal-settings');
-                showToast('Saldo aggiornato!');
-            }
-        }
-
-
-        function showEmailConfirmationModal(email) {
-            const modal = document.getElementById('modal-email-confirmation');
-            const emailEl = document.getElementById('confirmation-email-address');
-
-            if (emailEl) emailEl.textContent = email || '';
-            if (!modal) return;
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeEmailConfirmationModal() {
-            const modal = document.getElementById('modal-email-confirmation');
-            if (!modal) return;
-
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            showAuthMode('login');
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            toast.classList.remove('translate-y-[-150%]');
-            setTimeout(() => {
-                toast.classList.add('translate-y-[-150%]');
-            }, 2500);
-        }
-
-        function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `finanze_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importDataJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (parsed && typeof parsed.balance === 'number') {
-                        state = parsed;
-                        processSubscriptions(false);
-                        saveData();
-                        closeModal('modal-settings');
-                        showToast('Dati importati con successo!');
-                    } else {
-                        alert('File non valido.');
-                    }
-                } catch (err) {
-                    alert('Errore nella lettura del file JSON.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function resetAllData() {
-            if (confirm('Vuoi davvero ripristinare i dati iniziali di test? Tutti i tuoi inserimenti verranno sovrascritti.')) {
-                state = cloneData(defaultData);
-                saveData();
-                closeModal('modal-settings');
-                showToast('Dati ripristinati!');
-            }
-        }
-
-        window.onload = function() {
-            renderApp();
-            initSupabase();
-        };
-    </script>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-4">
+    <div class="glass rounded-2xl p-4">
+      <div class="flex justify-between"><h2 class="font-bold">Budget del mese</h2><button onclick="goPage('budgets')" class="text-xs text-emerald-400">Gestisci</button></div>
+      <div id="home-budgets" class="mt-3 space-y-3"></div>
+    </div>
+    <div class="glass rounded-2xl p-4">
+      <div class="flex justify-between"><h2 class="font-bold">Ultimi movimenti</h2><button onclick="goPage('transactions')" class="text-xs text-emerald-400">Vedi tutti</button></div>
+      <div id="recent-transactions" class="mt-3 space-y-2"></div>
+    </div>
+  </div>
+</section>
+
+<section id="page-transactions" class="page space-y-4">
+  <div class="flex flex-wrap gap-2 justify-between items-center">
+    <h2 class="text-xl font-bold">Movimenti</h2>
+    <div class="flex gap-2">
+      <button onclick="openTransactionModal('EXPENSE')" class="px-3 py-2 rounded-xl bg-rose-500/10 text-rose-400 text-xs font-bold"><i class="fa-solid fa-minus mr-1"></i> Spesa</button>
+      <button onclick="openTransactionModal('INCOME')" class="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Entrata</button>
+      <button onclick="openTransactionModal('INVESTMENT')" class="px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-bold"><i class="fa-solid fa-chart-line mr-1"></i> Investimento</button>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-3 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
+    <input id="filter-search" oninput="renderTransactions()" placeholder="Cerca descrizione..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <select id="filter-type" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+      <option value="">Tutti i tipi</option><option>INCOME</option><option>EXPENSE</option><option>INVESTMENT</option>
+    </select>
+    <select id="filter-category" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></select>
+    <input id="filter-from" type="date" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <input id="filter-to" type="date" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+  </div>
+  <div id="transactions-list" class="space-y-2"></div>
+</section>
+
+<section id="page-budgets" class="page space-y-4">
+  <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Budget</h2><button onclick="openBudgetModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Budget</button></div>
+  <div class="glass rounded-2xl p-3 flex items-center gap-3"><label class="text-xs text-slate-400">Mese</label><input id="budget-month" type="month" onchange="renderBudgets()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></div>
+  <div id="budgets-list" class="grid md:grid-cols-2 gap-3"></div>
+</section>
+
+<section id="page-wealth" class="page space-y-4">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Liquidità</p><p id="wealth-cash" class="money text-xl font-bold">€0</p></div>
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Asset</p><p id="wealth-assets" class="money text-xl font-bold text-cyan-400">€0</p></div>
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Patrimonio</p><p id="wealth-total" class="money text-xl font-bold text-emerald-400">€0</p></div>
+    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Risparmio mese</p><p id="wealth-saving" class="money text-xl font-bold">€0</p></div>
+  </div>
+  <div class="glass rounded-2xl p-4"><h3 class="font-bold mb-3">Patrimonio nel tempo</h3><div class="h-64"><canvas id="wealth-chart"></canvas></div></div>
+  <div class="flex justify-between items-center"><h3 class="font-bold">Asset</h3><button onclick="openAssetModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">+ Asset</button></div>
+  <div id="assets-list" class="grid md:grid-cols-2 gap-3"></div>
+</section>
+
+<section id="page-goals" class="page space-y-4">
+  <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Obiettivi</h2><button onclick="openGoalModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">+ Obiettivo</button></div>
+  <div id="goals-list" class="grid md:grid-cols-2 gap-3"></div>
+</section>
+
+<section id="page-more" class="page space-y-5">
+  <div class="grid lg:grid-cols-2 gap-4">
+    <div class="glass rounded-2xl p-4">
+      <div class="flex justify-between"><h3 class="font-bold">Abbonamenti</h3><button onclick="openSubscriptionModal()" class="text-xs text-emerald-400">+ Aggiungi</button></div>
+      <div id="subscriptions-list" class="mt-3 space-y-2"></div>
+    </div>
+    <div class="glass rounded-2xl p-4">
+      <div class="flex justify-between"><h3 class="font-bold">Categorie</h3><button onclick="openCategoryModal()" class="text-xs text-emerald-400">+ Aggiungi</button></div>
+      <div id="categories-list" class="mt-3 flex flex-wrap gap-2"></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h3 class="font-bold">Statistiche</h3>
+    <div id="stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3"></div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h3 class="font-bold mb-3">Dati e backup</h3>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="exportCSV()" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Esporta CSV</button>
+      <button onclick="exportBackup()" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Backup JSON</button>
+      <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa JSON<input id="import-json" type="file" accept=".json" class="hidden" onchange="importBackup(event)"></label>
+      <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa CSV<input id="import-csv" type="file" accept=".csv,text/csv" class="hidden" onchange="importCSV(event)"></label>
+    </div>
+    <p class="text-[11px] text-slate-500 mt-2">CSV atteso: data,tipo,importo,categoria,descrizione. Per formati bancari specifici servirà una mappatura dedicata.</p>
+  </div>
+</section>
+</main>
+
+<nav class="navglass fixed bottom-0 left-0 right-0 z-50">
+  <div class="max-w-3xl mx-auto grid grid-cols-6 px-2 py-2">
+    <button data-nav="home" onclick="goPage('home')" class="navbtn text-emerald-400 py-2 text-[10px]"><i class="fa-solid fa-house block text-base mb-1"></i>Home</button>
+    <button data-nav="transactions" onclick="goPage('transactions')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-list block text-base mb-1"></i>Movimenti</button>
+    <button data-nav="budgets" onclick="goPage('budgets')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-gauge-high block text-base mb-1"></i>Budget</button>
+    <button data-nav="wealth" onclick="goPage('wealth')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-chart-line block text-base mb-1"></i>Patrimonio</button>
+    <button data-nav="goals" onclick="goPage('goals')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-bullseye block text-base mb-1"></i>Obiettivi</button>
+    <button data-nav="more" onclick="goPage('more')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-ellipsis block text-base mb-1"></i>Altro</button>
+  </div>
+</nav>
+
+<!-- MODALI GENERICI -->
+<div id="transaction-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg max-h-[90vh] overflow-auto">
+    <div class="flex justify-between mb-4"><h3 id="transaction-title" class="font-bold">Movimento</h3><button onclick="closeModal('transaction-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form onsubmit="saveTransaction(event)" class="space-y-3">
+      <input id="tx-id" type="hidden"><input id="tx-type" type="hidden">
+      <input id="tx-amount" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <select id="tx-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
+      <input id="tx-description" placeholder="Descrizione" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="tx-date" type="datetime-local" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+    </form>
+  </div>
+</div>
+
+<div id="subscription-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Abbonamento</h3><button onclick="closeModal('subscription-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form onsubmit="saveSubscription(event)" class="space-y-3">
+      <input id="sub-id" type="hidden">
+      <input id="sub-name" required placeholder="Nome (es. Netflix)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="sub-amount" type="number" step="0.01" min="0.01" required placeholder="Importo mensile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <select id="sub-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
+      <input id="sub-day" type="number" min="1" max="31" required placeholder="Giorno addebito" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <label class="flex gap-2 text-sm"><input id="sub-active" type="checkbox" checked> Abbonamento attivo</label>
+      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+    </form>
+  </div>
+</div>
+
+<div id="category-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Categoria</h3><button onclick="closeModal('category-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form onsubmit="saveCategory(event)" class="space-y-3">
+      <input id="cat-id" type="hidden"><input id="cat-old-name" type="hidden">
+      <input id="cat-name" required placeholder="Nome categoria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <select id="cat-icon" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+        <option value="fa-tag">Tag</option><option value="fa-cart-shopping">Carrello</option><option value="fa-utensils">Ristorante</option>
+        <option value="fa-house">Casa</option><option value="fa-car-side">Trasporti</option><option value="fa-dumbbell">Sport</option>
+        <option value="fa-heart-pulse">Salute</option><option value="fa-plane">Viaggi</option><option value="fa-tv">Streaming</option>
+        <option value="fa-chart-line">Investimenti</option><option value="fa-gift">Regali</option><option value="fa-briefcase">Lavoro</option>
+      </select>
+      <input id="cat-color" type="color" value="#10b981" class="w-full h-11 bg-slate-950 border border-slate-800 rounded-xl px-2">
+      <select id="cat-kind" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+        <option value="expense">Spesa</option><option value="income">Entrata</option><option value="both">Entrata e spesa</option><option value="investment">Investimento</option>
+      </select>
+      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+    </form>
+  </div>
+</div>
+
+<div id="budget-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Budget mensile</h3><button onclick="closeModal('budget-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form onsubmit="saveBudget(event)" class="space-y-3">
+      <input id="budget-id" type="hidden">
+      <select id="budget-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
+      <input id="budget-form-month" type="month" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="budget-amount" type="number" step="0.01" min="0.01" required placeholder="Budget" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+    </form>
+  </div>
+</div>
+
+<div id="goal-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Obiettivo</h3><button onclick="closeModal('goal-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form onsubmit="saveGoal(event)" class="space-y-3">
+      <input id="goal-id" type="hidden">
+      <input id="goal-name" required placeholder="Nome obiettivo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="goal-target" type="number" step="0.01" min="0.01" required placeholder="Importo obiettivo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="goal-current" type="number" step="0.01" min="0" value="0" required placeholder="Già accantonato" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="goal-date" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+    </form>
+  </div>
+</div>
+
+<div id="asset-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Asset</h3><button onclick="closeModal('asset-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form onsubmit="saveAsset(event)" class="space-y-3">
+      <input id="asset-id" type="hidden">
+      <input id="asset-name" required placeholder="Nome asset" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <select id="asset-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+        <option value="investment">Investimento</option><option value="cash">Liquidità separata</option><option value="property">Immobile</option><option value="vehicle">Veicolo</option><option value="crypto">Crypto</option><option value="other">Altro</option>
+      </select>
+      <input id="asset-value" type="number" step="0.01" min="0" required placeholder="Valore attuale" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <textarea id="asset-notes" placeholder="Note" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></textarea>
+      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+    </form>
+  </div>
+</div>
+
+<div id="settings-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Impostazioni</h3><button onclick="closeModal('settings-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="space-y-4">
+      <div><label class="text-xs text-slate-400">Username</label><input id="settings-username" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
+      <div><label class="text-xs text-slate-400">Saldo iniziale</label><input id="settings-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
+      <button onclick="saveSettings()" class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva impostazioni</button>
+      <button onclick="authMode('reset-direct')" class="w-full py-3 bg-slate-800 rounded-xl text-sm">Cambia password</button>
+      <button onclick="logout()" class="w-full py-3 bg-rose-500/10 text-rose-400 rounded-xl text-sm font-bold">Esci</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal" class="modal fixed inset-0 z-[130] bg-black/70 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-sm text-center">
+    <div class="w-12 h-12 mx-auto rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <h3 id="confirm-title" class="font-bold mt-3">Conferma</h3><p id="confirm-text" class="text-sm text-slate-400 mt-2"></p>
+    <div class="flex gap-2 mt-5"><button onclick="closeModal('confirm-modal')" class="flex-1 py-2.5 bg-slate-800 rounded-xl">Annulla</button><button id="confirm-yes" class="flex-1 py-2.5 bg-rose-600 rounded-xl font-bold">Conferma</button></div>
+  </div>
+</div>
+
+<div id="toast" class="fixed z-[200] bottom-24 left-1/2 -translate-x-1/2 hidden px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl text-sm"></div>
+
+<script>
+let sb=null,user=null,profile=null,settings=null;
+let transactions=[],subscriptions=[],categories=[],budgets=[],goals=[],assets=[],snapshots=[];
+let charts={monthly:null,category:null,wealth:null};
+let privacy=false,recovery=false,reloadTimer=null;
+const money=new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+const CACHE_PREFIX='finance_v2_cache_';
+
+function msg(text,type='error'){
+  const el=document.getElementById('auth-msg'); el.textContent=text; el.classList.remove('hidden');
+  el.className='mt-4 p-3 rounded-xl text-xs '+(type==='success'?'bg-emerald-500/10 text-emerald-300':'bg-rose-500/10 text-rose-300');
+}
+function clearMsg(){document.getElementById('auth-msg').classList.add('hidden')}
+function friendly(e){
+  const m=(e?.message||String(e)||'').toLowerCase();
+  if(m.includes('rate limit')) return 'Hai richiesto troppe email in poco tempo. Attendi e riprova.';
+  if(m.includes('invalid login')) return 'Email o password non corretti.';
+  if(m.includes('email not confirmed')) return 'Conferma prima il tuo indirizzo email.';
+  if(m.includes('already registered')) return 'Esiste già un account con questa email.';
+  if(m.includes('duplicate key')) return 'Esiste già un elemento con questo nome.';
+  return e?.message||'Si è verificato un errore.';
+}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),2500)}
+function openModal(id){document.getElementById(id)?.classList.add('open')}
+function closeModal(id){document.getElementById(id)?.classList.remove('open')}
+function confirmAction(title,text,fn){
+  document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-text').textContent=text;
+  const b=document.getElementById('confirm-yes');b.onclick=async()=>{closeModal('confirm-modal');await fn()};openModal('confirm-modal')
+}
+function togglePrivacy(){privacy=!privacy;document.body.classList.toggle('privacy',privacy)}
+function toggleTheme(){document.documentElement.classList.toggle('light');localStorage.setItem('finance_theme',document.documentElement.classList.contains('light')?'light':'dark')}
+function isoMonth(d=new Date()){return d.toISOString().slice(0,7)}
+function monthStart(v){return v+'-01'}
+function fmt(v){return money.format(Number(v||0))}
+function localDT(v){const d=v?new Date(v):new Date();const x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,16)}
+function catByName(n){return categories.find(c=>c.name.toLowerCase()===(n||'').toLowerCase())||{name:n||'altro',icon:'fa-tag',color:'#64748b',kind:'expense'}}
+function txSign(t){return t.type==='INCOME'?'+':'-'}
+function txColor(t){return t.type==='INCOME'?'text-emerald-400':t.type==='INVESTMENT'?'text-cyan-400':'text-rose-400'}
+function currentBalance(){
+  const opening=Number(settings?.opening_balance||0);
+  return transactions.reduce((s,t)=>s+(t.type==='INCOME'?Number(t.amount):-Number(t.amount)),opening);
+}
+function monthTx(month=isoMonth()){return transactions.filter(t=>(t.occurred_at||'').slice(0,7)===month)}
+function totals(month=isoMonth()){
+  const a=monthTx(month);return {
+    income:a.filter(x=>x.type==='INCOME').reduce((s,x)=>s+Number(x.amount),0),
+    expense:a.filter(x=>x.type==='EXPENSE').reduce((s,x)=>s+Number(x.amount),0),
+    investment:a.filter(x=>x.type==='INVESTMENT').reduce((s,x)=>s+Number(x.amount),0)
+  }
+}
+function savings(month=isoMonth()){const t=totals(month);return t.income-t.expense-t.investment}
+function assetsTotal(){return assets.reduce((s,a)=>s+Number(a.value),0)}
+function netWorth(){return currentBalance()+assetsTotal()}
+
+function authMode(mode){
+  ['login-form','register-form','forgot-form','reset-form'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  const tabs=document.getElementById('auth-tabs');tabs.classList.remove('hidden');clearMsg();
+  if(mode==='login')document.getElementById('login-form').classList.remove('hidden');
+  if(mode==='register')document.getElementById('register-form').classList.remove('hidden');
+  if(mode==='forgot'){document.getElementById('forgot-form').classList.remove('hidden');tabs.classList.add('hidden')}
+  if(mode==='reset'||mode==='reset-direct'){
+    recovery=mode==='reset';document.getElementById('reset-form').classList.remove('hidden');tabs.classList.add('hidden');
+    if(mode==='reset-direct'){closeModal('settings-modal');document.getElementById('auth-screen').classList.remove('hidden')}
+  }
+}
+async function register(e){
+  e.preventDefault();clearMsg();
+  try{
+    const email=document.getElementById('reg-email').value.trim(),password=document.getElementById('reg-password').value,username=document.getElementById('reg-user').value.trim();
+    const {data,error}=await sb.auth.signUp({email,password,options:{data:{username},emailRedirectTo:location.origin+location.pathname}});if(error)throw error;
+    if(data.session)await onUser(data.user);else{document.getElementById('email-confirm-address').textContent=email;openModal('email-modal')}
+  }catch(x){msg(friendly(x))}
+}
+async function login(e){e.preventDefault();clearMsg();try{const{data,error}=await sb.auth.signInWithPassword({email:document.getElementById('login-email').value.trim(),password:document.getElementById('login-password').value});if(error)throw error;await onUser(data.user)}catch(x){msg(friendly(x))}}
+async function forgotPassword(e){e.preventDefault();try{const email=document.getElementById('forgot-email').value.trim();const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;msg('Se l’email è associata a un account, riceverai il link di recupero.','success')}catch(x){msg(friendly(x))}}
+async function updatePassword(e){e.preventDefault();const p=document.getElementById('new-password').value,p2=document.getElementById('new-password2').value;if(p!==p2)return msg('Le password non coincidono.');try{const{error}=await sb.auth.updateUser({password:p});if(error)throw error;recovery=false;msg('Password aggiornata.','success');setTimeout(()=>{document.getElementById('auth-screen').classList.add('hidden');renderAll()},800)}catch(x){msg(friendly(x))}}
+async function logout(){await sb.auth.signOut();location.reload()}
+
+async function init(){
+  if(localStorage.getItem('finance_theme')==='light')document.documentElement.classList.add('light');
+  if(!SUPABASE_CONFIG.anonKey||SUPABASE_CONFIG.anonKey.includes('INCOLLA_QUI')){document.getElementById('auth-screen').classList.remove('hidden');msg('Inserisci la Publishable Key di Supabase nel file index.html.');return}
+  sb=supabase.createClient(SUPABASE_CONFIG.url,SUPABASE_CONFIG.anonKey);
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='PASSWORD_RECOVERY'){recovery=true;user=session?.user;document.getElementById('auth-screen').classList.remove('hidden');authMode('reset');msg('Link verificato: scegli la nuova password.','success')}
+    else if(event==='SIGNED_IN'&&session?.user&&!recovery)await onUser(session.user);
+    else if(event==='SIGNED_OUT'){document.getElementById('auth-screen').classList.remove('hidden')}
+  });
+  const{data}=await sb.auth.getSession();if(data.session?.user&&!recovery)await onUser(data.session.user)
+}
+async function onUser(u){
+  user=u;document.getElementById('auth-screen').classList.add('hidden');
+  try{await sb.rpc('process_due_subscriptions')}catch(e){console.warn(e)}
+  await loadAll();subscribeRealtime()
+}
+async function loadAll(){
+  if(!user)return;
+  const requests=[
+    sb.from('profiles').select('*').eq('id',user.id).maybeSingle(),
+    sb.from('finance_settings').select('*').eq('user_id',user.id).maybeSingle(),
+    sb.from('categories').select('*').eq('user_id',user.id).order('name'),
+    sb.from('transactions').select('*').eq('user_id',user.id).order('occurred_at',{ascending:false}),
+    sb.from('subscriptions').select('*').eq('user_id',user.id).order('name'),
+    sb.from('budgets').select('*').eq('user_id',user.id),
+    sb.from('savings_goals').select('*').eq('user_id',user.id).order('created_at'),
+    sb.from('assets').select('*').eq('user_id',user.id).order('created_at'),
+    sb.from('net_worth_snapshots').select('*').eq('user_id',user.id).order('snapshot_date')
+  ];
+  const res=await Promise.all(requests);const err=res.find(x=>x.error)?.error;
+  if(err){console.error(err);loadCache();toast('Modalità cache: errore di sincronizzazione');return}
+  [profile,settings]=[res[0].data,res[1].data];
+  categories=res[2].data||[];transactions=res[3].data||[];subscriptions=res[4].data||[];budgets=res[5].data||[];
+  goals=res[6].data||[];assets=res[7].data||[];snapshots=res[8].data||[];
+  saveCache();await saveSnapshot();renderAll()
+}
+function saveCache(){localStorage.setItem(CACHE_PREFIX+user.id,JSON.stringify({profile,settings,categories,transactions,subscriptions,budgets,goals,assets,snapshots}))}
+function loadCache(){
+  try{
+    const d=JSON.parse(localStorage.getItem(CACHE_PREFIX+user.id)||'{}');
+    profile=d.profile||profile;settings=d.settings||settings;categories=d.categories||[];
+    transactions=d.transactions||[];subscriptions=d.subscriptions||[];budgets=d.budgets||[];
+    goals=d.goals||[];assets=d.assets||[];snapshots=d.snapshots||[];
+    renderAll();
+  }catch{}
+}
+function subscribeRealtime(){
+  sb.removeAllChannels();
+  ['transactions','subscriptions','categories','budgets','savings_goals','assets','finance_settings','profiles','net_worth_snapshots'].forEach(t=>{
+    sb.channel('rt-'+t+'-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:t,filter:t==='profiles'?`id=eq.${user.id}`:`user_id=eq.${user.id}`},()=>{
+      clearTimeout(reloadTimer);reloadTimer=setTimeout(loadAll,250)
+    }).subscribe()
+  })
+}
+async function saveSnapshot(){
+  if(!user||!settings)return;
+  const row={user_id:user.id,snapshot_date:new Date().toISOString().slice(0,10),cash_balance:currentBalance(),assets_value:assetsTotal(),net_worth:netWorth()};
+  await sb.from('net_worth_snapshots').upsert(row,{onConflict:'user_id,snapshot_date'});
+}
+
+function goPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(x=>x.className=x.className.replace('text-emerald-400','text-slate-500'));
+  const b=document.querySelector(`[data-nav="${p}"]`);if(b)b.className=b.className.replace('text-slate-500','text-emerald-400');
+  if(p==='budgets')renderBudgets();if(p==='wealth')renderWealth()
+}
+function renderAll(){
+  document.getElementById('header-subtitle').textContent=profile?.username||user?.email||'Gestione personale';
+  renderSelects();renderHome();renderTransactions();renderBudgets();renderSubscriptions();renderCategories();renderGoals();renderWealth();renderStats();renderSettings();renderSubscriptionAlert()
+}
+function renderSelects(){
+  const catOptions='<option value="">Tutte le categorie</option>'+categories.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+  document.getElementById('filter-category').innerHTML=catOptions;
+  const expense=categories.filter(c=>['expense','both','investment'].includes(c.kind));
+  document.getElementById('sub-category').innerHTML=expense.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+  document.getElementById('budget-category').innerHTML=categories.filter(c=>['expense','both'].includes(c.kind)).map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('')
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function renderHome(){
+  const t=totals();document.getElementById('kpi-balance').textContent=fmt(currentBalance());document.getElementById('kpi-income').textContent=fmt(t.income);document.getElementById('kpi-expense').textContent=fmt(t.expense);document.getElementById('kpi-investment').textContent=fmt(t.investment);
+  const prev=new Date();prev.setMonth(prev.getMonth()-1);const pt=totals(isoMonth(prev));const diff=pt.expense?((t.expense-pt.expense)/pt.expense*100):0;
+  document.getElementById('mom-text').textContent=pt.expense?`${Math.abs(diff).toFixed(0)}% ${diff<=0?'in meno':'in più'} vs mese scorso`:'';
+  renderHomeBudgets();renderRecent();renderCharts()
+}
+function renderHomeBudgets(){
+  const m=isoMonth(),box=document.getElementById('home-budgets');const rows=budgets.filter(b=>b.month.slice(0,7)===m).slice(0,5);
+  box.innerHTML=rows.length?rows.map(b=>budgetCard(b,false)).join(''):'<p class="text-xs text-slate-500">Nessun budget impostato.</p>'
+}
+function renderRecent(){const box=document.getElementById('recent-transactions');box.innerHTML=transactions.slice(0,6).map(txCard).join('')||'<p class="text-xs text-slate-500">Nessun movimento.</p>'}
+function txCard(t){
+  const c=catByName(t.category);return `<div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/50">
+    <div class="flex items-center gap-3 min-w-0"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:${c.color}22;color:${c.color}"><i class="fa-solid ${c.icon}"></i></div>
+    <div class="min-w-0"><p class="text-xs font-bold truncate">${esc(t.description||t.category)}</p><p class="text-[10px] text-slate-500">${new Date(t.occurred_at).toLocaleDateString('it-IT')} · #${esc(t.category)}</p></div></div>
+    <div class="flex items-center"><span class="money text-xs font-bold ${txColor(t)}">${txSign(t)}${fmt(t.amount)}</span>
+    <button onclick="editTransaction('${t.id}')" class="p-2 text-slate-500 hover:text-emerald-400"><i class="fa-solid fa-pen"></i></button>
+    <button onclick="deleteTransaction('${t.id}')" class="p-2 text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`
+}
+function renderTransactions(){
+  const q=(document.getElementById('filter-search')?.value||'').toLowerCase(),type=document.getElementById('filter-type')?.value||'',cat=document.getElementById('filter-category')?.value||'',from=document.getElementById('filter-from')?.value||'',to=document.getElementById('filter-to')?.value||'';
+  let list=transactions.filter(t=>(!q||(t.description||'').toLowerCase().includes(q)||t.category.toLowerCase().includes(q))&&(!type||t.type===type)&&(!cat||t.category===cat)&&(!from||t.occurred_at.slice(0,10)>=from)&&(!to||t.occurred_at.slice(0,10)<=to));
+  document.getElementById('transactions-list').innerHTML=list.map(txCard).join('')||'<div class="glass rounded-2xl p-6 text-center text-sm text-slate-500">Nessun movimento trovato.</div>'
+}
+function openTransactionModal(type='EXPENSE',t=null){
+  document.getElementById('tx-id').value=t?.id||'';document.getElementById('tx-type').value=t?.type||type;document.getElementById('transaction-title').textContent=t?'Modifica movimento':type==='INCOME'?'Nuova entrata':type==='INVESTMENT'?'Nuovo investimento':'Nuova spesa';
+  let valid=categories.filter(c=>type==='INCOME'?['income','both'].includes(c.kind):type==='INVESTMENT'?c.kind==='investment':['expense','both'].includes(c.kind));
+  document.getElementById('tx-category').innerHTML=valid.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+  document.getElementById('tx-amount').value=t?.amount||'';document.getElementById('tx-category').value=t?.category||valid[0]?.name||'';document.getElementById('tx-description').value=t?.description||'';document.getElementById('tx-date').value=localDT(t?.occurred_at);openModal('transaction-modal')
+}
+function editTransaction(id){const t=transactions.find(x=>x.id===id);if(t)openTransactionModal(t.type,t)}
+async function saveTransaction(e){
+  e.preventDefault();const id=document.getElementById('tx-id').value,row={user_id:user.id,type:document.getElementById('tx-type').value,amount:Number(document.getElementById('tx-amount').value),category:document.getElementById('tx-category').value,description:document.getElementById('tx-description').value.trim(),occurred_at:new Date(document.getElementById('tx-date').value).toISOString(),source:'manual'};
+  const r=id?await sb.from('transactions').update(row).eq('id',id).eq('user_id',user.id):await sb.from('transactions').insert(row);if(r.error)return toast(friendly(r.error));closeModal('transaction-modal');toast('Movimento salvato')
+}
+function deleteTransaction(id){confirmAction('Eliminare movimento?','Il saldo e i grafici verranno aggiornati.',async()=>{const{error}=await sb.from('transactions').delete().eq('id',id).eq('user_id',user.id);if(error)toast(friendly(error))})}
+
+function renderBudgets(){
+  const m=document.getElementById('budget-month').value||isoMonth();document.getElementById('budget-month').value=m;
+  const list=budgets.filter(b=>b.month.slice(0,7)===m);document.getElementById('budgets-list').innerHTML=list.map(b=>budgetCard(b,true)).join('')||'<div class="glass rounded-2xl p-5 text-sm text-slate-500">Nessun budget per questo mese.</div>'
+}
+function budgetCard(b,actions){
+  const spent=transactions.filter(t=>t.type==='EXPENSE'&&t.category===b.category&&t.occurred_at.slice(0,7)===b.month.slice(0,7)).reduce((s,t)=>s+Number(t.amount),0);const pct=Math.min(100,spent/Number(b.amount)*100),over=spent>Number(b.amount);
+  return `<div class="${actions?'glass rounded-2xl p-4':''}"><div class="flex justify-between text-xs"><span class="font-bold">#${esc(b.category)}</span><span class="money ${over?'text-rose-400':'text-slate-400'}">${fmt(spent)} / ${fmt(b.amount)}</span></div>
+  <div class="h-2 bg-slate-800 rounded-full mt-2 overflow-hidden"><div class="h-full rounded-full ${over?'bg-rose-500':'bg-emerald-500'}" style="width:${pct}%"></div></div>${actions?`<div class="mt-2 text-right"><button onclick="editBudget('${b.id}')" class="text-xs text-slate-400 mr-3">Modifica</button><button onclick="deleteBudget('${b.id}')" class="text-xs text-rose-400">Elimina</button></div>`:''}</div>`
+}
+function openBudgetModal(b=null){document.getElementById('budget-id').value=b?.id||'';renderSelects();document.getElementById('budget-category').value=b?.category||'';document.getElementById('budget-form-month').value=b?.month?.slice(0,7)||document.getElementById('budget-month').value||isoMonth();document.getElementById('budget-amount').value=b?.amount||'';openModal('budget-modal')}
+function editBudget(id){openBudgetModal(budgets.find(x=>x.id===id))}
+async function saveBudget(e){e.preventDefault();const id=document.getElementById('budget-id').value,row={user_id:user.id,category:document.getElementById('budget-category').value,month:monthStart(document.getElementById('budget-form-month').value),amount:Number(document.getElementById('budget-amount').value)};const r=id?await sb.from('budgets').update(row).eq('id',id):await sb.from('budgets').upsert(row,{onConflict:'user_id,category,month'});if(r.error)return toast(friendly(r.error));closeModal('budget-modal')}
+function deleteBudget(id){confirmAction('Eliminare budget?','Le transazioni non verranno eliminate.',()=>sb.from('budgets').delete().eq('id',id))}
+
+function renderSubscriptions(){
+  const box=document.getElementById('subscriptions-list');box.innerHTML=subscriptions.map(s=>`<div class="p-3 bg-slate-900/50 rounded-xl flex justify-between items-center"><div><p class="text-xs font-bold">${esc(s.name)}</p><p class="text-[10px] text-slate-500">${fmt(s.amount)} · giorno ${s.charge_day} · #${esc(s.category)}</p></div><div class="flex items-center gap-1"><button onclick="toggleSubscription('${s.id}',${!s.active})" class="px-2 py-1 rounded-lg text-[10px] ${s.active?'bg-emerald-500/10 text-emerald-400':'bg-slate-800 text-slate-400'}">${s.active?'Attivo':'Pausa'}</button><button onclick="editSubscription('${s.id}')" class="p-2 text-slate-500"><i class="fa-solid fa-pen"></i></button><button onclick="deleteSubscription('${s.id}')" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`).join('')||'<p class="text-xs text-slate-500">Nessun abbonamento.</p>'
+}
+function openSubscriptionModal(s=null){document.getElementById('sub-id').value=s?.id||'';renderSelects();document.getElementById('sub-name').value=s?.name||'';document.getElementById('sub-amount').value=s?.amount||'';document.getElementById('sub-category').value=s?.category||'';document.getElementById('sub-day').value=s?.charge_day||1;document.getElementById('sub-active').checked=s?.active??true;openModal('subscription-modal')}
+function editSubscription(id){openSubscriptionModal(subscriptions.find(x=>x.id===id))}
+async function saveSubscription(e){e.preventDefault();const id=document.getElementById('sub-id').value,row={user_id:user.id,name:document.getElementById('sub-name').value.trim(),amount:Number(document.getElementById('sub-amount').value),category:document.getElementById('sub-category').value,charge_day:Number(document.getElementById('sub-day').value),active:document.getElementById('sub-active').checked};const r=id?await sb.from('subscriptions').update(row).eq('id',id):await sb.from('subscriptions').insert(row);if(r.error)return toast(friendly(r.error));closeModal('subscription-modal')}
+async function toggleSubscription(id,active){const{error}=await sb.from('subscriptions').update({active}).eq('id',id);if(error)toast(friendly(error))}
+function deleteSubscription(id){confirmAction('Eliminare abbonamento?','Le spese già registrate resteranno nello storico.',()=>sb.from('subscriptions').delete().eq('id',id))}
+function renderSubscriptionAlert(){
+  const d=new Date().getDate();const upcoming=subscriptions.filter(s=>s.active&&s.charge_day>=d&&s.charge_day<=d+3);const el=document.getElementById('subscription-alert');
+  if(upcoming.length){el.classList.remove('hidden');el.innerHTML=`<i class="fa-solid fa-bell mr-1"></i> ${upcoming.length} abbonament${upcoming.length===1?'o':'i'} in addebito nei prossimi 3 giorni.`}else el.classList.add('hidden')
+}
+
+function renderCategories(){
+  document.getElementById('categories-list').innerHTML=categories.map(c=>`<button onclick="openCategoryModalById('${c.id}')" class="px-3 py-2 rounded-xl border border-slate-800 text-xs flex items-center gap-2"><i class="fa-solid ${c.icon}" style="color:${c.color}"></i>${esc(c.name)}</button>`).join('')
+}
+function openCategoryModal(c=null){document.getElementById('cat-id').value=c?.id||'';document.getElementById('cat-old-name').value=c?.name||'';document.getElementById('cat-name').value=c?.name||'';document.getElementById('cat-icon').value=c?.icon||'fa-tag';document.getElementById('cat-color').value=c?.color||'#10b981';document.getElementById('cat-kind').value=c?.kind||'expense';openModal('category-modal')}
+function openCategoryModalById(id){openCategoryModal(categories.find(c=>c.id===id))}
+async function saveCategory(e){
+  e.preventDefault();const id=document.getElementById('cat-id').value,old=document.getElementById('cat-old-name').value,row={user_id:user.id,name:document.getElementById('cat-name').value.trim().toLowerCase(),icon:document.getElementById('cat-icon').value,color:document.getElementById('cat-color').value,kind:document.getElementById('cat-kind').value};
+  if(id&&old&&old!==row.name){await Promise.all([sb.from('transactions').update({category:row.name}).eq('user_id',user.id).eq('category',old),sb.from('subscriptions').update({category:row.name}).eq('user_id',user.id).eq('category',old),sb.from('budgets').update({category:row.name}).eq('user_id',user.id).eq('category',old)])}
+  const r=id?await sb.from('categories').update(row).eq('id',id):await sb.from('categories').insert(row);if(r.error)return toast(friendly(r.error));closeModal('category-modal')
+}
+
+function renderGoals(){
+  document.getElementById('goals-list').innerHTML=goals.map(g=>{const p=Math.min(100,Number(g.current_amount)/Number(g.target_amount)*100);return `<div class="glass rounded-2xl p-4"><div class="flex justify-between"><div><p class="font-bold">${esc(g.name)}</p><p class="text-xs text-slate-500">${g.target_date?'Entro '+new Date(g.target_date).toLocaleDateString('it-IT'):''}</p></div><div class="flex"><button onclick="editGoal('${g.id}')" class="p-2 text-slate-500"><i class="fa-solid fa-pen"></i></button><button onclick="deleteGoal('${g.id}')" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div><p class="money text-sm mt-3">${fmt(g.current_amount)} / ${fmt(g.target_amount)}</p><div class="h-2 bg-slate-800 rounded-full mt-2"><div class="h-full bg-emerald-500 rounded-full" style="width:${p}%"></div></div><button onclick="contributeGoal('${g.id}')" class="mt-3 text-xs text-emerald-400">+ Aggiungi risparmio</button></div>`}).join('')||'<p class="text-sm text-slate-500">Nessun obiettivo.</p>'
+}
+function openGoalModal(g=null){document.getElementById('goal-id').value=g?.id||'';document.getElementById('goal-name').value=g?.name||'';document.getElementById('goal-target').value=g?.target_amount||'';document.getElementById('goal-current').value=g?.current_amount||0;document.getElementById('goal-date').value=g?.target_date||'';openModal('goal-modal')}
+function editGoal(id){openGoalModal(goals.find(g=>g.id===id))}
+async function saveGoal(e){e.preventDefault();const id=document.getElementById('goal-id').value,row={user_id:user.id,name:document.getElementById('goal-name').value.trim(),target_amount:Number(document.getElementById('goal-target').value),current_amount:Number(document.getElementById('goal-current').value),target_date:document.getElementById('goal-date').value||null};const r=id?await sb.from('savings_goals').update(row).eq('id',id):await sb.from('savings_goals').insert(row);if(r.error)return toast(friendly(r.error));closeModal('goal-modal')}
+function contributeGoal(id){const g=goals.find(x=>x.id===id),v=prompt('Quanto vuoi aggiungere?', '50');if(!v||isNaN(v))return;sb.from('savings_goals').update({current_amount:Number(g.current_amount)+Number(v)}).eq('id',id)}
+function deleteGoal(id){confirmAction('Eliminare obiettivo?','Questa operazione non modifica il saldo.',()=>sb.from('savings_goals').delete().eq('id',id))}
+
+function renderWealth(){
+  const cash=currentBalance(),av=assetsTotal();document.getElementById('wealth-cash').textContent=fmt(cash);document.getElementById('wealth-assets').textContent=fmt(av);document.getElementById('wealth-total').textContent=fmt(cash+av);document.getElementById('wealth-saving').textContent=fmt(savings());
+  document.getElementById('assets-list').innerHTML=assets.map(a=>`<div class="glass rounded-2xl p-4 flex justify-between"><div><p class="font-bold">${esc(a.name)}</p><p class="text-xs text-slate-500">${esc(a.asset_type)}</p><p class="money mt-2 text-emerald-400 font-bold">${fmt(a.value)}</p></div><div><button onclick="editAsset('${a.id}')" class="p-2 text-slate-500"><i class="fa-solid fa-pen"></i></button><button onclick="deleteAsset('${a.id}')" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`).join('')||'<p class="text-sm text-slate-500">Nessun asset.</p>';renderWealthChart()
+}
+function openAssetModal(a=null){document.getElementById('asset-id').value=a?.id||'';document.getElementById('asset-name').value=a?.name||'';document.getElementById('asset-type').value=a?.asset_type||'investment';document.getElementById('asset-value').value=a?.value||'';document.getElementById('asset-notes').value=a?.notes||'';openModal('asset-modal')}
+function editAsset(id){openAssetModal(assets.find(a=>a.id===id))}
+async function saveAsset(e){e.preventDefault();const id=document.getElementById('asset-id').value,row={user_id:user.id,name:document.getElementById('asset-name').value.trim(),asset_type:document.getElementById('asset-type').value,value:Number(document.getElementById('asset-value').value),notes:document.getElementById('asset-notes').value.trim()};const r=id?await sb.from('assets').update(row).eq('id',id):await sb.from('assets').insert(row);if(r.error)return toast(friendly(r.error));closeModal('asset-modal')}
+function deleteAsset(id){confirmAction('Eliminare asset?','Verrà rimosso dal calcolo del patrimonio.',()=>sb.from('assets').delete().eq('id',id))}
+
+function renderStats(){
+  const year=new Date().getFullYear();const ys=transactions.filter(t=>new Date(t.occurred_at).getFullYear()===year&&t.type==='EXPENSE').reduce((s,t)=>s+Number(t.amount),0);
+  const avg=ys/(new Date().getMonth()+1);const allExp=monthTx().filter(t=>t.type==='EXPENSE');const map={};allExp.forEach(t=>map[t.category]=(map[t.category]||0)+Number(t.amount));const top=Object.entries(map).sort((a,b)=>b[1]-a[1])[0];
+  const sr=totals().income?Math.max(0,savings()/totals().income*100):0;
+  const cards=[['Spese anno',fmt(ys)],['Media mensile',fmt(avg)],['Categoria top',top?top[0]:'—'],['Tasso risparmio',sr.toFixed(0)+'%']];
+  document.getElementById('stats-grid').innerHTML=cards.map(x=>`<div class="bg-slate-900/50 rounded-xl p-3"><p class="text-[10px] text-slate-500">${x[0]}</p><p class="money text-sm font-bold mt-1">${x[1]}</p></div>`).join('')
+}
+function renderSettings(){document.getElementById('settings-username').value=profile?.username||'';document.getElementById('settings-opening').value=settings?.opening_balance||0}
+async function saveSettings(){
+  const username=document.getElementById('settings-username').value.trim(),opening_balance=Number(document.getElementById('settings-opening').value);
+  const [a,b]=await Promise.all([sb.from('profiles').update({username}).eq('id',user.id),sb.from('finance_settings').update({opening_balance}).eq('user_id',user.id)]);if(a.error||b.error)return toast(friendly(a.error||b.error));closeModal('settings-modal');toast('Impostazioni salvate')
+}
+
+function renderCharts(){
+  const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(isoMonth(d))}
+  const labels=months.map(m=>new Date(m+'-01').toLocaleDateString('it-IT',{month:'short'}));
+  const inc=months.map(m=>totals(m).income),exp=months.map(m=>totals(m).expense),inv=months.map(m=>totals(m).investment);
+  if(charts.monthly)charts.monthly.destroy();charts.monthly=new Chart(document.getElementById('monthly-chart'),{type:'bar',data:{labels,datasets:[{label:'Entrate',data:inc},{label:'Spese',data:exp},{label:'Investimenti',data:inv}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'},grid:{display:false}},y:{ticks:{color:'#94a3b8'},grid:{color:'rgba(148,163,184,.08)'}}}}});
+  const m=monthTx().filter(t=>t.type==='EXPENSE'),map={};m.forEach(t=>map[t.category]=(map[t.category]||0)+Number(t.amount));if(charts.category)charts.category.destroy();charts.category=new Chart(document.getElementById('category-chart'),{type:'doughnut',data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',boxWidth:10}}}}})
+}
+function renderWealthChart(){
+  if(charts.wealth)charts.wealth.destroy();charts.wealth=new Chart(document.getElementById('wealth-chart'),{type:'line',data:{labels:snapshots.map(s=>new Date(s.snapshot_date).toLocaleDateString('it-IT')),datasets:[{label:'Patrimonio',data:snapshots.map(s=>Number(s.net_worth)),tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}})
+}
+
+function download(name,text,type='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function exportCSV(){const rows=[['data','tipo','importo','categoria','descrizione'],...transactions.map(t=>[t.occurred_at,t.type,t.amount,t.category,(t.description||'').replaceAll('"','""')])];download('transazioni.csv',rows.map(r=>r.map(x=>`"${x}"`).join(',')).join('\n'),'text/csv')}
+function exportBackup(){download('gestione-finanze-backup.json',JSON.stringify({version:2,profile,settings,categories,transactions,subscriptions,budgets,goals,assets},null,2),'application/json')}
+async function importBackup(e){
+  const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());for(const [table,rows] of [['categories',d.categories],['transactions',d.transactions],['subscriptions',d.subscriptions],['budgets',d.budgets],['savings_goals',d.goals],['assets',d.assets]]){if(rows?.length){const clean=rows.map(r=>({...r,user_id:user.id}));const{error}=await sb.from(table).upsert(clean);if(error)throw error}}toast('Backup importato')}catch(x){toast(friendly(x))}e.target.value=''
+}
+async function importCSV(e){
+  const f=e.target.files[0];if(!f)return;try{const lines=(await f.text()).split(/\r?\n/).filter(Boolean);if(lines.length<2)throw new Error('CSV vuoto');const rows=lines.slice(1).map(line=>{const cols=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(v=>v.replace(/^"|"$/g,'').replaceAll('""','"'))||[];return{user_id:user.id,occurred_at:new Date(cols[0]).toISOString(),type:String(cols[1]).toUpperCase(),amount:Number(String(cols[2]).replace(',','.')),category:String(cols[3]||'spesa').toLowerCase(),description:cols[4]||'',source:'import'}}).filter(r=>['INCOME','EXPENSE','INVESTMENT'].includes(r.type)&&r.amount>0);const{error}=await sb.from('transactions').insert(rows);if(error)throw error;toast(`${rows.length} movimenti importati`)}catch(x){toast(friendly(x))}e.target.value=''
+}
+
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();init()});
+</script>
 </body>
 </html>
