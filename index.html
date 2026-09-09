@@ -126,6 +126,11 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1.5">Password</label>
                         <input id="login-password" type="password" required autocomplete="current-password" placeholder="La tua password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                        <div class="text-right mt-2">
+                            <button type="button" onclick="showForgotPasswordForm()" class="text-xs font-semibold text-brand-400 hover:text-brand-300 transition">
+                                Password dimenticata?
+                            </button>
+                        </div>
                     </div>
                     <button id="login-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">Accedi</button>
                 </form>
@@ -145,6 +150,47 @@
                     </div>
                     <button id="register-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">Crea account</button>
                     <p class="text-[11px] text-slate-500 text-center">Potrebbe essere necessario confermare l'email, in base alle impostazioni del progetto Supabase.</p>
+                </form>
+
+                <form id="forgot-password-form" onsubmit="requestPasswordReset(event)" class="space-y-4 hidden">
+                    <div class="text-center mb-2">
+                        <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Recupera password</h3>
+                        <p class="text-xs text-slate-400 mt-1">Inserisci l'email del tuo account. Ti invieremo un link per impostare una nuova password.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
+                        <input id="forgot-email" type="email" required autocomplete="email" placeholder="nome@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <button id="forgot-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">
+                        Invia email di recupero
+                    </button>
+                    <button type="button" onclick="showAuthMode('login')" class="w-full py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition">
+                        Torna all'accesso
+                    </button>
+                </form>
+
+                <form id="reset-password-form" onsubmit="saveNewPassword(event)" class="space-y-4 hidden">
+                    <div class="text-center mb-2">
+                        <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Imposta nuova password</h3>
+                        <p class="text-xs text-slate-400 mt-1">Scegli la nuova password per il tuo account.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Nuova password</label>
+                        <input id="reset-password" type="password" required minlength="6" autocomplete="new-password" placeholder="Almeno 6 caratteri" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Conferma password</label>
+                        <input id="reset-password-confirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Ripeti la password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <button id="reset-submit" type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold transition">
+                        Salva nuova password
+                    </button>
                 </form>
 
                 <div id="auth-message" class="hidden mt-4 p-3 rounded-xl text-xs font-medium"></div>
@@ -662,24 +708,50 @@
         }
 
         // --- SUPABASE AUTH + CLOUD SYNC + REALTIME ---
+        let isPasswordRecoveryMode = false;
+
         function showAuthMode(mode) {
             const login = document.getElementById('login-form');
             const register = document.getElementById('register-form');
+            const forgot = document.getElementById('forgot-password-form');
+            const reset = document.getElementById('reset-password-form');
+            const tabs = document.getElementById('auth-tab-login')?.parentElement;
             const loginTab = document.getElementById('auth-tab-login');
             const registerTab = document.getElementById('auth-tab-register');
 
+            login.classList.add('hidden');
+            register.classList.add('hidden');
+            forgot?.classList.add('hidden');
+            reset?.classList.add('hidden');
+
+            if (tabs) tabs.classList.remove('hidden');
+
             if (mode === 'login') {
+                isPasswordRecoveryMode = false;
                 login.classList.remove('hidden');
-                register.classList.add('hidden');
                 loginTab.className = 'flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition';
                 registerTab.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition';
-            } else {
-                login.classList.add('hidden');
+            } else if (mode === 'register') {
+                isPasswordRecoveryMode = false;
                 register.classList.remove('hidden');
                 loginTab.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition';
                 registerTab.className = 'flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition';
+            } else if (mode === 'forgot') {
+                forgot?.classList.remove('hidden');
+                if (tabs) tabs.classList.add('hidden');
+            } else if (mode === 'reset') {
+                isPasswordRecoveryMode = true;
+                reset?.classList.remove('hidden');
+                if (tabs) tabs.classList.add('hidden');
             }
+
             clearAuthMessage();
+        }
+
+        function showForgotPasswordForm() {
+            const loginEmail = document.getElementById('login-email')?.value.trim();
+            showAuthMode('forgot');
+            if (loginEmail) document.getElementById('forgot-email').value = loginEmail;
         }
 
         function showAuthMessage(message, type = 'error') {
@@ -724,15 +796,30 @@
                 const { data, error } = await supabaseClient.auth.getSession();
                 if (error) throw error;
 
-                if (data.session?.user) {
+                const recoveryHint =
+                    window.location.hash.includes('type=recovery') ||
+                    window.location.search.includes('type=recovery');
+
+                if (data.session?.user && !recoveryHint) {
                     await handleAuthenticatedUser(data.session.user);
                 } else {
+                    if (recoveryHint) {
+                        isPasswordRecoveryMode = true;
+                        currentUser = data.session?.user || null;
+                        showAuthMode('reset');
+                    }
                     showAuthScreen();
                     updateCloudBadge('local');
                 }
 
                 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                    if (event === 'SIGNED_IN' && session?.user) {
+                    if (event === 'PASSWORD_RECOVERY') {
+                        isPasswordRecoveryMode = true;
+                        currentUser = session?.user || null;
+                        showAuthScreen();
+                        showAuthMode('reset');
+                        showAuthMessage('Link di recupero verificato. Inserisci la tua nuova password.', 'success');
+                    } else if (event === 'SIGNED_IN' && session?.user && !isPasswordRecoveryMode) {
                         await handleAuthenticatedUser(session.user);
                     } else if (event === 'SIGNED_OUT') {
                         handleSignedOut();
@@ -843,6 +930,84 @@
             }
         }
 
+
+        function getPasswordResetRedirectUrl() {
+            // Mantiene il percorso GitHub Pages corrente ma rimuove query/hash.
+            return window.location.origin + window.location.pathname;
+        }
+
+        async function requestPasswordReset(event) {
+            event.preventDefault();
+            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
+
+            const email = document.getElementById('forgot-email').value.trim();
+            if (!email) return;
+
+            setAuthLoading('forgot-submit', true, 'Invia email di recupero');
+            clearAuthMessage();
+
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: getPasswordResetRedirectUrl()
+                });
+                if (error) throw error;
+
+                showAuthMessage(
+                    `Se l'indirizzo ${email} è associato a un account, riceverai una mail con il link per reimpostare la password.`,
+                    'success'
+                );
+            } catch (err) {
+                console.error(err);
+                showAuthMessage(authErrorMessage(err));
+            } finally {
+                setAuthLoading('forgot-submit', false, 'Invia email di recupero');
+            }
+        }
+
+        async function saveNewPassword(event) {
+            event.preventDefault();
+            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
+
+            const password = document.getElementById('reset-password').value;
+            const confirmPassword = document.getElementById('reset-password-confirm').value;
+
+            if (password.length < 6) {
+                return showAuthMessage('La nuova password deve contenere almeno 6 caratteri.');
+            }
+            if (password !== confirmPassword) {
+                return showAuthMessage('Le due password non coincidono.');
+            }
+
+            setAuthLoading('reset-submit', true, 'Salva nuova password');
+            clearAuthMessage();
+
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password });
+                if (error) throw error;
+
+                isPasswordRecoveryMode = false;
+                document.getElementById('reset-password-form')?.reset();
+                showAuthMessage('Password aggiornata correttamente. Ora puoi continuare a usare il tuo account.', 'success');
+
+                // Rimuove i token di recovery dall'URL senza ricaricare la pagina.
+                if (window.history?.replaceState) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
+                const { data } = await supabaseClient.auth.getUser();
+                if (data?.user) {
+                    setTimeout(() => handleAuthenticatedUser(data.user), 900);
+                } else {
+                    setTimeout(() => showAuthMode('login'), 900);
+                }
+            } catch (err) {
+                console.error(err);
+                showAuthMessage(authErrorMessage(err));
+            } finally {
+                setAuthLoading('reset-submit', false, 'Salva nuova password');
+            }
+        }
+
         async function logoutUser() {
             if (!supabaseClient) return;
             try {
@@ -858,6 +1023,9 @@
             const msg = (err?.message || '').toLowerCase();
             if (msg.includes('invalid login credentials')) return 'Email o password non corretti.';
             if (msg.includes('email not confirmed')) return 'Devi prima confermare il tuo indirizzo email.';
+            if (msg.includes('password should be at least')) return 'La password è troppo corta.';
+            if (msg.includes('same password')) return 'Scegli una password diversa da quella attuale.';
+            if (msg.includes('otp expired') || msg.includes('token has expired')) return 'Il link di recupero è scaduto. Richiedine uno nuovo.';
             if (msg.includes('user already registered')) return 'Esiste già un account con questa email.';
             if (msg.includes('password')) return 'La password non rispetta i requisiti di Supabase.';
             return err?.message || 'Si è verificato un errore. Riprova.';
