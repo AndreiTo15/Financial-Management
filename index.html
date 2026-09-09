@@ -882,6 +882,10 @@
 
             state.subscriptions.push(newSub);
 
+            // Salva subito il nuovo abbonamento (persiste su localStorage e aggiorna la UI),
+            // indipendentemente dal fatto che venga addebitato subito o meno
+            saveData();
+
             closeModal('modal-sub');
             document.getElementById('sub-form').reset();
 
