@@ -161,7 +161,7 @@
                         <p class="text-[11px] text-slate-400">Verifica o addebita gli abbonamenti di questo mese.</p>
                     </div>
                 </div>
-                <button onclick="processSubscriptions()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold transition flex-shrink-0">
+                <button onclick="processSubscriptions(true)" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold transition flex-shrink-0">
                     Processa Ora
                 </button>
             </div>
@@ -223,7 +223,7 @@
                     <span class="text-xs text-slate-400 font-medium">Totale Abbonamenti</span>
                     <p class="text-lg font-bold text-white" id="total-subs-amount">€ 0.00 /mese</p>
                 </div>
-                <button onclick="processSubscriptions()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-2">
+                <button onclick="processSubscriptions(true)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-2">
                     <i class="fa-solid fa-rotate-right text-brand-500"></i> Verifica Addebiti
                 </button>
             </div>
@@ -515,9 +515,9 @@
                 if (data && data.data) {
                     state = data.data;
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    processSubscriptions(false);
                     renderApp();
                 } else {
-                    // Se non ci sono dati sul cloud, salviamo quelli locali iniziali
                     syncToCloud();
                 }
             } catch (e) {
@@ -544,6 +544,7 @@
                     if (payload.new && payload.new.data) {
                         state = payload.new.data;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                        processSubscriptions(false);
                         renderApp();
                     }
                 })
@@ -764,8 +765,12 @@
         }
 
         function checkSubscriptionBanner() {
-            const currentMonth = new Date().toISOString().slice(0, 7);
-            const pending = state.subscriptions.some(s => s.lastChargedMonth !== currentMonth);
+            const today = new Date();
+            const currentMonth = today.toISOString().slice(0, 7);
+            const currentDay = today.getDate();
+
+            // Mostra il banner se ci sono abbonamenti del mese non ancora addebitati ma con giorno di addebito già giunto/superato
+            const pending = state.subscriptions.some(s => s.lastChargedMonth !== currentMonth && currentDay >= s.day);
             const banner = document.getElementById('sub-check-banner');
             if (banner) {
                 if (pending) {
@@ -866,39 +871,52 @@
 
             if (!name || isNaN(amount) || amount <= 0) return;
 
-            state.subscriptions.push({
+            const newSub = {
                 id: Date.now(),
                 name: name,
                 amount: amount,
                 day: day,
                 tag: tag,
                 lastChargedMonth: ''
-            });
+            };
 
-            saveData();
+            state.subscriptions.push(newSub);
+
             closeModal('modal-sub');
-            showToast('Abbonamento aggiunto!');
             document.getElementById('sub-form').reset();
+
+            // Addebita subito se il giorno del mese corrente è già giunto o passato
+            processSubscriptions(true);
+            showToast('Abbonamento aggiunto!');
         }
 
-        function processSubscriptions() {
-            const currentMonth = new Date().toISOString().slice(0, 7);
+        // Processa gli addebiti automatici degli abbonamenti
+        function processSubscriptions(showToastIfNone = false) {
+            const today = new Date();
+            const currentYearMonth = today.toISOString().slice(0, 7);
+            const currentDay = today.getDate();
             let processedCount = 0;
 
             state.subscriptions.forEach(s => {
-                if (s.lastChargedMonth !== currentMonth) {
-                    const now = new Date().toISOString().slice(0, 16);
+                // Se non è stato ancora addebitato per questo mese E il giorno del mese è già passato o è oggi
+                if (s.lastChargedMonth !== currentYearMonth && currentDay >= s.day) {
+                    // Crea la data specifica dell'addebito
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const dayStr = String(s.day).padStart(2, '0');
+                    const chargeTimestamp = `${year}-${month}-${dayStr}T00:00:00`;
+
                     state.transactions.push({
                         id: Date.now() + Math.random(),
                         type: 'EXPENSE',
                         amount: s.amount,
                         tag: s.tag,
                         description: `Abbonamento: ${s.name}`,
-                        timestamp: now
+                        timestamp: chargeTimestamp
                     });
 
                     state.balance -= s.amount;
-                    s.lastChargedMonth = currentMonth;
+                    s.lastChargedMonth = currentYearMonth;
                     processedCount++;
                 }
             });
@@ -906,8 +924,8 @@
             if (processedCount > 0) {
                 saveData();
                 showToast(`${processedCount} abbonamento/i addebitato/i!`);
-            } else {
-                showToast('Tutti gli abbonamenti del mese sono già aggiornati.');
+            } else if (showToastIfNone) {
+                showToast('Tutti gli abbonamenti del mese sono aggiornati.');
             }
         }
 
@@ -1060,6 +1078,7 @@
                     const parsed = JSON.parse(e.target.result);
                     if (parsed && typeof parsed.balance === 'number') {
                         state = parsed;
+                        processSubscriptions(false);
                         saveData();
                         closeModal('modal-settings');
                         showToast('Dati importati con successo!');
@@ -1083,6 +1102,7 @@
         }
 
         window.onload = function() {
+            processSubscriptions(false);
             renderApp();
             initSupabase();
         };
