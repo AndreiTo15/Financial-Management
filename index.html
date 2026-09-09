@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#020617">
-  <title>Gestione Finanze</title>
+  <title>Gestione Finanze V2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -50,7 +50,7 @@
         <i class="fa-solid fa-wallet text-white text-2xl"></i>
       </div>
       <h1 class="text-2xl font-extrabold text-white">Gestione Finanze</h1>
-      <p class="text-sm text-slate-400 mt-1">· Budget, patrimonio, obiettivi e sincronizzazione</p>
+      <p class="text-sm text-slate-400 mt-1">V2 · Budget, patrimonio, obiettivi e sincronizzazione</p>
     </div>
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
       <div id="auth-tabs" class="flex gap-2 p-1 bg-slate-950 rounded-2xl mb-6">
@@ -597,7 +597,26 @@ async function saveTransaction(e){
   e.preventDefault();const id=document.getElementById('tx-id').value,row={user_id:user.id,type:document.getElementById('tx-type').value,amount:Number(document.getElementById('tx-amount').value),category:document.getElementById('tx-category').value,description:document.getElementById('tx-description').value.trim(),occurred_at:new Date(document.getElementById('tx-date').value).toISOString(),source:'manual'};
   const r=id?await sb.from('transactions').update(row).eq('id',id).eq('user_id',user.id):await sb.from('transactions').insert(row);if(r.error)return toast(friendly(r.error));closeModal('transaction-modal');toast('Movimento salvato')
 }
-function deleteTransaction(id){confirmAction('Eliminare movimento?','Il saldo e i grafici verranno aggiornati.',async()=>{const{error}=await sb.from('transactions').delete().eq('id',id).eq('user_id',user.id);if(error)toast(friendly(error))})}
+function deleteTransaction(id){
+  confirmAction('Eliminare movimento?','Il saldo e i grafici verranno aggiornati.',async()=>{
+    const oldTransactions = [...transactions];
+    transactions = transactions.filter(t => t.id !== id);
+    saveCache();
+    renderAll();
+
+    const { error } = await sb.from('transactions').delete().eq('id',id).eq('user_id',user.id);
+
+    if(error){
+      transactions = oldTransactions;
+      saveCache();
+      renderAll();
+      toast(friendly(error));
+      return;
+    }
+
+    toast('Movimento eliminato');
+  })
+}
 
 function renderBudgets(){
   const m=document.getElementById('budget-month').value||isoMonth();document.getElementById('budget-month').value=m;
