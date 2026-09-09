@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#020617">
-  <title>Gestione Finanze V2</title>
+  <title>Gestione Finanze</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -594,8 +594,24 @@ function openTransactionModal(type='EXPENSE',t=null){
 }
 function editTransaction(id){const t=transactions.find(x=>x.id===id);if(t)openTransactionModal(t.type,t)}
 async function saveTransaction(e){
-  e.preventDefault();const id=document.getElementById('tx-id').value,row={user_id:user.id,type:document.getElementById('tx-type').value,amount:Number(document.getElementById('tx-amount').value),category:document.getElementById('tx-category').value,description:document.getElementById('tx-description').value.trim(),occurred_at:new Date(document.getElementById('tx-date').value).toISOString(),source:'manual'};
-  const r=id?await sb.from('transactions').update(row).eq('id',id).eq('user_id',user.id):await sb.from('transactions').insert(row);if(r.error)return toast(friendly(r.error));closeModal('transaction-modal');toast('Movimento salvato')
+  e.preventDefault();
+  const id=document.getElementById('tx-id').value;
+  const row={user_id:user.id,type:document.getElementById('tx-type').value,amount:Number(document.getElementById('tx-amount').value),category:document.getElementById('tx-category').value,description:document.getElementById('tx-description').value.trim(),occurred_at:new Date(document.getElementById('tx-date').value).toISOString(),source:'manual'};
+  const r=id
+    ? await sb.from('transactions').update(row).eq('id',id).eq('user_id',user.id).select().single()
+    : await sb.from('transactions').insert(row).select().single();
+  if(r.error)return toast(friendly(r.error));
+
+  if(id){
+    const i=transactions.findIndex(t=>t.id===id);
+    if(i!==-1) transactions[i]=r.data;
+  }else{
+    transactions.unshift(r.data);
+  }
+  saveCache();
+  closeModal('transaction-modal');
+  renderAll();
+  toast('Movimento salvato');
 }
 function deleteTransaction(id){
   confirmAction('Eliminare movimento?','Il saldo e i grafici verranno aggiornati.',async()=>{
@@ -629,7 +645,19 @@ function budgetCard(b,actions){
 }
 function openBudgetModal(b=null){document.getElementById('budget-id').value=b?.id||'';renderSelects();document.getElementById('budget-category').value=b?.category||'';document.getElementById('budget-form-month').value=b?.month?.slice(0,7)||document.getElementById('budget-month').value||isoMonth();document.getElementById('budget-amount').value=b?.amount||'';openModal('budget-modal')}
 function editBudget(id){openBudgetModal(budgets.find(x=>x.id===id))}
-async function saveBudget(e){e.preventDefault();const id=document.getElementById('budget-id').value,row={user_id:user.id,category:document.getElementById('budget-category').value,month:monthStart(document.getElementById('budget-form-month').value),amount:Number(document.getElementById('budget-amount').value)};const r=id?await sb.from('budgets').update(row).eq('id',id):await sb.from('budgets').upsert(row,{onConflict:'user_id,category,month'});if(r.error)return toast(friendly(r.error));closeModal('budget-modal')}
+async function saveBudget(e){
+  e.preventDefault();
+  const id=document.getElementById('budget-id').value;
+  const row={user_id:user.id,category:document.getElementById('budget-category').value,month:monthStart(document.getElementById('budget-form-month').value),amount:Number(document.getElementById('budget-amount').value)};
+  const r=id
+    ? await sb.from('budgets').update(row).eq('id',id).select().single()
+    : await sb.from('budgets').upsert(row,{onConflict:'user_id,category,month'}).select().single();
+  if(r.error)return toast(friendly(r.error));
+
+  const i=budgets.findIndex(b=>b.id===r.data.id || (b.category===r.data.category && b.month===r.data.month));
+  if(i!==-1)budgets[i]=r.data;else budgets.push(r.data);
+  saveCache();closeModal('budget-modal');renderAll();toast('Budget salvato');
+}
 function deleteBudget(id){confirmAction('Eliminare budget?','Le transazioni non verranno eliminate.',()=>sb.from('budgets').delete().eq('id',id))}
 
 function renderSubscriptions(){
@@ -674,8 +702,27 @@ function renderSubscriptions(){
 }
 function openSubscriptionModal(s=null){document.getElementById('sub-id').value=s?.id||'';renderSelects();document.getElementById('sub-name').value=s?.name||'';document.getElementById('sub-amount').value=s?.amount||'';document.getElementById('sub-category').value=s?.category||'';document.getElementById('sub-day').value=s?.charge_day||1;document.getElementById('sub-active').checked=s?.active??true;openModal('subscription-modal')}
 function editSubscription(id){openSubscriptionModal(subscriptions.find(x=>x.id===id))}
-async function saveSubscription(e){e.preventDefault();const id=document.getElementById('sub-id').value,row={user_id:user.id,name:document.getElementById('sub-name').value.trim(),amount:Number(document.getElementById('sub-amount').value),category:document.getElementById('sub-category').value,charge_day:Number(document.getElementById('sub-day').value),active:document.getElementById('sub-active').checked};const r=id?await sb.from('subscriptions').update(row).eq('id',id):await sb.from('subscriptions').insert(row);if(r.error)return toast(friendly(r.error));closeModal('subscription-modal')}
-async function toggleSubscription(id,active){const{error}=await sb.from('subscriptions').update({active}).eq('id',id);if(error)toast(friendly(error))}
+async function saveSubscription(e){
+  e.preventDefault();
+  const id=document.getElementById('sub-id').value;
+  const row={user_id:user.id,name:document.getElementById('sub-name').value.trim(),amount:Number(document.getElementById('sub-amount').value),category:document.getElementById('sub-category').value,charge_day:Number(document.getElementById('sub-day').value),active:document.getElementById('sub-active').checked};
+  const r=id
+    ? await sb.from('subscriptions').update(row).eq('id',id).select().single()
+    : await sb.from('subscriptions').insert(row).select().single();
+  if(r.error)return toast(friendly(r.error));
+
+  if(id){const i=subscriptions.findIndex(s=>s.id===id);if(i!==-1)subscriptions[i]=r.data;}
+  else subscriptions.push(r.data);
+  subscriptions.sort((a,b)=>a.name.localeCompare(b.name));
+  saveCache();closeModal('subscription-modal');renderAll();toast('Abbonamento salvato');
+}
+async function toggleSubscription(id,active){
+  const old=subscriptions.map(s=>({...s}));
+  const s=subscriptions.find(x=>x.id===id);if(s)s.active=active;
+  saveCache();renderAll();
+  const{error}=await sb.from('subscriptions').update({active}).eq('id',id);
+  if(error){subscriptions=old;saveCache();renderAll();toast(friendly(error));}
+}
 function deleteSubscription(id){confirmAction('Eliminare abbonamento?','Le spese già registrate resteranno nello storico.',()=>sb.from('subscriptions').delete().eq('id',id))}
 function renderSubscriptionAlert(){
   const d=new Date().getDate();const upcoming=subscriptions.filter(s=>s.active&&s.charge_day>=d&&s.charge_day<=d+3);const el=document.getElementById('subscription-alert');
@@ -690,7 +737,7 @@ function openCategoryModalById(id){openCategoryModal(categories.find(c=>c.id===i
 async function saveCategory(e){
   e.preventDefault();const id=document.getElementById('cat-id').value,old=document.getElementById('cat-old-name').value,row={user_id:user.id,name:document.getElementById('cat-name').value.trim().toLowerCase(),icon:document.getElementById('cat-icon').value,color:document.getElementById('cat-color').value,kind:document.getElementById('cat-kind').value};
   if(id&&old&&old!==row.name){await Promise.all([sb.from('transactions').update({category:row.name}).eq('user_id',user.id).eq('category',old),sb.from('subscriptions').update({category:row.name}).eq('user_id',user.id).eq('category',old),sb.from('budgets').update({category:row.name}).eq('user_id',user.id).eq('category',old)])}
-  const r=id?await sb.from('categories').update(row).eq('id',id):await sb.from('categories').insert(row);if(r.error)return toast(friendly(r.error));closeModal('category-modal')
+  const r=id?await sb.from('categories').update(row).eq('id',id):await sb.from('categories').insert(row);if(r.error)return toast(friendly(r.error));closeModal('category-modal');await loadAll();toast('Categoria salvata')
 }
 
 function renderGoals(){
@@ -736,7 +783,19 @@ function openGoalModal(g=null){
   openModal('goal-modal')
 }
 function editGoal(id){openGoalModal(goals.find(g=>g.id===id))}
-async function saveGoal(e){e.preventDefault();const id=document.getElementById('goal-id').value,row={user_id:user.id,name:document.getElementById('goal-name').value.trim(),goal_type:document.getElementById('goal-type').value,target_amount:Number(document.getElementById('goal-target').value),current_amount:Number(document.getElementById('goal-current').value),target_date:document.getElementById('goal-date').value||null};const r=id?await sb.from('savings_goals').update(row).eq('id',id):await sb.from('savings_goals').insert(row);if(r.error)return toast(friendly(r.error));closeModal('goal-modal')}
+async function saveGoal(e){
+  e.preventDefault();
+  const id=document.getElementById('goal-id').value;
+  const row={user_id:user.id,name:document.getElementById('goal-name').value.trim(),goal_type:document.getElementById('goal-type').value,target_amount:Number(document.getElementById('goal-target').value),current_amount:Number(document.getElementById('goal-current').value),target_date:document.getElementById('goal-date').value||null};
+  const r=id
+    ? await sb.from('savings_goals').update(row).eq('id',id).select().single()
+    : await sb.from('savings_goals').insert(row).select().single();
+  if(r.error)return toast(friendly(r.error));
+
+  if(id){const i=goals.findIndex(g=>g.id===id);if(i!==-1)goals[i]=r.data;}
+  else goals.push(r.data);
+  saveCache();closeModal('goal-modal');renderAll();toast('Obiettivo salvato');
+}
 function contributeGoal(id){const g=goals.find(x=>x.id===id),v=prompt('Quanto vuoi aggiungere?', '50');if(!v||isNaN(v))return;sb.from('savings_goals').update({current_amount:Number(g.current_amount)+Number(v)}).eq('id',id)}
 function deleteGoal(id){confirmAction('Eliminare obiettivo?','Questa operazione non modifica il saldo.',()=>sb.from('savings_goals').delete().eq('id',id))}
 
@@ -746,7 +805,19 @@ function renderWealth(){
 }
 function openAssetModal(a=null){document.getElementById('asset-id').value=a?.id||'';document.getElementById('asset-name').value=a?.name||'';document.getElementById('asset-type').value=a?.asset_type||'investment';document.getElementById('asset-value').value=a?.value||'';document.getElementById('asset-notes').value=a?.notes||'';openModal('asset-modal')}
 function editAsset(id){openAssetModal(assets.find(a=>a.id===id))}
-async function saveAsset(e){e.preventDefault();const id=document.getElementById('asset-id').value,row={user_id:user.id,name:document.getElementById('asset-name').value.trim(),asset_type:document.getElementById('asset-type').value,value:Number(document.getElementById('asset-value').value),notes:document.getElementById('asset-notes').value.trim()};const r=id?await sb.from('assets').update(row).eq('id',id):await sb.from('assets').insert(row);if(r.error)return toast(friendly(r.error));closeModal('asset-modal')}
+async function saveAsset(e){
+  e.preventDefault();
+  const id=document.getElementById('asset-id').value;
+  const row={user_id:user.id,name:document.getElementById('asset-name').value.trim(),asset_type:document.getElementById('asset-type').value,value:Number(document.getElementById('asset-value').value),notes:document.getElementById('asset-notes').value.trim()};
+  const r=id
+    ? await sb.from('assets').update(row).eq('id',id).select().single()
+    : await sb.from('assets').insert(row).select().single();
+  if(r.error)return toast(friendly(r.error));
+
+  if(id){const i=assets.findIndex(a=>a.id===id);if(i!==-1)assets[i]=r.data;}
+  else assets.push(r.data);
+  saveCache();closeModal('asset-modal');renderAll();toast('Asset salvato');
+}
 function deleteAsset(id){confirmAction('Eliminare asset?','Verrà rimosso dal calcolo del patrimonio.',()=>sb.from('assets').delete().eq('id',id))}
 
 function renderStats(){
