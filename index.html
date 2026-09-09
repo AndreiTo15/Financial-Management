@@ -39,6 +39,13 @@
     .light .text-slate-300,.light .text-slate-400{color:#475569!important}
     .light .border-slate-800{border-color:#cbd5e1!important}.light .glass{background:rgba(255,255,255,.9)}
   </style>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Finanze">
+  <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body class="min-h-full bg-slate-950 text-slate-100 pb-24">
 
@@ -1016,6 +1023,14 @@ async function importCSV(e){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();init()});
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('Service Worker:', err));
+  });
+}
 </script>
 </body>
 </html>
