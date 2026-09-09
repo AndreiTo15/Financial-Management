@@ -13,7 +13,7 @@
   <script>
     const SUPABASE_CONFIG = {
       url: 'https://ybwnfijzqlkgwdrbdtxg.supabase.co',
-      anonKey: 'sb_publishable_Rn2pdpsPqLjDmYMfHcvebw_juC1jv0J'
+      anonKey: 'b_publishable_Rn2pdpsPqLjDmYMfHcvebw_juC1jv0J'
     };
     tailwind.config = {
       darkMode: 'class',
@@ -274,13 +274,14 @@
 </main>
 
 <nav class="navglass fixed bottom-0 left-0 right-0 z-50">
-  <div class="max-w-3xl mx-auto grid grid-cols-6 px-2 py-2">
-    <button data-nav="home" onclick="goPage('home')" class="navbtn text-emerald-400 py-2 text-[10px]"><i class="fa-solid fa-house block text-base mb-1"></i>Home</button>
-    <button data-nav="transactions" onclick="goPage('transactions')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-list block text-base mb-1"></i>Movimenti</button>
-    <button data-nav="budgets" onclick="goPage('budgets')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-gauge-high block text-base mb-1"></i>Budget</button>
-    <button data-nav="wealth" onclick="goPage('wealth')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-chart-line block text-base mb-1"></i>Patrimonio</button>
-    <button data-nav="goals" onclick="goPage('goals')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-bullseye block text-base mb-1"></i>Obiettivi</button>
-    <button data-nav="more" onclick="goPage('more')" class="navbtn text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-ellipsis block text-base mb-1"></i>Altro</button>
+  <div class="max-w-4xl mx-auto grid grid-cols-7 px-1.5 py-2">
+    <button data-nav="home" onclick="goPage('home')" class="navbtn text-emerald-400 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-house block text-base mb-1"></i>Home</button>
+    <button data-nav="transactions" onclick="goPage('transactions')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-list block text-base mb-1"></i>Movimenti</button>
+    <button data-nav="budgets" onclick="goPage('budgets')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-gauge-high block text-base mb-1"></i>Budget</button>
+    <button data-nav="wealth" onclick="goPage('wealth')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-chart-line block text-base mb-1"></i>Patrimonio</button>
+    <button data-nav="goals" onclick="goPage('goals')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-bullseye block text-base mb-1"></i>Obiettivi</button>
+    <button data-nav="subscriptions" onclick="goPage('subscriptions')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-repeat block text-base mb-1"></i>Abbonamenti</button>
+    <button data-nav="more" onclick="goPage('more')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-ellipsis block text-base mb-1"></i>Altro</button>
   </div>
 </nav>
 
@@ -546,8 +547,7 @@ async function saveSnapshot(){
 function goPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('.navbtn').forEach(x=>x.className=x.className.replace('text-emerald-400','text-slate-500'));
-  const navTarget = p === 'subscriptions' ? 'more' : p;
-  const b=document.querySelector(`[data-nav="${navTarget}"]`);if(b)b.className=b.className.replace('text-slate-500','text-emerald-400');
+  const b=document.querySelector(`[data-nav="${p}"]`);if(b)b.className=b.className.replace('text-slate-500','text-emerald-400');
   if(p==='budgets')renderBudgets();if(p==='wealth')renderWealth();if(p==='subscriptions')renderSubscriptions()
 }
 function renderAll(){
