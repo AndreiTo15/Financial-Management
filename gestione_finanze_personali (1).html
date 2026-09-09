@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gestione Finanze</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom iOS Style Glassmorphism & Scrollbar */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hide Scrollbars while keeping functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mobile safe areas for iPhone notch & bar */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 16px);
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Header -->
+    <header class="pt-safe sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60 px-4 py-3 sm:px-8">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-wallet text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white leading-tight">Finanze</h1>
+                    <p class="text-xs text-slate-400 font-medium">Gestione Personale</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="togglePrivacy()" id="privacy-btn" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition active:scale-95" title="Nascondi/Mostra Importi">
+                    <i class="fa-solid fa-eye text-sm"></i>
+                </button>
+                <button onclick="openSettingsModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition active:scale-95" title="Impostazioni">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto max-w-4xl w-full mx-auto px-4 py-6 sm:px-8 pb-28 md:pb-8">
+
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-dashboard" class="space-y-6">
+            <!-- Balance Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 border border-slate-800 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Saldo Attuale</span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Attivo
+                    </span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-6" id="total-balance">
+                    € --
+                </div>
+
+                <!-- Monthly Quick Summary -->
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800/80">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-arrow-down-left text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-medium">Entrate Mese</p>
+                            <p class="text-sm font-bold text-emerald-400" id="month-income">€ --</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                            <i class="fa-solid fa-arrow-up-right text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-medium">Uscite Mese</p>
+                            <p class="text-sm font-bold text-rose-400" id="month-expenses">€ --</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openAddModal('INCOME')" class="flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-900/30 transition active:scale-95">
+                    <i class="fa-solid fa-plus-circle"></i> Aggiungi Entrata
+                </button>
+                <button onclick="openAddModal('EXPENSE')" class="flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm shadow-lg shadow-rose-900/30 transition active:scale-95">
+                    <i class="fa-solid fa-minus-circle"></i> Registra Spesa
+                </button>
+            </div>
+
+            <!-- Subscription Alert Card -->
+            <div id="sub-check-banner" class="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 border-amber-500/30 bg-amber-500/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-calendar-check text-base"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-amber-300">Abbonamenti del Mese</h4>
+                        <p class="text-[11px] text-slate-400">Verifica o addebita gli abbonamenti di questo mese.</p>
+                    </div>
+                </div>
+                <button onclick="processSubscriptions()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold transition flex-shrink-0">
+                    Processa Ora
+                </button>
+            </div>
+
+            <!-- Recent Transactions Widget -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center px-1">
+                    <h3 class="text-sm font-bold text-slate-300">Ultime Transazioni</h3>
+                    <button onclick="switchTab('transactions')" class="text-xs text-brand-500 hover:underline font-medium">Vedi tutte</button>
+                </div>
+                <div id="dashboard-recent-list" class="space-y-2">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: TRANSACTIONS -->
+        <section id="view-transactions" class="space-y-5 hidden">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white">Storico Movimenti</h2>
+                <button onclick="openAddModal('EXPENSE')" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white text-xs font-semibold shadow hover:bg-brand-500 transition">
+                    + Nuova
+                </button>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="search-input" oninput="renderTransactions()" placeholder="Cerca per nota o tag..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                </div>
+                <select id="filter-type" onchange="renderTransactions()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brand-500">
+                    <option value="ALL">Tutti</option>
+                    <option value="INCOME">Entrate</option>
+                    <option value="EXPENSE">Uscite</option>
+                </select>
+            </div>
+
+            <!-- Full List -->
+            <div id="full-transactions-list" class="space-y-2">
+                <!-- Dynamic rendering -->
+            </div>
+        </section>
+
+        <!-- VIEW: SUBSCRIPTIONS -->
+        <section id="view-subscriptions" class="space-y-5 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Abbonamenti Ricorrenti</h2>
+                    <p class="text-xs text-slate-400">Spese fisse addebitate ogni mese</p>
+                </div>
+                <button onclick="openAddSubModal()" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white text-xs font-semibold shadow hover:bg-brand-500 transition">
+                    + Nuovo
+                </button>
+            </div>
+
+            <div class="p-4 rounded-2xl glass-card border border-slate-800 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400 font-medium">Totale Abbonamenti</span>
+                    <p class="text-lg font-bold text-white" id="total-subs-amount">€ 0.00 /mese</p>
+                </div>
+                <button onclick="processSubscriptions()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right text-brand-500"></i> Verifica Addebiti
+                </button>
+            </div>
+
+            <div id="subscriptions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Dynamic rendering -->
+            </div>
+        </section>
+
+        <!-- VIEW: STATISTICS -->
+        <section id="view-stats" class="space-y-5 hidden">
+            <h2 class="text-lg font-bold text-white">Analisi Spese</h2>
+
+            <!-- Chart Card -->
+            <div class="glass-card rounded-2xl p-5 border border-slate-800">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Ripartizione per Tag (Questo Mese)</h3>
+                <div class="relative w-full h-64 flex items-center justify-center">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tag Breakdown List -->
+            <div class="glass-card rounded-2xl p-5 border border-slate-800">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Dettaglio Categorie</h3>
+                <div id="tag-breakdown-list" class="space-y-3">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Mobile Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 glass-nav pb-safe px-4 pt-2">
+        <div class="max-w-md mx-auto flex justify-around items-center text-center">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 p-2 text-brand-500 font-semibold transition">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[10px]">Home</span>
+            </button>
+            <button onclick="switchTab('transactions')" id="nav-transactions" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition">
+                <i class="fa-solid fa-list-staggered text-lg"></i>
+                <span class="text-[10px]">Movimenti</span>
+            </button>
+            <button onclick="switchTab('subscriptions')" id="nav-subscriptions" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition">
+                <i class="fa-solid fa-arrows-rotate text-lg"></i>
+                <span class="text-[10px]">Abbonamenti</span>
+            </button>
+            <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition">
+                <i class="fa-solid fa-chart-pie text-lg"></i>
+                <span class="text-[10px]">Statistiche</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MODAL: ADD TRANSACTION -->
+    <div id="modal-transaction" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-200">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-base font-bold text-white" id="modal-trans-title">Nuova Transazione</h3>
+                <button onclick="closeModal('modal-transaction')" class="p-1 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="trans-form" onsubmit="handleSaveTransaction(event)" class="space-y-4">
+                <input type="hidden" id="trans-type" value="EXPENSE">
+
+                <!-- Type Selector Tabs -->
+                <div class="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800">
+                    <button type="button" id="btn-type-expense" onclick="setTransType('EXPENSE')" class="py-2 rounded-lg text-xs font-bold bg-rose-600 text-white transition">Spesa</button>
+                    <button type="button" id="btn-type-income" onclick="setTransType('INCOME')" class="py-2 rounded-lg text-xs font-bold text-slate-400 transition">Entrata</button>
+                </div>
+
+                <!-- Amount -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Importo (€)</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
+                        <input type="number" step="0.01" id="trans-amount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-2.5 text-lg font-bold text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <!-- Preset Tags -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Tag / Categoria</label>
+                    <div class="flex flex-wrap gap-1.5 mb-2" id="preset-tags">
+                        <!-- Rendered by JS -->
+                    </div>
+                    <input type="text" id="trans-tag" required placeholder="es. spesa, stipendio, svago" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Descrizione / Nota</label>
+                    <input type="text" id="trans-desc" placeholder="es. Supermercato Conad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <!-- Date and Time -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Data e Ora</label>
+                    <input type="datetime-local" id="trans-datetime" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition mt-2">
+                    Salva Transazione
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD SUBSCRIPTION -->
+    <div id="modal-sub" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-base font-bold text-white">Nuovo Abbonamento</h3>
+                <button onclick="closeModal('modal-sub')" class="p-1 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="sub-form" onsubmit="handleSaveSubscription(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Nome Servizio / Abbonamento</label>
+                    <input type="text" id="sub-name" required placeholder="es. Netflix, Palestra, Spotify" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Importo Mensile (€)</label>
+                        <input type="number" step="0.01" id="sub-amount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Giorno Addebito</label>
+                        <input type="number" min="1" max="31" id="sub-day" value="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Tag</label>
+                    <input type="text" id="sub-tag" required placeholder="es. streaming, sport, abbonamenti" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition mt-2">
+                    Aggiungi Abbonamento
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SETTINGS & INITIAL BALANCE -->
+    <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-base font-bold text-white">Impostazioni & Dati</h3>
+                <button onclick="closeModal('modal-settings')" class="p-1 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modify Balance -->
+            <div class="space-y-2 pt-2 border-t border-slate-800">
+                <label class="block text-xs font-medium text-slate-400">Rettifica Saldo Attuale (€)</label>
+                <div class="flex gap-2">
+                    <input type="number" step="0.01" id="settings-balance" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                    <button onclick="updateBalanceFromSettings()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition">Aggiorna</button>
+                </div>
+            </div>
+
+            <!-- Export / Import -->
+            <div class="space-y-2 pt-4 border-t border-slate-800">
+                <label class="block text-xs font-medium text-slate-400">Backup & Trasferimento Dati</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportDataJSON()" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
+                        <i class="fa-solid fa-download mr-1"></i> Esporta JSON
+                    </button>
+                    <label class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 text-center cursor-pointer transition">
+                        <i class="fa-solid fa-upload mr-1"></i> Importa JSON
+                        <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Reset Data -->
+            <div class="pt-4 border-t border-slate-800">
+                <button onclick="resetAllData()" class="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition">
+                    Ripristino Dati Iniziali Demo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed top-5 right-5 left-5 sm:left-auto z-50 transform translate-y-[-150%] transition-transform duration-300 pointer-events-none">
+        <div class="bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <span id="toast-message" class="text-xs font-semibold">Operazione completata</span>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STATE MANAGEMENT ---
+        const STORAGE_KEY = 'my_finance_app_data_v1';
+        let isPrivacyActive = false;
+        let myChart = null;
+
+        const defaultTags = ['stipendio', 'spesa', 'ristorante', 'svago', 'bollette', 'sport', 'casa', 'trasporti'];
+
+        const defaultData = {
+            balance: 3184.51,
+            transactions: [
+                { id: 1, type: 'INCOME', amount: 1800.00, tag: 'stipendio', description: 'Stipendio Mese', timestamp: '2026-09-01T09:00:00' },
+                { id: 2, type: 'EXPENSE', amount: 12.99, tag: 'streaming', description: 'Abbonamento: Netflix', timestamp: '2026-09-01T10:15:00' },
+                { id: 3, type: 'EXPENSE', amount: 45.00, tag: 'sport', description: 'Abbonamento: Palestra', timestamp: '2026-09-01T10:15:00' },
+                { id: 4, type: 'EXPENSE', amount: 42.50, tag: 'spesa', description: 'Supermercato Conad', timestamp: '2026-09-05T18:30:00' },
+                { id: 5, type: 'EXPENSE', amount: 15.00, tag: 'ristorante', description: 'Pizza con amici', timestamp: '2026-09-07T21:00:00' }
+            ],
+            subscriptions: [
+                { id: 1, name: 'Netflix', amount: 12.99, tag: 'streaming', day: 1, lastChargedMonth: '2026-09' },
+                { id: 2, name: 'Palestra', amount: 45.00, tag: 'sport', day: 1, lastChargedMonth: '2026-09' },
+                { id: 3, name: 'Spotify', amount: 9.99, tag: 'musica', day: 15, lastChargedMonth: '' }
+            ]
+        };
+
+        let state = loadData();
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) return JSON.parse(saved);
+            } catch (e) {
+                console.error('Error loading data', e);
+            }
+            return defaultData;
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            renderApp();
+        }
+
+        function renderApp() {
+            renderBalance();
+            renderDashboardRecent();
+            renderTransactions();
+            renderSubscriptions();
+            renderPresetTags();
+            checkSubscriptionBanner();
+        }
+
+        // Privacy Toggle
+        function togglePrivacy() {
+            isPrivacyActive = !isPrivacyActive;
+            const btn = document.getElementById('privacy-btn');
+            btn.innerHTML = isPrivacyActive ? '<i class="fa-solid fa-eye-slash text-sm text-brand-500"></i>' : '<i class="fa-solid fa-eye text-sm"></i>';
+            renderBalance();
+            renderDashboardRecent();
+            renderTransactions();
+        }
+
+        function formatMoney(amount) {
+            if (isPrivacyActive) return '€ ••••';
+            return '€ ' + amount.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function renderBalance() {
+            document.getElementById('total-balance').textContent = formatMoney(state.balance);
+
+            // Compute current month income / expense
+            const now = new Date();
+            const currentYearMonth = now.toISOString().slice(0, 7);
+
+            let income = 0;
+            let expense = 0;
+
+            state.transactions.forEach(t => {
+                if (t.timestamp.startsWith(currentYearMonth)) {
+                    if (t.type === 'INCOME') income += t.amount;
+                    if (t.type === 'EXPENSE') expense += t.amount;
+                }
+            });
+
+            document.getElementById('month-income').textContent = formatMoney(income);
+            document.getElementById('month-expenses').textContent = formatMoney(expense);
+        }
+
+        function renderDashboardRecent() {
+            const container = document.getElementById('dashboard-recent-list');
+            container.innerHTML = '';
+
+            const recent = [...state.transactions]
+                .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 4);
+
+            if (recent.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Nessuna transazione registrata.</p>`;
+                return;
+            }
+
+            recent.forEach(t => {
+                container.appendChild(createTransactionCard(t));
+            });
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('full-transactions-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const search = document.getElementById('search-input')?.value.toLowerCase() || '';
+            const typeFilter = document.getElementById('filter-type')?.value || 'ALL';
+
+            let filtered = state.transactions.filter(t => {
+                const matchesSearch = t.tag.toLowerCase().includes(search) || (t.description && t.description.toLowerCase().includes(search));
+                const matchesType = typeFilter === 'ALL' || t.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Nessun movimento trovato.</p>`;
+                return;
+            }
+
+            filtered.forEach(t => {
+                container.appendChild(createTransactionCard(t, true));
+            });
+        }
+
+        function createTransactionCard(t, allowDelete = false) {
+            const div = document.createElement('div');
+            div.className = 'glass-card p-3.5 rounded-2xl flex items-center justify-between gap-3 border border-slate-800/80 hover:border-slate-700 transition';
+
+            const isIncome = t.type === 'INCOME';
+            const iconClass = isIncome ? 'fa-arrow-down-left text-emerald-400 bg-emerald-500/10' : 'fa-arrow-up-right text-rose-400 bg-rose-500/10';
+            const amountColor = isIncome ? 'text-emerald-400' : 'text-slate-100';
+            const sign = isIncome ? '+' : '-';
+
+            const dateObj = new Date(t.timestamp);
+            const formattedDate = dateObj.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) + ' ' + dateObj.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+            div.innerHTML = `
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl ${iconClass} flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                        <i class="fa-solid ${iconClass}"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-white truncate">${t.description || '#' + t.tag}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[10px] text-slate-400">${formattedDate}</span>
+                            <span class="text-[10px] px-1.5 py-0.2 bg-slate-800 text-slate-300 rounded-md">#${t.tag}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="text-xs font-bold ${amountColor}">${sign}${formatMoney(t.amount)}</span>
+                    <button onclick="deleteTransaction(${t.id})" class="p-2 text-slate-500 hover:text-rose-400 text-xs transition rounded-lg hover:bg-slate-800/60" title="Elimina Transazione">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+            return div;
+        }
+
+        function renderSubscriptions() {
+            const container = document.getElementById('subscriptions-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let totalSubs = 0;
+            const currentMonth = new Date().toISOString().slice(0, 7);
+
+            if (state.subscriptions.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6 col-span-full">Nessun abbonamento salvato.</p>`;
+                document.getElementById('total-subs-amount').textContent = `€ 0.00 /mese`;
+                return;
+            }
+
+            state.subscriptions.forEach(s => {
+                totalSubs += s.amount;
+                const isCharged = s.lastChargedMonth === currentMonth;
+
+                const card = document.createElement('div');
+                card.className = 'glass-card p-4 rounded-2xl border border-slate-800/80 flex flex-col justify-between gap-3 relative group';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="text-sm font-bold text-white">${s.name}</h4>
+                            <span class="text-[10px] px-2 py-0.5 bg-slate-800 text-slate-300 rounded-full font-medium">#${s.tag}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-extrabold text-white">€ ${s.amount.toFixed(2)}</span>
+                            <button onclick="deleteSubscription(${s.id})" class="p-1.5 text-slate-500 hover:text-rose-400 text-xs transition rounded-lg hover:bg-slate-800/80" title="Elimina Abbonamento">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800/60 text-xs">
+                        <span class="text-[11px] text-slate-400">Giorno addebito: <strong class="text-slate-200">${s.day}</strong></span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${isCharged ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                            ${isCharged ? 'Addebitato' : 'Da addebitare'}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('total-subs-amount').textContent = `€ ${totalSubs.toFixed(2)} /mese`;
+        }
+
+        function renderPresetTags() {
+            const container = document.getElementById('preset-tags');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultTags.forEach(tag => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.className = 'px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition';
+                pill.textContent = '#' + tag;
+                pill.onclick = () => {
+                    document.getElementById('trans-tag').value = tag;
+                };
+                container.appendChild(pill);
+            });
+        }
+
+        function checkSubscriptionBanner() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const pending = state.subscriptions.some(s => s.lastChargedMonth !== currentMonth);
+            const banner = document.getElementById('sub-check-banner');
+            if (banner) {
+                if (pending) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+        }
+
+        function openAddModal(type) {
+            setTransType(type);
+            // Default current date/time
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('trans-datetime').value = now.toISOString().slice(0, 16);
+
+            document.getElementById('modal-transaction').classList.remove('hidden');
+        }
+
+        function setTransType(type) {
+            document.getElementById('trans-type').value = type;
+            const btnExpense = document.getElementById('btn-type-expense');
+            const btnIncome = document.getElementById('btn-type-income');
+
+            if (type === 'EXPENSE') {
+                btnExpense.className = 'py-2 rounded-lg text-xs font-bold bg-rose-600 text-white transition';
+                btnIncome.className = 'py-2 rounded-lg text-xs font-bold text-slate-400 transition';
+            } else {
+                btnIncome.className = 'py-2 rounded-lg text-xs font-bold bg-emerald-600 text-white transition';
+                btnExpense.className = 'py-2 rounded-lg text-xs font-bold text-slate-400 transition';
+            }
+        }
+
+        function handleSaveTransaction(e) {
+            e.preventDefault();
+            const type = document.getElementById('trans-type').value;
+            const amount = parseFloat(document.getElementById('trans-amount').value);
+            const tag = document.getElementById('trans-tag').value.toLowerCase().trim();
+            const desc = document.getElementById('trans-desc').value.trim();
+            const datetime = document.getElementById('trans-datetime').value;
+
+            if (isNaN(amount) || amount <= 0 || !tag) return;
+
+            const newTrans = {
+                id: Date.now(),
+                type: type,
+                amount: amount,
+                tag: tag,
+                description: desc,
+                timestamp: datetime
+            };
+
+            state.transactions.push(newTrans);
+
+            if (type === 'INCOME') state.balance += amount;
+            if (type === 'EXPENSE') state.balance -= amount;
+
+            saveData();
+            closeModal('modal-transaction');
+            showToast(type === 'INCOME' ? 'Entrata registrata!' : 'Spesa registrata!');
+
+            // Reset form
+            document.getElementById('trans-form').reset();
+        }
+
+        function deleteTransaction(id) {
+            const index = state.transactions.findIndex(t => t.id === id);
+            if (index !== -1) {
+                const t = state.transactions[index];
+                if (t.type === 'INCOME') state.balance -= t.amount;
+                if (t.type === 'EXPENSE') state.balance += t.amount;
+
+                state.transactions.splice(index, 1);
+                saveData();
+                showToast('Transazione eliminata');
+            }
+        }
+
+        function deleteSubscription(id) {
+            const index = state.subscriptions.findIndex(s => s.id === id);
+            if (index !== -1) {
+                const sub = state.subscriptions[index];
+                state.subscriptions.splice(index, 1);
+                saveData();
+                showToast(`Abbonamento '${sub.name}' rimosso`);
+            }
+        }
+
+        function openAddSubModal() {
+            document.getElementById('modal-sub').classList.remove('hidden');
+        }
+
+        function handleSaveSubscription(e) {
+            e.preventDefault();
+            const name = document.getElementById('sub-name').value.trim();
+            const amount = parseFloat(document.getElementById('sub-amount').value);
+            const day = parseInt(document.getElementById('sub-day').value);
+            const tag = document.getElementById('sub-tag').value.toLowerCase().trim();
+
+            if (!name || isNaN(amount) || amount <= 0) return;
+
+            state.subscriptions.push({
+                id: Date.now(),
+                name: name,
+                amount: amount,
+                day: day,
+                tag: tag,
+                lastChargedMonth: ''
+            });
+
+            saveData();
+            closeModal('modal-sub');
+            showToast('Abbonamento aggiunto!');
+            document.getElementById('sub-form').reset();
+        }
+
+        function processSubscriptions() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            let processedCount = 0;
+
+            state.subscriptions.forEach(s => {
+                if (s.lastChargedMonth !== currentMonth) {
+                    // Create transaction
+                    const now = new Date().toISOString().slice(0, 16);
+                    state.transactions.push({
+                        id: Date.now() + Math.random(),
+                        type: 'EXPENSE',
+                        amount: s.amount,
+                        tag: s.tag,
+                        description: `Abbonamento: ${s.name}`,
+                        timestamp: now
+                    });
+
+                    state.balance -= s.amount;
+                    s.lastChargedMonth = currentMonth;
+                    processedCount++;
+                }
+            });
+
+            if (processedCount > 0) {
+                saveData();
+                showToast(`${processedCount} abbonamento/i addebitato/i!`);
+            } else {
+                showToast('Tutti gli abbonamenti del mese sono già aggiornati.');
+            }
+        }
+
+        function renderChart() {
+            const canvas = document.getElementById('expenseChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const now = new Date().toISOString().slice(0, 7);
+
+            // Group expenses by tag for current month
+            const tagTotals = {};
+            state.transactions.forEach(t => {
+                if (t.type === 'EXPENSE' && t.timestamp.startsWith(now)) {
+                    tagTotals[t.tag] = (tagTotals[t.tag] || 0) + t.amount;
+                }
+            });
+
+            const labels = Object.keys(tagTotals).map(t => '#' + t);
+            const data = Object.values(tagTotals);
+
+            if (myChart) myChart.destroy();
+
+            if (data.length === 0) {
+                const breakdownList = document.getElementById('tag-breakdown-list');
+                if (breakdownList) breakdownList.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">Nessuna spesa per questo mese.</p>`;
+                return;
+            }
+
+            const colors = ['#10b981', '#f43f5e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1'];
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { size: 11, family: 'Inter' }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Render breakdown list
+            const breakdownList = document.getElementById('tag-breakdown-list');
+            if (breakdownList) {
+                breakdownList.innerHTML = '';
+                const totalExpenseMonth = data.reduce((a,b) => a+b, 0);
+
+                Object.keys(tagTotals).forEach((tag, idx) => {
+                    const amt = tagTotals[tag];
+                    const percentage = ((amt / totalExpenseMonth) * 100).toFixed(1);
+
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between text-xs';
+                    row.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${colors[idx % colors.length]}"></span>
+                            <span class="font-semibold text-slate-200">#${tag}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-slate-400 font-medium">${percentage}%</span>
+                            <span class="font-bold text-white">€ ${amt.toFixed(2)}</span>
+                        </div>
+                    `;
+                    breakdownList.appendChild(row);
+                });
+            }
+        }
+
+        function switchTab(tabName) {
+            ['dashboard', 'transactions', 'subscriptions', 'stats'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = 'flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-200 font-semibold transition';
+                }
+            });
+
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if (activeBtn) {
+                activeBtn.className = 'flex flex-col items-center gap-1 p-2 text-brand-500 font-semibold transition';
+            }
+
+            if (tabName === 'stats') {
+                renderChart();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settings-balance').value = state.balance.toFixed(2);
+            document.getElementById('modal-settings').classList.remove('hidden');
+        }
+
+        function updateBalanceFromSettings() {
+            const val = parseFloat(document.getElementById('settings-balance').value);
+            if (!isNaN(val)) {
+                state.balance = val;
+                saveData();
+                closeModal('modal-settings');
+                showToast('Saldo aggiornato!');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('translate-y-[-150%]');
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-150%]');
+            }, 2500);
+        }
+
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `finanze_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed && typeof parsed.balance === 'number') {
+                        state = parsed;
+                        saveData();
+                        closeModal('modal-settings');
+                        showToast('Dati importati con successo!');
+                    } else {
+                        alert('File non valido.');
+                    }
+                } catch (err) {
+                    alert('Errore nella lettura del file JSON.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetAllData() {
+            if (confirm('Vuoi davvero ripristinare i dati iniziali di test? Tutti i tuoi inserimenti verranno sovrascritti.')) {
+                state = defaultData;
+                saveData();
+                closeModal('modal-settings');
+                showToast('Dati ripristinati!');
+            }
+        }
+
+        // Initialize App on window load
+        window.onload = function() {
+            renderApp();
+        };
+    </script>
+</body>
+</html>
