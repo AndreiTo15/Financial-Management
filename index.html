@@ -38,12 +38,30 @@
     .light .text-white{color:#0f172a!important}.light .text-slate-100{color:#0f172a!important}
     .light .text-slate-300,.light .text-slate-400{color:#475569!important}
     .light .border-slate-800{border-color:#cbd5e1!important}.light .glass{background:rgba(255,255,255,.9)}
+  
+    :root{
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+    body{
+      padding-left: var(--safe-left);
+      padding-right: var(--safe-right);
+    }
+    header{
+      padding-top: var(--safe-top);
+    }
+    nav{
+      padding-bottom: var(--safe-bottom);
+    }
+
   </style>
 
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Finanze">
   <meta name="mobile-web-app-capable" content="yes">
 </head>
