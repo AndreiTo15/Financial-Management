@@ -71,6 +71,25 @@
         .pt-safe {
             padding-top: env(safe-area-inset-top, 16px);
         }
+
+        /* Thin styled scrollbar for the internal recent-transactions scroll area */
+        .styled-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+        }
+        .styled-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .styled-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .styled-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.35);
+            border-radius: 999px;
+        }
+        .styled-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.55);
+        }
     </style>
 </head>
 <body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
@@ -103,7 +122,7 @@
     <main class="flex-1 overflow-y-auto max-w-4xl w-full mx-auto px-4 py-6 sm:px-8 pb-32">
 
         <!-- VIEW: DASHBOARD -->
-        <section id="view-dashboard" class="space-y-6">
+        <section id="view-dashboard" class="space-y-6 flex flex-col">
             <!-- Balance Card -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 border border-slate-800 shadow-2xl">
                 <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -167,12 +186,12 @@
             </div>
 
             <!-- Recent Transactions Widget -->
-            <div class="space-y-3">
+            <div class="space-y-3 flex-1 min-h-0 flex flex-col">
                 <div class="flex justify-between items-center px-1">
                     <h3 class="text-sm font-bold text-slate-300">Ultime Transazioni</h3>
                     <button onclick="switchTab('transactions')" class="text-xs text-brand-500 hover:underline font-medium">Vedi tutte</button>
                 </div>
-                <div id="dashboard-recent-list" class="space-y-2">
+                <div id="dashboard-recent-list" class="space-y-2 overflow-y-auto overscroll-contain max-h-72 pr-1 styled-scrollbar">
                     <!-- Dynamic rendering -->
                 </div>
             </div>
