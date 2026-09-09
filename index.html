@@ -502,13 +502,45 @@ function netWorth(){return currentBalance()+assetsTotal()}
 
 function authMode(mode){
   ['login-form','register-form','forgot-form','reset-form'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  const tabs=document.getElementById('auth-tabs');tabs.classList.remove('hidden');clearMsg();
-  if(mode==='login')document.getElementById('login-form').classList.remove('hidden');
-  if(mode==='register')document.getElementById('register-form').classList.remove('hidden');
-  if(mode==='forgot'){document.getElementById('forgot-form').classList.remove('hidden');tabs.classList.add('hidden')}
+
+  const tabs=document.getElementById('auth-tabs');
+  const loginTab=document.getElementById('tab-login');
+  const registerTab=document.getElementById('tab-register');
+
+  tabs.classList.remove('hidden');
+  clearMsg();
+
+  // Stato visivo dei due tab Accedi / Registrati
+  [loginTab, registerTab].forEach(tab=>{
+    tab.classList.remove('bg-brand-600','text-white');
+    tab.classList.add('text-slate-400');
+  });
+
+  if(mode==='login'){
+    document.getElementById('login-form').classList.remove('hidden');
+    loginTab.classList.remove('text-slate-400');
+    loginTab.classList.add('bg-brand-600','text-white');
+  }
+
+  if(mode==='register'){
+    document.getElementById('register-form').classList.remove('hidden');
+    registerTab.classList.remove('text-slate-400');
+    registerTab.classList.add('bg-brand-600','text-white');
+  }
+
+  if(mode==='forgot'){
+    document.getElementById('forgot-form').classList.remove('hidden');
+    tabs.classList.add('hidden');
+  }
+
   if(mode==='reset'||mode==='reset-direct'){
-    recovery=mode==='reset';document.getElementById('reset-form').classList.remove('hidden');tabs.classList.add('hidden');
-    if(mode==='reset-direct'){closeModal('settings-modal');document.getElementById('auth-screen').classList.remove('hidden')}
+    recovery=mode==='reset';
+    document.getElementById('reset-form').classList.remove('hidden');
+    tabs.classList.add('hidden');
+    if(mode==='reset-direct'){
+      closeModal('settings-modal');
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
   }
 }
 async function register(e){
