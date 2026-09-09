@@ -429,6 +429,21 @@ function friendly(e){
   return e?.message||'Si è verificato un errore.';
 }
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),2500)}
+let snapshotTimer=null;
+function tempId(prefix='tmp'){
+  const rnd=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now();
+  return `${prefix}_${rnd}`;
+}
+function commitUI(){
+  saveCache();
+  renderAll();
+  scheduleSnapshot();
+}
+function scheduleSnapshot(){
+  clearTimeout(snapshotTimer);
+  snapshotTimer=setTimeout(()=>{ saveSnapshot().catch(()=>{}); },700);
+}
+
 function openModal(id){document.getElementById(id)?.classList.add('open')}
 function closeModal(id){document.getElementById(id)?.classList.remove('open')}
 function confirmAction(title,text,fn){
@@ -518,7 +533,7 @@ async function loadAll(){
   [profile,settings]=[res[0].data,res[1].data];
   categories=res[2].data||[];transactions=res[3].data||[];subscriptions=res[4].data||[];budgets=res[5].data||[];
   goals=res[6].data||[];assets=res[7].data||[];snapshots=res[8].data||[];
-  saveCache();await saveSnapshot();renderAll()
+  saveCache();renderAll();scheduleSnapshot()
 }
 function saveCache(){localStorage.setItem(CACHE_PREFIX+user.id,JSON.stringify({profile,settings,categories,transactions,subscriptions,budgets,goals,assets,snapshots}))}
 function loadCache(){
@@ -532,7 +547,7 @@ function loadCache(){
 }
 function subscribeRealtime(){
   sb.removeAllChannels();
-  ['transactions','subscriptions','categories','budgets','savings_goals','assets','finance_settings','profiles','net_worth_snapshots'].forEach(t=>{
+  ['transactions','subscriptions','categories','budgets','savings_goals','assets','finance_settings','profiles'].forEach(t=>{
     sb.channel('rt-'+t+'-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:t,filter:t==='profiles'?`id=eq.${user.id}`:`user_id=eq.${user.id}`},()=>{
       clearTimeout(reloadTimer);reloadTimer=setTimeout(loadAll,250)
     }).subscribe()
@@ -597,35 +612,45 @@ async function saveTransaction(e){
   e.preventDefault();
   const id=document.getElementById('tx-id').value;
   const row={user_id:user.id,type:document.getElementById('tx-type').value,amount:Number(document.getElementById('tx-amount').value),category:document.getElementById('tx-category').value,description:document.getElementById('tx-description').value.trim(),occurred_at:new Date(document.getElementById('tx-date').value).toISOString(),source:'manual'};
-  const r=id
-    ? await sb.from('transactions').update(row).eq('id',id).eq('user_id',user.id).select().single()
-    : await sb.from('transactions').insert(row).select().single();
-  if(r.error)return toast(friendly(r.error));
 
   if(id){
     const i=transactions.findIndex(t=>t.id===id);
-    if(i!==-1) transactions[i]=r.data;
-  }else{
-    transactions.unshift(r.data);
+    if(i===-1)return;
+    const previous={...transactions[i]};
+    transactions[i]={...transactions[i],...row};
+    closeModal('transaction-modal');
+    commitUI();
+
+    const {data,error}=await sb.from('transactions').update(row).eq('id',id).eq('user_id',user.id).select().single();
+    if(error){transactions[i]=previous;commitUI();toast(friendly(error));return;}
+    const now=transactions.findIndex(t=>t.id===id);if(now!==-1)transactions[now]=data;
+    saveCache();
+    toast('Movimento salvato');
+    return;
   }
-  saveCache();
+
+  const optimistic={...row,id:tempId('tx'),created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+  transactions.unshift(optimistic);
   closeModal('transaction-modal');
-  renderAll();
+  commitUI();
+
+  const {data,error}=await sb.from('transactions').insert(row).select().single();
+  if(error){transactions=transactions.filter(t=>t.id!==optimistic.id);commitUI();toast(friendly(error));return;}
+  const i=transactions.findIndex(t=>t.id===optimistic.id);if(i!==-1)transactions[i]=data;
+  saveCache();renderAll();
   toast('Movimento salvato');
 }
 function deleteTransaction(id){
   confirmAction('Eliminare movimento?','Il saldo e i grafici verranno aggiornati.',async()=>{
     const oldTransactions = [...transactions];
     transactions = transactions.filter(t => t.id !== id);
-    saveCache();
-    renderAll();
+    commitUI();
 
     const { error } = await sb.from('transactions').delete().eq('id',id).eq('user_id',user.id);
 
     if(error){
       transactions = oldTransactions;
-      saveCache();
-      renderAll();
+      commitUI();
       toast(friendly(error));
       return;
     }
@@ -649,16 +674,35 @@ async function saveBudget(e){
   e.preventDefault();
   const id=document.getElementById('budget-id').value;
   const row={user_id:user.id,category:document.getElementById('budget-category').value,month:monthStart(document.getElementById('budget-form-month').value),amount:Number(document.getElementById('budget-amount').value)};
-  const r=id
-    ? await sb.from('budgets').update(row).eq('id',id).select().single()
-    : await sb.from('budgets').upsert(row,{onConflict:'user_id,category,month'}).select().single();
-  if(r.error)return toast(friendly(r.error));
+  let previous=null, optimisticId=id;
+  let i=id?budgets.findIndex(b=>b.id===id):budgets.findIndex(b=>b.category===row.category&&b.month===row.month);
 
-  const i=budgets.findIndex(b=>b.id===r.data.id || (b.category===r.data.category && b.month===r.data.month));
-  if(i!==-1)budgets[i]=r.data;else budgets.push(r.data);
-  saveCache();closeModal('budget-modal');renderAll();toast('Budget salvato');
+  if(i!==-1){
+    previous={...budgets[i]};optimisticId=budgets[i].id;budgets[i]={...budgets[i],...row};
+  }else{
+    optimisticId=tempId('budget');budgets.push({...row,id:optimisticId,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+  }
+  closeModal('budget-modal');commitUI();
+
+  const r=id
+    ? await sb.from('budgets').update(row).eq('id',id).eq('user_id',user.id).select().single()
+    : await sb.from('budgets').upsert(row,{onConflict:'user_id,category,month'}).select().single();
+  if(r.error){
+    if(previous){const x=budgets.findIndex(b=>b.id===optimisticId);if(x!==-1)budgets[x]=previous;}
+    else budgets=budgets.filter(b=>b.id!==optimisticId);
+    commitUI();toast(friendly(r.error));return;
+  }
+  const x=budgets.findIndex(b=>b.id===optimisticId||b.id===r.data.id);if(x!==-1)budgets[x]=r.data;else budgets.push(r.data);
+  saveCache();renderAll();toast('Budget salvato');
 }
-function deleteBudget(id){confirmAction('Eliminare budget?','Le transazioni non verranno eliminate.',()=>sb.from('budgets').delete().eq('id',id))}
+function deleteBudget(id){
+  confirmAction('Eliminare budget?','Le transazioni non verranno eliminate.',async()=>{
+    const previous=[...budgets];budgets=budgets.filter(b=>b.id!==id);commitUI();
+    const {error}=await sb.from('budgets').delete().eq('id',id).eq('user_id',user.id);
+    if(error){budgets=previous;commitUI();toast(friendly(error));return;}
+    toast('Budget eliminato');
+  })
+}
 
 function renderSubscriptions(){
   const active=subscriptions.filter(s=>s.active);
@@ -706,24 +750,37 @@ async function saveSubscription(e){
   e.preventDefault();
   const id=document.getElementById('sub-id').value;
   const row={user_id:user.id,name:document.getElementById('sub-name').value.trim(),amount:Number(document.getElementById('sub-amount').value),category:document.getElementById('sub-category').value,charge_day:Number(document.getElementById('sub-day').value),active:document.getElementById('sub-active').checked};
-  const r=id
-    ? await sb.from('subscriptions').update(row).eq('id',id).select().single()
-    : await sb.from('subscriptions').insert(row).select().single();
-  if(r.error)return toast(friendly(r.error));
 
-  if(id){const i=subscriptions.findIndex(s=>s.id===id);if(i!==-1)subscriptions[i]=r.data;}
-  else subscriptions.push(r.data);
-  subscriptions.sort((a,b)=>a.name.localeCompare(b.name));
-  saveCache();closeModal('subscription-modal');renderAll();toast('Abbonamento salvato');
+  if(id){
+    const i=subscriptions.findIndex(s=>s.id===id);if(i===-1)return;
+    const previous={...subscriptions[i]};subscriptions[i]={...subscriptions[i],...row};subscriptions.sort((a,b)=>a.name.localeCompare(b.name));
+    closeModal('subscription-modal');commitUI();
+    const {data,error}=await sb.from('subscriptions').update(row).eq('id',id).eq('user_id',user.id).select().single();
+    if(error){const x=subscriptions.findIndex(s=>s.id===id);if(x!==-1)subscriptions[x]=previous;commitUI();toast(friendly(error));return;}
+    const x=subscriptions.findIndex(s=>s.id===id);if(x!==-1)subscriptions[x]=data;saveCache();renderAll();toast('Abbonamento salvato');return;
+  }
+
+  const optimistic={...row,id:tempId('sub'),created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+  subscriptions.push(optimistic);subscriptions.sort((a,b)=>a.name.localeCompare(b.name));closeModal('subscription-modal');commitUI();
+  const {data,error}=await sb.from('subscriptions').insert(row).select().single();
+  if(error){subscriptions=subscriptions.filter(s=>s.id!==optimistic.id);commitUI();toast(friendly(error));return;}
+  const i=subscriptions.findIndex(s=>s.id===optimistic.id);if(i!==-1)subscriptions[i]=data;subscriptions.sort((a,b)=>a.name.localeCompare(b.name));saveCache();renderAll();toast('Abbonamento salvato');
 }
 async function toggleSubscription(id,active){
   const old=subscriptions.map(s=>({...s}));
   const s=subscriptions.find(x=>x.id===id);if(s)s.active=active;
-  saveCache();renderAll();
-  const{error}=await sb.from('subscriptions').update({active}).eq('id',id);
+  commitUI();
+  const{error}=await sb.from('subscriptions').update({active}).eq('id',id).eq('user_id',user.id);
   if(error){subscriptions=old;saveCache();renderAll();toast(friendly(error));}
 }
-function deleteSubscription(id){confirmAction('Eliminare abbonamento?','Le spese già registrate resteranno nello storico.',()=>sb.from('subscriptions').delete().eq('id',id))}
+function deleteSubscription(id){
+  confirmAction('Eliminare abbonamento?','Le spese già registrate resteranno nello storico.',async()=>{
+    const previous=[...subscriptions];subscriptions=subscriptions.filter(s=>s.id!==id);commitUI();
+    const {error}=await sb.from('subscriptions').delete().eq('id',id).eq('user_id',user.id);
+    if(error){subscriptions=previous;commitUI();toast(friendly(error));return;}
+    toast('Abbonamento eliminato');
+  })
+}
 function renderSubscriptionAlert(){
   const d=new Date().getDate();const upcoming=subscriptions.filter(s=>s.active&&s.charge_day>=d&&s.charge_day<=d+3);const el=document.getElementById('subscription-alert');
   if(upcoming.length){el.classList.remove('hidden');el.innerHTML=`<i class="fa-solid fa-bell mr-1"></i> ${upcoming.length} abbonament${upcoming.length===1?'o':'i'} in addebito nei prossimi 3 giorni.`}else el.classList.add('hidden')
@@ -735,11 +792,44 @@ function renderCategories(){
 function openCategoryModal(c=null){document.getElementById('cat-id').value=c?.id||'';document.getElementById('cat-old-name').value=c?.name||'';document.getElementById('cat-name').value=c?.name||'';document.getElementById('cat-icon').value=c?.icon||'fa-tag';document.getElementById('cat-color').value=c?.color||'#10b981';document.getElementById('cat-kind').value=c?.kind||'expense';openModal('category-modal')}
 function openCategoryModalById(id){openCategoryModal(categories.find(c=>c.id===id))}
 async function saveCategory(e){
-  e.preventDefault();const id=document.getElementById('cat-id').value,old=document.getElementById('cat-old-name').value,row={user_id:user.id,name:document.getElementById('cat-name').value.trim().toLowerCase(),icon:document.getElementById('cat-icon').value,color:document.getElementById('cat-color').value,kind:document.getElementById('cat-kind').value};
-  if(id&&old&&old!==row.name){await Promise.all([sb.from('transactions').update({category:row.name}).eq('user_id',user.id).eq('category',old),sb.from('subscriptions').update({category:row.name}).eq('user_id',user.id).eq('category',old),sb.from('budgets').update({category:row.name}).eq('user_id',user.id).eq('category',old)])}
-  const r=id?await sb.from('categories').update(row).eq('id',id):await sb.from('categories').insert(row);if(r.error)return toast(friendly(r.error));closeModal('category-modal');await loadAll();toast('Categoria salvata')
-}
+  e.preventDefault();
+  const id=document.getElementById('cat-id').value;
+  const old=document.getElementById('cat-old-name').value;
+  const row={user_id:user.id,name:document.getElementById('cat-name').value.trim().toLowerCase(),icon:document.getElementById('cat-icon').value,color:document.getElementById('cat-color').value,kind:document.getElementById('cat-kind').value};
+  const backup={categories:categories.map(c=>({...c})),transactions:transactions.map(t=>({...t})),subscriptions:subscriptions.map(s=>({...s})),budgets:budgets.map(b=>({...b}))};
+  let optimisticId=id;
 
+  if(id){
+    const i=categories.findIndex(c=>c.id===id);if(i!==-1)categories[i]={...categories[i],...row};
+  }else{
+    optimisticId=tempId('cat');categories.push({...row,id:optimisticId,is_default:false,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+  }
+  if(id&&old&&old!==row.name){
+    transactions.forEach(t=>{if(t.category===old)t.category=row.name});
+    subscriptions.forEach(s=>{if(s.category===old)s.category=row.name});
+    budgets.forEach(b=>{if(b.category===old)b.category=row.name});
+  }
+  categories.sort((a,b)=>a.name.localeCompare(b.name));closeModal('category-modal');commitUI();
+
+  try{
+    if(id&&old&&old!==row.name){
+      const refs=await Promise.all([
+        sb.from('transactions').update({category:row.name}).eq('user_id',user.id).eq('category',old),
+        sb.from('subscriptions').update({category:row.name}).eq('user_id',user.id).eq('category',old),
+        sb.from('budgets').update({category:row.name}).eq('user_id',user.id).eq('category',old)
+      ]);
+      const refErr=refs.find(x=>x.error)?.error;if(refErr)throw refErr;
+    }
+    const r=id
+      ? await sb.from('categories').update(row).eq('id',id).eq('user_id',user.id).select().single()
+      : await sb.from('categories').insert(row).select().single();
+    if(r.error)throw r.error;
+    const i=categories.findIndex(c=>c.id===optimisticId||c.id===r.data.id);if(i!==-1)categories[i]=r.data;
+    categories.sort((a,b)=>a.name.localeCompare(b.name));saveCache();renderAll();toast('Categoria salvata');
+  }catch(error){
+    categories=backup.categories;transactions=backup.transactions;subscriptions=backup.subscriptions;budgets=backup.budgets;commitUI();toast(friendly(error));
+  }
+}
 function renderGoals(){
   document.getElementById('goals-list').innerHTML=goals.map(g=>{
     const p=Math.min(100,Number(g.current_amount)/Number(g.target_amount)*100);
@@ -787,17 +877,69 @@ async function saveGoal(e){
   e.preventDefault();
   const id=document.getElementById('goal-id').value;
   const row={user_id:user.id,name:document.getElementById('goal-name').value.trim(),goal_type:document.getElementById('goal-type').value,target_amount:Number(document.getElementById('goal-target').value),current_amount:Number(document.getElementById('goal-current').value),target_date:document.getElementById('goal-date').value||null};
-  const r=id
-    ? await sb.from('savings_goals').update(row).eq('id',id).select().single()
-    : await sb.from('savings_goals').insert(row).select().single();
-  if(r.error)return toast(friendly(r.error));
 
-  if(id){const i=goals.findIndex(g=>g.id===id);if(i!==-1)goals[i]=r.data;}
-  else goals.push(r.data);
-  saveCache();closeModal('goal-modal');renderAll();toast('Obiettivo salvato');
+  if(id){
+    const i=goals.findIndex(g=>g.id===id);if(i===-1)return;const previous={...goals[i]};goals[i]={...goals[i],...row};closeModal('goal-modal');commitUI();
+    const {data,error}=await sb.from('savings_goals').update(row).eq('id',id).eq('user_id',user.id).select().single();
+    if(error){const x=goals.findIndex(g=>g.id===id);if(x!==-1)goals[x]=previous;commitUI();toast(friendly(error));return;}
+    const x=goals.findIndex(g=>g.id===id);if(x!==-1)goals[x]=data;saveCache();renderAll();toast('Obiettivo salvato');return;
+  }
+
+  const optimistic={...row,id:tempId('goal'),created_at:new Date().toISOString(),updated_at:new Date().toISOString()};goals.push(optimistic);closeModal('goal-modal');commitUI();
+  const {data,error}=await sb.from('savings_goals').insert(row).select().single();
+  if(error){goals=goals.filter(g=>g.id!==optimistic.id);commitUI();toast(friendly(error));return;}
+  const i=goals.findIndex(g=>g.id===optimistic.id);if(i!==-1)goals[i]=data;saveCache();renderAll();toast('Obiettivo salvato');
 }
-function contributeGoal(id){const g=goals.find(x=>x.id===id),v=prompt('Quanto vuoi aggiungere?', '50');if(!v||isNaN(v))return;sb.from('savings_goals').update({current_amount:Number(g.current_amount)+Number(v)}).eq('id',id)}
-function deleteGoal(id){confirmAction('Eliminare obiettivo?','Questa operazione non modifica il saldo.',()=>sb.from('savings_goals').delete().eq('id',id))}
+async function contributeGoal(id){
+  const g=goals.find(x=>x.id===id);
+  if(!g) return;
+
+  const v=prompt('Quanto vuoi aggiungere?', '50');
+  if(v===null) return;
+
+  const amount=Number(String(v).replace(',','.'));
+  if(!Number.isFinite(amount) || amount<=0){
+    toast('Inserisci un importo valido.');
+    return;
+  }
+
+  const oldAmount=Number(g.current_amount||0);
+  const newAmount=oldAmount+amount;
+
+  // Aggiornamento immediato nell'interfaccia.
+  g.current_amount=newAmount;
+  commitUI();
+
+  const {data,error}=await sb.from('savings_goals')
+    .update({current_amount:newAmount})
+    .eq('id',id)
+    .eq('user_id',user.id)
+    .select()
+    .single();
+
+  if(error){
+    // Ripristina il valore se Supabase non salva.
+    g.current_amount=oldAmount;
+    saveCache();
+    renderAll();
+    toast(friendly(error));
+    return;
+  }
+
+  const i=goals.findIndex(x=>x.id===id);
+  if(i!==-1) goals[i]=data;
+  saveCache();
+  renderAll();
+  toast('Importo aggiunto all’obiettivo');
+}
+function deleteGoal(id){
+  confirmAction('Eliminare obiettivo?','Questa operazione non modifica il saldo.',async()=>{
+    const previous=[...goals];goals=goals.filter(g=>g.id!==id);commitUI();
+    const {error}=await sb.from('savings_goals').delete().eq('id',id).eq('user_id',user.id);
+    if(error){goals=previous;commitUI();toast(friendly(error));return;}
+    toast('Obiettivo eliminato');
+  })
+}
 
 function renderWealth(){
   const cash=currentBalance(),av=assetsTotal();document.getElementById('wealth-cash').textContent=fmt(cash);document.getElementById('wealth-assets').textContent=fmt(av);document.getElementById('wealth-total').textContent=fmt(cash+av);document.getElementById('wealth-saving').textContent=fmt(savings());
@@ -809,16 +951,27 @@ async function saveAsset(e){
   e.preventDefault();
   const id=document.getElementById('asset-id').value;
   const row={user_id:user.id,name:document.getElementById('asset-name').value.trim(),asset_type:document.getElementById('asset-type').value,value:Number(document.getElementById('asset-value').value),notes:document.getElementById('asset-notes').value.trim()};
-  const r=id
-    ? await sb.from('assets').update(row).eq('id',id).select().single()
-    : await sb.from('assets').insert(row).select().single();
-  if(r.error)return toast(friendly(r.error));
 
-  if(id){const i=assets.findIndex(a=>a.id===id);if(i!==-1)assets[i]=r.data;}
-  else assets.push(r.data);
-  saveCache();closeModal('asset-modal');renderAll();toast('Asset salvato');
+  if(id){
+    const i=assets.findIndex(a=>a.id===id);if(i===-1)return;const previous={...assets[i]};assets[i]={...assets[i],...row};closeModal('asset-modal');commitUI();
+    const {data,error}=await sb.from('assets').update(row).eq('id',id).eq('user_id',user.id).select().single();
+    if(error){const x=assets.findIndex(a=>a.id===id);if(x!==-1)assets[x]=previous;commitUI();toast(friendly(error));return;}
+    const x=assets.findIndex(a=>a.id===id);if(x!==-1)assets[x]=data;saveCache();renderAll();toast('Asset salvato');return;
+  }
+
+  const optimistic={...row,id:tempId('asset'),created_at:new Date().toISOString(),updated_at:new Date().toISOString()};assets.push(optimistic);closeModal('asset-modal');commitUI();
+  const {data,error}=await sb.from('assets').insert(row).select().single();
+  if(error){assets=assets.filter(a=>a.id!==optimistic.id);commitUI();toast(friendly(error));return;}
+  const i=assets.findIndex(a=>a.id===optimistic.id);if(i!==-1)assets[i]=data;saveCache();renderAll();toast('Asset salvato');
 }
-function deleteAsset(id){confirmAction('Eliminare asset?','Verrà rimosso dal calcolo del patrimonio.',()=>sb.from('assets').delete().eq('id',id))}
+function deleteAsset(id){
+  confirmAction('Eliminare asset?','Verrà rimosso dal calcolo del patrimonio.',async()=>{
+    const previous=[...assets];assets=assets.filter(a=>a.id!==id);commitUI();
+    const {error}=await sb.from('assets').delete().eq('id',id).eq('user_id',user.id);
+    if(error){assets=previous;commitUI();toast(friendly(error));return;}
+    toast('Asset eliminato');
+  })
+}
 
 function renderStats(){
   const year=new Date().getFullYear();const ys=transactions.filter(t=>new Date(t.occurred_at).getFullYear()===year&&t.type==='EXPENSE').reduce((s,t)=>s+Number(t.amount),0);
@@ -829,10 +982,18 @@ function renderStats(){
 }
 function renderSettings(){document.getElementById('settings-username').value=profile?.username||'';document.getElementById('settings-opening').value=settings?.opening_balance||0}
 async function saveSettings(){
-  const username=document.getElementById('settings-username').value.trim(),opening_balance=Number(document.getElementById('settings-opening').value);
-  const [a,b]=await Promise.all([sb.from('profiles').update({username}).eq('id',user.id),sb.from('finance_settings').update({opening_balance}).eq('user_id',user.id)]);if(a.error||b.error)return toast(friendly(a.error||b.error));closeModal('settings-modal');toast('Impostazioni salvate')
-}
+  const username=document.getElementById('settings-username').value.trim();
+  const opening_balance=Number(document.getElementById('settings-opening').value);
+  const oldProfile=profile?{...profile}:profile,oldSettings=settings?{...settings}:settings;
+  profile={...(profile||{}),username};settings={...(settings||{}),opening_balance};closeModal('settings-modal');commitUI();
 
+  const [a,b]=await Promise.all([
+    sb.from('profiles').update({username}).eq('id',user.id),
+    sb.from('finance_settings').update({opening_balance}).eq('user_id',user.id)
+  ]);
+  if(a.error||b.error){profile=oldProfile;settings=oldSettings;commitUI();toast(friendly(a.error||b.error));return;}
+  toast('Impostazioni salvate');
+}
 function renderCharts(){
   const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(isoMonth(d))}
   const labels=months.map(m=>new Date(m+'-01').toLocaleDateString('it-IT',{month:'short'}));
