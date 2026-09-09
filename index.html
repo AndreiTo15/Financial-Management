@@ -11,6 +11,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- CONFIGURAZIONE SUPABASE: inserisci qui Project URL e anon/publishable key -->
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://ybwnfijzqlkgwdrbdtxg.supabase.co',
+            anonKey: 'sb_publishable_Rn2pdpsPqLjDmYMfHcvebw_juC1jv0J'
+        };
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Inter Font -->
@@ -93,6 +100,57 @@
     </style>
 </head>
 <body class="h-full bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-7">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-wallet text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold text-white">Gestione Finanze</h1>
+                <p class="text-sm text-slate-400 mt-1">I tuoi dati, sincronizzati su tutti i dispositivi</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+                <div class="flex gap-2 p-1 bg-slate-950 rounded-2xl mb-6">
+                    <button id="auth-tab-login" onclick="showAuthMode('login')" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition">Accedi</button>
+                    <button id="auth-tab-register" onclick="showAuthMode('register')" class="flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition">Registrati</button>
+                </div>
+
+                <form id="login-form" onsubmit="loginUser(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
+                        <input id="login-email" type="email" required autocomplete="email" placeholder="nome@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Password</label>
+                        <input id="login-password" type="password" required autocomplete="current-password" placeholder="La tua password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <button id="login-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">Accedi</button>
+                </form>
+
+                <form id="register-form" onsubmit="registerUser(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Username</label>
+                        <input id="register-username" type="text" required minlength="2" maxlength="30" autocomplete="username" placeholder="Il tuo nome utente" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
+                        <input id="register-email" type="email" required autocomplete="email" placeholder="nome@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Password</label>
+                        <input id="register-password" type="password" required minlength="6" autocomplete="new-password" placeholder="Almeno 6 caratteri" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <button id="register-submit" type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold transition">Crea account</button>
+                    <p class="text-[11px] text-slate-500 text-center">Potrebbe essere necessario confermare l'email, in base alle impostazioni del progetto Supabase.</p>
+                </form>
+
+                <div id="auth-message" class="hidden mt-4 p-3 rounded-xl text-xs font-medium"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Top Header -->
     <header class="pt-safe sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60 px-4 py-3 sm:px-8">
@@ -403,19 +461,22 @@
                 </button>
             </div>
 
-            <!-- Supabase Cloud Config -->
+            <!-- Account -->
             <div class="space-y-3 pt-2 border-t border-slate-800">
-                <label class="block text-xs font-bold text-brand-500 uppercase tracking-wider">Sincronizzazione Supabase Cloud</label>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">Project URL</label>
-                    <input type="text" id="supabase-url" placeholder="https://xyz.supabase.co" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                <label class="block text-xs font-bold text-brand-500 uppercase tracking-wider">Il tuo account</label>
+                <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p id="profile-username" class="text-sm font-bold text-white truncate">Account</p>
+                            <p id="profile-email" class="text-[11px] text-slate-500 truncate">--</p>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[11px] text-slate-400 mb-1">API Key (anon / publishable)</label>
-                    <input type="password" id="supabase-key" placeholder="eyJhbGciOi..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                </div>
-                <button onclick="saveSupabaseSettings()" class="w-full py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition">
-                    Connetti & Scarica Ora
+                <button onclick="logoutUser()" class="w-full py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Esci dall'account
                 </button>
             </div>
 
@@ -461,10 +522,14 @@
 
     <script>
         // --- DATA STATE MANAGEMENT ---
-        const STORAGE_KEY = 'my_finance_app_data_v1';
+        const STORAGE_KEY_PREFIX = 'my_finance_app_data_v1_';
         let isPrivacyActive = false;
         let myChart = null;
         let supabaseClient = null;
+        let currentUser = null;
+        let currentProfile = null;
+        let realtimeChannel = null;
+        let isLoadingCloud = false;
 
         const defaultTags = ['stipendio', 'spesa', 'ristorante', 'svago', 'bollette', 'sport', 'casa', 'trasporti'];
 
@@ -484,102 +549,364 @@
             ]
         };
 
-        let state = loadData();
+        function createEmptyData() {
+            return { balance: 0, transactions: [], subscriptions: [] };
+        }
 
-        function loadData() {
+        function cloneData(data) {
+            return JSON.parse(JSON.stringify(data));
+        }
+
+        let state = createEmptyData();
+
+        function storageKey() {
+            return currentUser ? `${STORAGE_KEY_PREFIX}${currentUser.id}` : null;
+        }
+
+        function loadLocalData() {
+            const key = storageKey();
+            if (!key) return createEmptyData();
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
+                const saved = localStorage.getItem(key);
                 if (saved) return JSON.parse(saved);
             } catch (e) {
-                console.error('Error loading data', e);
+                console.error('Error loading local data', e);
             }
-            return defaultData;
+            return createEmptyData();
+        }
+
+        function cacheLocalData() {
+            const key = storageKey();
+            if (!key || !currentUser) return;
+            localStorage.setItem(key, JSON.stringify(state));
         }
 
         function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            if (!currentUser) return;
+            cacheLocalData();
             renderApp();
             syncToCloud();
         }
 
-        // --- SUPABASE CLOUD SYNC & REALTIME ---
-        function initSupabase() {
-            const url = localStorage.getItem('fin_sp_url') || '';
-            const key = localStorage.getItem('fin_sp_key') || '';
+        // --- SUPABASE AUTH + CLOUD SYNC + REALTIME ---
+        function showAuthMode(mode) {
+            const login = document.getElementById('login-form');
+            const register = document.getElementById('register-form');
+            const loginTab = document.getElementById('auth-tab-login');
+            const registerTab = document.getElementById('auth-tab-register');
 
-            if (url && key) {
-                try {
-                    supabaseClient = supabase.createClient(url, key);
-                    updateCloudBadge('cloud');
-                    loadFromCloud();
-                    subscribeToRealtime();
-                } catch (err) {
-                    console.error("Supabase Error:", err);
-                    updateCloudBadge('error');
-                }
+            if (mode === 'login') {
+                login.classList.remove('hidden');
+                register.classList.add('hidden');
+                loginTab.className = 'flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition';
+                registerTab.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition';
             } else {
-                updateCloudBadge('local');
+                login.classList.add('hidden');
+                register.classList.remove('hidden');
+                loginTab.className = 'flex-1 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm font-bold transition';
+                registerTab.className = 'flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold transition';
+            }
+            clearAuthMessage();
+        }
+
+        function showAuthMessage(message, type = 'error') {
+            const box = document.getElementById('auth-message');
+            box.textContent = message;
+            box.className = type === 'success'
+                ? 'mt-4 p-3 rounded-xl text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-300'
+                : 'mt-4 p-3 rounded-xl text-xs font-medium bg-rose-500/10 border border-rose-500/20 text-rose-300';
+        }
+
+        function clearAuthMessage() {
+            const box = document.getElementById('auth-message');
+            box.className = 'hidden mt-4 p-3 rounded-xl text-xs font-medium';
+            box.textContent = '';
+        }
+
+        function setAuthLoading(buttonId, loading, normalText) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+            button.disabled = loading;
+            button.textContent = loading ? 'Attendere...' : normalText;
+            button.classList.toggle('opacity-60', loading);
+        }
+
+        function validateSupabaseConfig() {
+            return SUPABASE_CONFIG.url &&
+                   SUPABASE_CONFIG.anonKey &&
+                   !SUPABASE_CONFIG.url.includes('INSERISCI_') &&
+                   !SUPABASE_CONFIG.anonKey.includes('INSERISCI_');
+        }
+
+        async function initSupabase() {
+            if (!validateSupabaseConfig()) {
+                updateCloudBadge('error');
+                showAuthMessage('Configura SUPABASE_CONFIG nel file HTML con Project URL e anon/publishable key.', 'error');
+                return;
+            }
+
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+
+                const { data, error } = await supabaseClient.auth.getSession();
+                if (error) throw error;
+
+                if (data.session?.user) {
+                    await handleAuthenticatedUser(data.session.user);
+                } else {
+                    showAuthScreen();
+                    updateCloudBadge('local');
+                }
+
+                supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        await handleAuthenticatedUser(session.user);
+                    } else if (event === 'SIGNED_OUT') {
+                        handleSignedOut();
+                    }
+                });
+            } catch (err) {
+                console.error('Supabase initialization error:', err);
+                updateCloudBadge('error');
+                showAuthMessage('Impossibile collegarsi a Supabase. Controlla Project URL e anon/publishable key.');
             }
         }
 
-        async function loadFromCloud() {
+        async function handleAuthenticatedUser(user) {
+            currentUser = user;
+            currentProfile = null;
+            state = loadLocalData();
+            hideAuthScreen();
+            updateCloudBadge('cloud');
+            renderApp();
+
+            await loadProfile();
+            updateProfileUI();
+            await loadFromCloud();
+            subscribeToRealtime();
+            processSubscriptions(false);
+            renderApp();
+        }
+
+        function handleSignedOut() {
+            if (realtimeChannel && supabaseClient) {
+                supabaseClient.removeChannel(realtimeChannel);
+                realtimeChannel = null;
+            }
+            currentUser = null;
+            currentProfile = null;
+            state = createEmptyData();
+            showAuthScreen();
+            updateCloudBadge('local');
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen')?.classList.remove('hidden');
+        }
+
+        function hideAuthScreen() {
+            document.getElementById('auth-screen')?.classList.add('hidden');
+        }
+
+        async function registerUser(event) {
+            event.preventDefault();
+            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
+
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+
+            if (username.length < 2) return showAuthMessage('Lo username deve contenere almeno 2 caratteri.');
+            if (password.length < 6) return showAuthMessage('La password deve contenere almeno 6 caratteri.');
+
+            setAuthLoading('register-submit', true, 'Crea account');
+            clearAuthMessage();
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { username }
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data.session) {
+                    showAuthMessage('Account creato. Accesso effettuato!', 'success');
+                } else {
+                    showAuthMessage('Account creato! Controlla la tua email per confermare l\'account, poi accedi.', 'success');
+                    showAuthMode('login');
+                }
+            } catch (err) {
+                console.error(err);
+                showAuthMessage(authErrorMessage(err));
+            } finally {
+                setAuthLoading('register-submit', false, 'Crea account');
+            }
+        }
+
+        async function loginUser(event) {
+            event.preventDefault();
+            if (!supabaseClient) return showAuthMessage('Connessione a Supabase non disponibile.');
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            setAuthLoading('login-submit', true, 'Accedi');
+            clearAuthMessage();
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                if (data.user) await handleAuthenticatedUser(data.user);
+            } catch (err) {
+                console.error(err);
+                showAuthMessage(authErrorMessage(err));
+            } finally {
+                setAuthLoading('login-submit', false, 'Accedi');
+            }
+        }
+
+        async function logoutUser() {
             if (!supabaseClient) return;
+            try {
+                await supabaseClient.auth.signOut();
+                closeModal('modal-settings');
+            } catch (err) {
+                console.error(err);
+                showToast('Errore durante il logout.');
+            }
+        }
+
+        function authErrorMessage(err) {
+            const msg = (err?.message || '').toLowerCase();
+            if (msg.includes('invalid login credentials')) return 'Email o password non corretti.';
+            if (msg.includes('email not confirmed')) return 'Devi prima confermare il tuo indirizzo email.';
+            if (msg.includes('user already registered')) return 'Esiste già un account con questa email.';
+            if (msg.includes('password')) return 'La password non rispetta i requisiti di Supabase.';
+            return err?.message || 'Si è verificato un errore. Riprova.';
+        }
+
+        async function loadFromCloud() {
+            if (!supabaseClient || !currentUser || isLoadingCloud) return;
+            isLoadingCloud = true;
             try {
                 const { data, error } = await supabaseClient
                     .from('finance_store')
                     .select('data')
                     .eq('id', 'main_data')
+                    .eq('user_id', currentUser.id)
                     .maybeSingle();
 
-                if (data && data.data) {
+                if (error) throw error;
+
+                if (data?.data) {
                     state = data.data;
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                    processSubscriptions(false);
+                    cacheLocalData();
                     renderApp();
                 } else {
-                    syncToCloud();
+                    state = loadLocalData();
+                    await syncToCloud();
                 }
             } catch (e) {
-                console.error("Error reading Cloud:", e);
+                console.error('Error reading Cloud:', e);
+                updateCloudBadge('error');
+                showToast('Errore nella sincronizzazione Cloud.');
+            } finally {
+                isLoadingCloud = false;
             }
         }
 
         async function syncToCloud() {
-            if (!supabaseClient) return;
+            if (!supabaseClient || !currentUser || isLoadingCloud) return;
             try {
-                await supabaseClient
+                const { error } = await supabaseClient
                     .from('finance_store')
-                    .upsert({ id: 'main_data', data: state, updated_at: new Date() });
+                    .upsert({
+                        id: 'main_data',
+                        user_id: currentUser.id,
+                        data: state,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id,user_id' });
+
+                if (error) throw error;
+                updateCloudBadge('cloud');
             } catch (e) {
-                console.error("Error saving Cloud:", e);
+                console.error('Error saving Cloud:', e);
+                updateCloudBadge('error');
             }
         }
 
         function subscribeToRealtime() {
-            if (!supabaseClient) return;
-            supabaseClient
-                .channel('public:finance_store')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'finance_store' }, payload => {
-                    if (payload.new && payload.new.data) {
+            if (!supabaseClient || !currentUser) return;
+
+            if (realtimeChannel) {
+                supabaseClient.removeChannel(realtimeChannel);
+                realtimeChannel = null;
+            }
+
+            realtimeChannel = supabaseClient
+                .channel(`finance_store_${currentUser.id}`)
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'finance_store',
+                    filter: `user_id=eq.${currentUser.id}`
+                }, payload => {
+                    if (!payload.new || payload.new.user_id !== currentUser.id) return;
+                    if (payload.new.data) {
                         state = payload.new.data;
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                        cacheLocalData();
                         processSubscriptions(false);
                         renderApp();
                     }
                 })
-                .subscribe();
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') updateCloudBadge('cloud');
+                });
         }
 
-        function saveSupabaseSettings() {
-            const url = document.getElementById('supabase-url').value.trim();
-            const key = document.getElementById('supabase-key').value.trim();
+        async function loadProfile() {
+            if (!supabaseClient || !currentUser) return null;
 
-            localStorage.setItem('fin_sp_url', url);
-            localStorage.setItem('fin_sp_key', key);
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username, email, created_at')
+                    .eq('id', currentUser.id)
+                    .maybeSingle();
 
-            closeModal('modal-settings');
-            showToast('Connessione Cloud in corso...');
-            initSupabase();
+                if (error) throw error;
+
+                currentProfile = data || null;
+                return currentProfile;
+            } catch (err) {
+                console.error('Error loading profile:', err);
+                currentProfile = null;
+                showToast('Profilo non disponibile. I dati finanziari restano accessibili.');
+                return null;
+            }
+        }
+
+        function updateProfileUI() {
+            if (!currentUser) return;
+
+            const username = currentProfile?.username
+                || currentUser.user_metadata?.username
+                || currentUser.email?.split('@')[0]
+                || 'Utente';
+
+            const email = currentProfile?.email
+                || currentUser.email
+                || '';
+
+            const usernameEl = document.getElementById('profile-username');
+            const emailEl = document.getElementById('profile-email');
+
+            if (usernameEl) usernameEl.textContent = username;
+            if (emailEl) emailEl.textContent = email;
         }
 
         function updateCloudBadge(status) {
@@ -1056,9 +1383,8 @@
         }
 
         function openSettingsModal() {
-            document.getElementById('settings-balance').value = state.balance.toFixed(2);
-            document.getElementById('supabase-url').value = localStorage.getItem('fin_sp_url') || '';
-            document.getElementById('supabase-key').value = localStorage.getItem('fin_sp_key') || '';
+            document.getElementById('settings-balance').value = Number(state.balance || 0).toFixed(2);
+            updateProfileUI();
             document.getElementById('modal-settings').classList.remove('hidden');
         }
 
@@ -1117,7 +1443,7 @@
 
         function resetAllData() {
             if (confirm('Vuoi davvero ripristinare i dati iniziali di test? Tutti i tuoi inserimenti verranno sovrascritti.')) {
-                state = defaultData;
+                state = cloneData(defaultData);
                 saveData();
                 closeModal('modal-settings');
                 showToast('Dati ripristinati!');
@@ -1125,7 +1451,6 @@
         }
 
         window.onload = function() {
-            processSubscriptions(false);
             renderApp();
             initSupabase();
         };
