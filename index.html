@@ -310,6 +310,51 @@
       <div id="recent-transactions" class="mt-3 space-y-2"></div>
     </div>
   </div>
+
+  <div class="glass rounded-3xl p-5 border border-emerald-500/10">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap"><h2 class="font-bold text-lg">Analisi finanziaria</h2><span class="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">€0 · analisi locale</span></div>
+          <p class="text-xs text-slate-400 mt-1">Analizza entrate, spese, investimenti, budget e abbonamenti senza inviare i tuoi dati a servizi IA esterni.</p>
+        </div>
+      </div>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <select id="analysis-period" class="flex-1 sm:flex-none bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs">
+          <option value="1">Questo mese</option>
+          <option value="3">Ultimi 3 mesi</option>
+          <option value="6">Ultimi 6 mesi</option>
+          <option value="year">Anno corrente</option>
+        </select>
+        <button onclick="runFinancialAnalysis()" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-sparkles mr-1"></i> Analizza</button>
+      </div>
+    </div>
+
+    <div id="analysis-empty" class="mt-4 p-4 rounded-2xl bg-slate-900/50 text-xs text-slate-500 text-center">Premi <strong class="text-slate-300">Analizza</strong> per generare un rapporto sulle tue abitudini finanziarie.</div>
+
+    <div id="analysis-result" class="hidden mt-4 space-y-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-slate-900/60 rounded-2xl p-3"><p class="text-[10px] text-slate-500">Punteggio</p><p id="analysis-score" class="text-xl font-extrabold mt-1">—</p></div>
+        <div class="bg-slate-900/60 rounded-2xl p-3"><p class="text-[10px] text-slate-500">Tasso risparmio</p><p id="analysis-saving-rate" class="money text-xl font-extrabold mt-1">—</p></div>
+        <div class="bg-slate-900/60 rounded-2xl p-3"><p class="text-[10px] text-slate-500">Spese periodo</p><p id="analysis-expenses" class="money text-xl font-extrabold text-rose-400 mt-1">—</p></div>
+        <div class="bg-slate-900/60 rounded-2xl p-3"><p class="text-[10px] text-slate-500">Risparmio netto</p><p id="analysis-savings" class="money text-xl font-extrabold mt-1">—</p></div>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-3">
+        <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-emerald-400"><i class="fa-solid fa-circle-check"></i><h3 class="font-bold text-sm">Cosa va bene</h3></div><div id="analysis-good" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+        <div class="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-amber-400"><i class="fa-solid fa-chart-column"></i><h3 class="font-bold text-sm">Da osservare</h3></div><div id="analysis-watch" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+        <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-cyan-400"><i class="fa-solid fa-lightbulb"></i><h3 class="font-bold text-sm">Suggerimenti</h3></div><div id="analysis-tips" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+      </div>
+
+      <div class="bg-slate-900/50 rounded-2xl p-4">
+        <p id="analysis-summary" class="text-sm leading-6 text-slate-300"></p>
+        <p class="text-[10px] text-slate-500 mt-3">Analisi automatica di budgeting basata sui dati registrati nell'app. Non costituisce consulenza finanziaria o di investimento.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="page-transactions" class="page space-y-4">
@@ -1248,6 +1293,143 @@ function deleteAsset(id){
     if(error){assets=previous;commitUI();toast(friendly(error));return;}
     toast('Asset eliminato');
   })
+}
+
+
+function analysisRange(period){
+  const now=new Date();
+  let start,currentEnd=new Date(now),previousStart,previousEnd;
+  if(period==='year'){
+    start=new Date(now.getFullYear(),0,1);
+    previousStart=new Date(now.getFullYear()-1,0,1);
+    previousEnd=new Date(now.getFullYear()-1,now.getMonth(),now.getDate(),23,59,59,999);
+  }else{
+    const months=Number(period||1);
+    start=new Date(now.getFullYear(),now.getMonth()-months+1,1);
+    previousStart=new Date(start.getFullYear(),start.getMonth()-months,1);
+    previousEnd=new Date(start.getTime()-1);
+  }
+  start.setHours(0,0,0,0);currentEnd.setHours(23,59,59,999);
+  return {start,end:currentEnd,previousStart,previousEnd};
+}
+function transactionsBetween(start,end){
+  return transactions.filter(t=>{const d=new Date(t.occurred_at);return d>=start&&d<=end});
+}
+function aggregateTransactions(list){
+  const out={income:0,expense:0,investment:0,expenseByCategory:{},investmentByCategory:{}};
+  list.forEach(t=>{
+    const v=Number(t.amount||0);
+    if(t.type==='INCOME') out.income+=v;
+    if(t.type==='EXPENSE'){
+      out.expense+=v;
+      out.expenseByCategory[t.category]=(out.expenseByCategory[t.category]||0)+v;
+    }
+    if(t.type==='INVESTMENT'){
+      out.investment+=v;
+      out.investmentByCategory[t.category]=(out.investmentByCategory[t.category]||0)+v;
+    }
+  });
+  out.savings=out.income-out.expense-out.investment;
+  out.savingRate=out.income>0?(out.savings/out.income*100):null;
+  return out;
+}
+function analysisItem(text){return `<div class="flex items-start gap-2"><span class="mt-1 w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span><span>${esc(text)}</span></div>`}
+function periodLabel(period){return period==='1'?'questo mese':period==='3'?'negli ultimi 3 mesi':period==='6'?'negli ultimi 6 mesi':'nell’anno corrente'}
+function runFinancialAnalysis(){
+  const period=document.getElementById('analysis-period').value;
+  const range=analysisRange(period);
+  const current=aggregateTransactions(transactionsBetween(range.start,range.end));
+  const previous=aggregateTransactions(transactionsBetween(range.previousStart,range.previousEnd));
+  const label=periodLabel(period);
+  const good=[],watch=[],tips=[];
+
+  const expenseRows=Object.entries(current.expenseByCategory).sort((a,b)=>b[1]-a[1]);
+  const top=expenseRows[0]||null;
+  const second=expenseRows[1]||null;
+  const expenseChange=previous.expense>0?((current.expense-previous.expense)/previous.expense*100):null;
+  const incomeChange=previous.income>0?((current.income-previous.income)/previous.income*100):null;
+  const investmentRate=current.income>0?(current.investment/current.income*100):0;
+  const activeSubs=subscriptions.filter(s=>s.active);
+  const subsMonthly=activeSubs.reduce((s,x)=>s+Number(x.amount||0),0);
+
+  let score=65;
+  if(current.income<=0){score-=10;watch.push('Non risultano entrate nel periodo selezionato: il confronto è quindi limitato.');}
+  if(current.savingRate!==null){
+    if(current.savingRate>=20){score+=18;good.push(`Hai mantenuto un margine di risparmio del ${current.savingRate.toFixed(0)}% delle entrate.`)}
+    else if(current.savingRate>=10){score+=10;good.push(`Il saldo tra entrate e uscite resta positivo, con un margine del ${current.savingRate.toFixed(0)}%.`)}
+    else if(current.savingRate>=0){score+=2;watch.push(`Il margine di risparmio è contenuto (${current.savingRate.toFixed(0)}%).`)}
+    else {score-=25;watch.push(`Nel periodo le uscite complessive superano le entrate di ${fmt(Math.abs(current.savings))}.`)}
+  }
+
+  if(expenseChange!==null){
+    if(expenseChange<=-8){score+=7;good.push(`Le spese sono diminuite del ${Math.abs(expenseChange).toFixed(0)}% rispetto al periodo precedente.`)}
+    else if(expenseChange>=15){score-=8;watch.push(`Le spese sono aumentate del ${expenseChange.toFixed(0)}% rispetto al periodo precedente.`)}
+  }
+  if(incomeChange!==null&&incomeChange>=10) good.push(`Le entrate sono cresciute del ${incomeChange.toFixed(0)}% rispetto al periodo precedente.`);
+  if(current.investment>0) good.push(`Hai destinato ${fmt(current.investment)} agli investimenti (${investmentRate.toFixed(0)}% delle entrate del periodo).`);
+
+  if(top){
+    const share=current.expense>0?top[1]/current.expense*100:0;
+    watch.push(`La categoria di spesa principale è “${top[0]}”: ${fmt(top[1])}, pari al ${share.toFixed(0)}% delle spese.`);
+    const prevTop=previous.expenseByCategory[top[0]]||0;
+    if(prevTop>0){
+      const ch=(top[1]-prevTop)/prevTop*100;
+      if(ch>=20) watch.push(`“${top[0]}” è cresciuta del ${ch.toFixed(0)}% rispetto al periodo precedente.`);
+      if(ch<=-15) good.push(`“${top[0]}” è scesa del ${Math.abs(ch).toFixed(0)}% rispetto al periodo precedente.`);
+    }
+  }
+
+  if(period==='1'){
+    const thisMonth=isoMonth();
+    const over=[];
+    budgets.filter(b=>b.month.slice(0,7)===thisMonth).forEach(b=>{
+      const spent=transactions.filter(t=>t.type==='EXPENSE'&&t.category===b.category&&t.occurred_at.slice(0,7)===thisMonth).reduce((s,t)=>s+Number(t.amount),0);
+      if(spent>Number(b.amount)) over.push({category:b.category,over:spent-Number(b.amount)});
+    });
+    if(over.length){score-=Math.min(12,over.length*4);over.slice(0,2).forEach(x=>watch.push(`Budget “${x.category}” superato di ${fmt(x.over)}.`));}
+    else if(budgets.some(b=>b.month.slice(0,7)===thisMonth)){score+=5;good.push('I budget impostati per il mese risultano rispettati.');}
+  }
+
+  if(activeSubs.length&&current.income>0){
+    const subShare=subsMonthly/current.income*100;
+    if(subShare>=10) watch.push(`Gli abbonamenti attivi valgono circa ${fmt(subsMonthly)} al mese (${subShare.toFixed(0)}% delle entrate del periodo).`);
+    else good.push(`Gli abbonamenti attivi incidono per circa ${fmt(subsMonthly)} al mese.`);
+  }
+
+  if(top&&current.expense>0){
+    const cut=top[1]*0.15;
+    tips.push(`Valuta se puoi ridurre del 15% la categoria “${top[0]}”: libereresti circa ${fmt(cut)} ${label}.`);
+  }
+  if(second&&current.expense>0&&second[1]/current.expense>=0.15) tips.push(`Anche “${second[0]}” pesa in modo rilevante: controlla le singole spese per distinguere quelle necessarie da quelle comprimibili.`);
+  if(current.savingRate!==null&&current.savingRate<10) tips.push('Prova a fissare un piccolo budget sulle 1–2 categorie discrezionali più alte prima dell’inizio del prossimo mese.');
+  if(activeSubs.length>=3) tips.push(`Hai ${activeSubs.length} abbonamenti attivi: una revisione periodica può aiutarti a individuare servizi poco utilizzati.`);
+  if(!budgets.length) tips.push('Impostare almeno un budget sulle categorie più variabili rende più semplice controllare gli sforamenti.');
+  if(current.investment>0) tips.push('Tieni separati consumo e investimenti: l’app li distingue già, così il risparmio mensile è più leggibile.');
+
+  if(!good.length) good.push('Hai registrato i movimenti: avere dati aggiornati è il primo passo per capire dove intervenire.');
+  if(!watch.length) watch.push('Non emergono anomalie evidenti dai dati disponibili nel periodo selezionato.');
+  if(!tips.length) tips.push('Mantieni le categorie aggiornate e confronta periodicamente i dati con il periodo precedente.');
+
+  score=Math.max(0,Math.min(100,Math.round(score)));
+  const scoreEl=document.getElementById('analysis-score');
+  scoreEl.textContent=score+'/100';
+  scoreEl.className='text-xl font-extrabold mt-1 '+(score>=80?'text-emerald-400':score>=60?'text-amber-400':'text-rose-400');
+  document.getElementById('analysis-saving-rate').textContent=current.savingRate===null?'—':current.savingRate.toFixed(0)+'%';
+  document.getElementById('analysis-expenses').textContent=fmt(current.expense);
+  const savingsEl=document.getElementById('analysis-savings');
+  savingsEl.textContent=fmt(current.savings);savingsEl.className='money text-xl font-extrabold mt-1 '+(current.savings>=0?'text-emerald-400':'text-rose-400');
+  document.getElementById('analysis-good').innerHTML=good.slice(0,4).map(analysisItem).join('');
+  document.getElementById('analysis-watch').innerHTML=watch.slice(0,4).map(analysisItem).join('');
+  document.getElementById('analysis-tips').innerHTML=tips.slice(0,4).map(analysisItem).join('');
+
+  let summary=`${label.charAt(0).toUpperCase()+label.slice(1)} hai registrato ${fmt(current.income)} di entrate, ${fmt(current.expense)} di spese e ${fmt(current.investment)} di investimenti.`;
+  summary+=` Il risultato netto del periodo è ${current.savings>=0?'positivo per ':'negativo per '}${fmt(Math.abs(current.savings))}.`;
+  if(top) summary+=` La voce di spesa più rilevante è “${top[0]}” con ${fmt(top[1])}.`;
+  if(expenseChange!==null) summary+=` Rispetto al periodo precedente, le spese sono ${expenseChange>=0?'aumentate':'diminuite'} del ${Math.abs(expenseChange).toFixed(0)}%.`;
+  document.getElementById('analysis-summary').textContent=summary;
+
+  document.getElementById('analysis-empty').classList.add('hidden');
+  document.getElementById('analysis-result').classList.remove('hidden');
 }
 
 function renderStats(){
