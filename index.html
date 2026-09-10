@@ -318,8 +318,8 @@
           <i class="fa-solid fa-wand-magic-sparkles"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2 flex-wrap"><h2 class="font-bold text-lg">Analisi finanziaria</h2><span class="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">€0 · analisi locale</span></div>
-          <p class="text-xs text-slate-400 mt-1">Analizza entrate, spese, investimenti, budget e abbonamenti senza inviare i tuoi dati a servizi IA esterni.</p>
+          <div class="flex items-center gap-2 flex-wrap"><h2 class="font-bold text-lg">Analisi finanziaria</h2><span class="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">OpenRouter · IA gratuita</span></div>
+          <p class="text-xs text-slate-400 mt-1">Invia solo dati aggregati alla tua Edge Function Supabase, che genera un rapporto con un modello gratuito OpenRouter. Se il servizio non risponde, resta disponibile il report locale.</p>
         </div>
       </div>
       <div class="flex gap-2 w-full sm:w-auto">
@@ -329,11 +329,11 @@
           <option value="6">Ultimi 6 mesi</option>
           <option value="year">Anno corrente</option>
         </select>
-        <button onclick="runFinancialAnalysis()" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-sparkles mr-1"></i> Analizza</button>
+        <button onclick="runAIFinancialAnalysis()" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-sparkles mr-1"></i> Analizza con IA</button>
       </div>
     </div>
 
-    <div id="analysis-empty" class="mt-4 p-4 rounded-2xl bg-slate-900/50 text-xs text-slate-500 text-center">Premi <strong class="text-slate-300">Analizza</strong> per generare un rapporto sulle tue abitudini finanziarie.</div>
+    <div id="analysis-empty" class="mt-4 p-4 rounded-2xl bg-slate-900/50 text-xs text-slate-500 text-center">Premi <strong class="text-slate-300">Analizza con IA</strong> per generare un rapporto. Verranno inviati solo dati aggregati, non le singole descrizioni dei movimenti.</div>
 
     <div id="analysis-result" class="hidden mt-4 space-y-4">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -349,9 +349,17 @@
         <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-cyan-400"><i class="fa-solid fa-lightbulb"></i><h3 class="font-bold text-sm">Suggerimenti</h3></div><div id="analysis-tips" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
       </div>
 
+      <div id="ai-report-card" class="hidden bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 border border-emerald-500/10 rounded-2xl p-4">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2 text-emerald-400"><i class="fa-solid fa-wand-magic-sparkles"></i><h3 class="font-bold text-sm">Rapporto IA</h3></div>
+          <span id="ai-model-label" class="text-[10px] text-slate-500"></span>
+        </div>
+        <div id="ai-report" class="text-sm leading-6 text-slate-300 whitespace-pre-line"></div>
+      </div>
+
       <div class="bg-slate-900/50 rounded-2xl p-4">
         <p id="analysis-summary" class="text-sm leading-6 text-slate-300"></p>
-        <p class="text-[10px] text-slate-500 mt-3">Analisi automatica di budgeting basata sui dati registrati nell'app. Non costituisce consulenza finanziaria o di investimento.</p>
+        <p id="analysis-source-note" class="text-[10px] text-slate-500 mt-3">Analisi automatica di budgeting basata sui dati registrati nell'app. Non costituisce consulenza finanziaria o di investimento.</p>
       </div>
     </div>
   </div>
@@ -1335,6 +1343,74 @@ function aggregateTransactions(list){
 }
 function analysisItem(text){return `<div class="flex items-start gap-2"><span class="mt-1 w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span><span>${esc(text)}</span></div>`}
 function periodLabel(period){return period==='1'?'questo mese':period==='3'?'negli ultimi 3 mesi':period==='6'?'negli ultimi 6 mesi':'nell’anno corrente'}
+
+function buildAggregatedAnalysisPayload(period){
+  const range=analysisRange(period);
+  const current=aggregateTransactions(transactionsBetween(range.start,range.end));
+  const previous=aggregateTransactions(transactionsBetween(range.previousStart,range.previousEnd));
+  const currentExpenses=Object.entries(current.expenseByCategory).sort((a,b)=>b[1]-a[1]).map(([category,amount])=>({category,amount:Number(amount.toFixed(2))}));
+  const previousExpenses=Object.entries(previous.expenseByCategory).sort((a,b)=>b[1]-a[1]).map(([category,amount])=>({category,amount:Number(amount.toFixed(2))}));
+  const activeSubs=subscriptions.filter(s=>s.active);
+  const subsMonthly=activeSubs.reduce((s,x)=>s+Number(x.amount||0),0);
+
+  const thisMonth=isoMonth();
+  const budgetRows=period==='1'?budgets.filter(b=>b.month.slice(0,7)===thisMonth).map(b=>{
+    const spent=transactions.filter(t=>t.type==='EXPENSE'&&t.category===b.category&&t.occurred_at.slice(0,7)===thisMonth).reduce((s,t)=>s+Number(t.amount||0),0);
+    return {category:b.category,budget:Number(b.amount||0),spent:Number(spent.toFixed(2)),remaining:Number((Number(b.amount||0)-spent).toFixed(2))};
+  }):[];
+
+  return {
+    period: periodLabel(period),
+    currency:'EUR',
+    totals:{
+      income:Number(current.income.toFixed(2)),
+      expenses:Number(current.expense.toFixed(2)),
+      investments:Number(current.investment.toFixed(2)),
+      netSavings:Number(current.savings.toFixed(2)),
+      savingRate:current.savingRate===null?null:Number(current.savingRate.toFixed(1))
+    },
+    previousTotals:{
+      income:Number(previous.income.toFixed(2)),
+      expenses:Number(previous.expense.toFixed(2)),
+      investments:Number(previous.investment.toFixed(2)),
+      netSavings:Number(previous.savings.toFixed(2)),
+      savingRate:previous.savingRate===null?null:Number(previous.savingRate.toFixed(1))
+    },
+    expensesByCategory:currentExpenses,
+    previousExpensesByCategory:previousExpenses,
+    subscriptions:{activeCount:activeSubs.length,monthlyTotal:Number(subsMonthly.toFixed(2))},
+    budgets:budgetRows
+  };
+}
+
+async function runAIFinancialAnalysis(){
+  const period=document.getElementById('analysis-period').value;
+  runFinancialAnalysis();
+
+  const reportCard=document.getElementById('ai-report-card');
+  const report=document.getElementById('ai-report');
+  const modelLabel=document.getElementById('ai-model-label');
+  const sourceNote=document.getElementById('analysis-source-note');
+  reportCard.classList.remove('hidden');
+  report.textContent='Sto preparando il rapporto IA…';
+  modelLabel.textContent='';
+
+  try{
+    const payload=buildAggregatedAnalysisPayload(period);
+    const {data,error}=await sb.functions.invoke('financial-analysis',{body:payload});
+    if(error) throw error;
+    if(!data?.report) throw new Error('Risposta IA non valida');
+    report.textContent=data.report;
+    modelLabel.textContent=data.model?`Modello: ${data.model}`:'OpenRouter';
+    sourceNote.textContent='Il rapporto IA usa solo dati aggregati del periodo selezionato. Il report locale resta disponibile come supporto e fallback. Non costituisce consulenza finanziaria o di investimento.';
+  }catch(e){
+    console.warn('OpenRouter analysis fallback:',e);
+    report.textContent='Il servizio IA gratuito non è disponibile in questo momento. Ti mostro comunque l’analisi locale completa qui sopra.';
+    modelLabel.textContent='Fallback locale';
+    sourceNote.textContent='OpenRouter non ha risposto: è stato mantenuto il report locale. I modelli gratuiti possono avere limiti giornalieri o disponibilità variabile.';
+  }
+}
+
 function runFinancialAnalysis(){
   const period=document.getElementById('analysis-period').value;
   const range=analysisRange(period);
