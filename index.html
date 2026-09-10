@@ -1386,6 +1386,77 @@ function aggregateTransactions(list){
 function analysisItem(text){return `<div class="flex items-start gap-2"><span class="mt-1 w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span><span>${esc(text)}</span></div>`}
 function periodLabel(period){return period==='1'?'questo mese':period==='3'?'negli ultimi 3 mesi':period==='6'?'negli ultimi 6 mesi':'nell’anno corrente'}
 
+function monthKeyFromDate(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function completedMonthlyHistory(maxMonths){
+  const now=new Date();
+  const currentMonthStart=new Date(now.getFullYear(),now.getMonth(),1);
+  const earliest=transactions.length
+    ? new Date(Math.min(...transactions.map(t=>new Date(t.occurred_at).getTime()).filter(Number.isFinite)))
+    : null;
+
+  const months=[];
+  for(let i=1;i<=maxMonths;i++){
+    const start=new Date(currentMonthStart.getFullYear(),currentMonthStart.getMonth()-i,1);
+    const end=new Date(currentMonthStart.getFullYear(),currentMonthStart.getMonth()-i+1,1);
+    if(earliest && start < new Date(earliest.getFullYear(),earliest.getMonth(),1)) break;
+    const list=transactions.filter(t=>{
+      const d=new Date(t.occurred_at);
+      return d>=start&&d<end;
+    });
+    months.push({key:monthKeyFromDate(start),data:aggregateTransactions(list)});
+  }
+  return months.reverse();
+}
+
+function averageHistory(months){
+  if(!months.length) return {
+    monthsAvailable:0, income:null, expenses:null, investments:null, netSavings:null, savingRate:null, expensesByCategory:{}
+  };
+
+  const sum={income:0,expense:0,investment:0,savings:0};
+  const cats={};
+  let savingRateSum=0,savingRateCount=0;
+
+  months.forEach(m=>{
+    sum.income+=m.data.income;
+    sum.expense+=m.data.expense;
+    sum.investment+=m.data.investment;
+    sum.savings+=m.data.savings;
+    if(m.data.savingRate!==null){savingRateSum+=m.data.savingRate;savingRateCount++}
+    Object.entries(m.data.expenseByCategory).forEach(([cat,val])=>cats[cat]=(cats[cat]||0)+Number(val||0));
+  });
+
+  const n=months.length;
+  return {
+    monthsAvailable:n,
+    income:Number((sum.income/n).toFixed(2)),
+    expenses:Number((sum.expense/n).toFixed(2)),
+    investments:Number((sum.investment/n).toFixed(2)),
+    netSavings:Number((sum.savings/n).toFixed(2)),
+    savingRate:savingRateCount?Number((savingRateSum/savingRateCount).toFixed(1)):null,
+    expensesByCategory:Object.fromEntries(Object.entries(cats).map(([cat,val])=>[cat,Number((val/n).toFixed(2))]))
+  };
+}
+
+function categoryTrendsFromHistory(months){
+  if(months.length<3) return [];
+  const cats=[...new Set(months.flatMap(m=>Object.keys(m.data.expenseByCategory)))];
+  return cats.map(category=>{
+    const values=months.map(m=>Number(m.data.expenseByCategory[category]||0));
+    const split=Math.max(1,Math.floor(values.length/2));
+    const first=values.slice(0,split);
+    const second=values.slice(split);
+    const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
+    const firstAvg=avg(first),secondAvg=avg(second);
+    const changePct=firstAvg>0?((secondAvg-firstAvg)/firstAvg*100):(secondAvg>0?100:null);
+    return {category,changePct:changePct===null?null:Number(changePct.toFixed(1)),recentAverage:Number(secondAvg.toFixed(2))};
+  }).filter(x=>x.changePct!==null&&Math.abs(x.changePct)>=20&&x.recentAverage>0)
+    .sort((a,b)=>Math.abs(b.changePct)-Math.abs(a.changePct)).slice(0,6);
+}
+
 function buildAggregatedAnalysisPayload(period){
   const range=analysisRange(period);
   const current=aggregateTransactions(transactionsBetween(range.start,range.end));
@@ -1394,6 +1465,19 @@ function buildAggregatedAnalysisPayload(period){
   const previousExpenses=Object.entries(previous.expenseByCategory).sort((a,b)=>b[1]-a[1]).map(([category,amount])=>({category,amount:Number(amount.toFixed(2))}));
   const activeSubs=subscriptions.filter(s=>s.active);
   const subsMonthly=activeSubs.reduce((s,x)=>s+Number(x.amount||0),0);
+
+  const history6=completedMonthlyHistory(6);
+  const history3=history6.slice(-3);
+  const avg3=averageHistory(history3);
+  const avg6=averageHistory(history6);
+
+  const currentVsAvg={};
+  Object.entries(current.expenseByCategory).forEach(([cat,val])=>{
+    const base=avg6.expensesByCategory[cat];
+    if(base!==undefined&&base>0){
+      currentVsAvg[cat]=Number(((Number(val)-base)/base*100).toFixed(1));
+    }
+  });
 
   const thisMonth=isoMonth();
   const budgetRows=period==='1'?budgets.filter(b=>b.month.slice(0,7)===thisMonth).map(b=>{
@@ -1418,13 +1502,19 @@ function buildAggregatedAnalysisPayload(period){
       netSavings:Number(previous.savings.toFixed(2)),
       savingRate:previous.savingRate===null?null:Number(previous.savingRate.toFixed(1))
     },
+    personalAverages:{
+      last3CompletedMonths:avg3,
+      last6CompletedMonths:avg6,
+      note:'Le medie usano solo mesi di calendario completati precedenti al mese corrente. monthsAvailable indica quanti mesi storici erano realmente disponibili.'
+    },
+    categoryComparisonVs6MonthAverage:currentVsAvg,
+    persistentCategoryTrends:categoryTrendsFromHistory(history6),
     expensesByCategory:currentExpenses,
     previousExpensesByCategory:previousExpenses,
     subscriptions:{activeCount:activeSubs.length,monthlyTotal:Number(subsMonthly.toFixed(2))},
     budgets:budgetRows
   };
 }
-
 
 function formatAIReport(text){
   if(!text) return '';
