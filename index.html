@@ -505,13 +505,176 @@
       html.light .finora-balance-card #kpi-balance{font-size:2rem}
     }
 
+
+
+    /* =========================================================
+       DARK THEME REFINEMENT — matched to the new mockup style
+       ========================================================= */
+    body, header, nav, .glass, button, input, select, textarea, .navglass, .finora-quick-tile {
+      transition: background-color .22s ease, color .22s ease, border-color .22s ease, box-shadow .22s ease, opacity .22s ease;
+    }
+
+    html:not(.light) body{
+      background:
+        radial-gradient(circle at top, rgba(37,99,235,.12), transparent 22%),
+        linear-gradient(180deg, #07111f 0%, #08111d 28%, #0a1320 100%) !important;
+      color:#e5eefb !important;
+    }
+    html:not(.light) .bg-slate-950{background:transparent!important}
+    html:not(.light) .bg-slate-900{background:#0f1a2d!important}
+    html:not(.light) .bg-slate-800{background:#15233a!important}
+    html:not(.light) .bg-slate-700{background:#1b2a43!important}
+    html:not(.light) .text-slate-100{color:#f8fbff!important}
+    html:not(.light) .text-slate-200{color:#d7e4f5!important}
+    html:not(.light) .text-slate-300{color:#bfd0e5!important}
+    html:not(.light) .text-slate-400{color:#8fa4bf!important}
+    html:not(.light) .text-slate-500{color:#7590ae!important}
+    html:not(.light) .border-slate-800,
+    html:not(.light) .border-slate-700{border-color:rgba(148,163,184,.10)!important}
+
+    html:not(.light) header{
+      background:rgba(8,17,29,.84)!important;
+      border-bottom:1px solid rgba(148,163,184,.10)!important;
+      backdrop-filter:blur(18px);
+    }
+    html:not(.light) .brand-mark{
+      background:linear-gradient(145deg,#2fd59b,#10b981)!important;
+      box-shadow:0 10px 28px rgba(16,185,129,.18)!important;
+      color:#082012!important;
+    }
+    html:not(.light) #home-greeting{color:#6ee7b7!important}
+    html:not(.light) #home-greeting-title{color:#f8fbff!important}
+
+    html:not(.light) .glass{
+      background:linear-gradient(180deg, rgba(15,24,41,.92), rgba(11,20,34,.96))!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 18px 48px rgba(2,8,23,.34), inset 0 1px 0 rgba(255,255,255,.02)!important;
+      backdrop-filter:blur(18px);
+    }
+
+    html:not(.light) .finora-balance-card{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,255,255,.12), transparent 24%),
+        linear-gradient(145deg,#2d6deb 0%, #2356c7 56%, #173e8f 100%)!important;
+      border:1px solid rgba(96,165,250,.18)!important;
+      box-shadow:0 24px 48px rgba(19,56,130,.42)!important;
+    }
+    html:not(.light) .finora-balance-card::after{
+      content:"";position:absolute;right:-60px;bottom:-90px;width:240px;height:240px;border-radius:999px;
+      border:34px solid rgba(255,255,255,.05);pointer-events:none
+    }
+    html:not(.light) .finora-balance-card .text-slate-500,
+    html:not(.light) .finora-balance-card .text-slate-400{color:rgba(255,255,255,.70)!important}
+    html:not(.light) .finora-balance-card #kpi-balance{color:#fff!important;font-size:2.35rem}
+    html:not(.light) .finora-balance-card #home-month-label{
+      background:rgba(9,22,54,.35)!important;
+      color:#dbeafe!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+    }
+    html:not(.light) .finora-balance-card .finora-mini-stat{
+      background:rgba(255,255,255,.08)!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+      backdrop-filter:blur(7px)
+    }
+
+    html:not(.light) .finora-quick-tile{
+      background:linear-gradient(180deg, rgba(17,27,44,.94), rgba(13,22,35,.98))!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 10px 26px rgba(2,8,23,.18)!important;
+      color:#dce8f8!important;
+    }
+    html:not(.light) .finora-quick-icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+    html:not(.light) .finora-quick-tile:nth-child(1) .finora-quick-icon{background:rgba(37,99,235,.16);color:#7cb2ff}
+    html:not(.light) .finora-quick-tile:nth-child(2) .finora-quick-icon{background:rgba(239,68,68,.13);color:#ff8e98}
+    html:not(.light) .finora-quick-tile:nth-child(3) .finora-quick-icon{background:rgba(16,185,129,.14);color:#5ce3b0}
+    html:not(.light) .finora-quick-tile:nth-child(4) .finora-quick-icon{background:rgba(139,92,246,.15);color:#b69cff}
+
+    html:not(.light) .insight-card,
+    html:not(.light) #recent-transactions > *,
+    html:not(.light) #transactions-list > *{
+      background:linear-gradient(180deg, rgba(13,22,35,.96), rgba(10,18,31,.96))!important;
+      border-color:rgba(148,163,184,.08)!important;
+      box-shadow:0 10px 26px rgba(2,8,23,.18)!important;
+    }
+    html:not(.light) #subscription-alert{
+      background:rgba(245,158,11,.10)!important;
+      border-color:rgba(245,158,11,.22)!important;
+      color:#f6c963!important;
+    }
+    html:not(.light) .empty-state{
+      background:rgba(15,23,42,.72)!important;
+      border-color:rgba(148,163,184,.12)!important;
+      color:#94a3b8!important;
+    }
+
+    html:not(.light) input,
+    html:not(.light) select,
+    html:not(.light) textarea{
+      background:#0b1422!important;
+      color:#edf5ff!important;
+      border-color:rgba(148,163,184,.12)!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+    }
+    html:not(.light) input::placeholder,
+    html:not(.light) textarea::placeholder{color:#6f85a1!important}
+
+    html:not(.light) .navglass{
+      background:rgba(8,16,29,.88)!important;
+      border-top:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 -12px 30px rgba(2,8,23,.28)!important;
+      backdrop-filter:blur(20px);
+    }
+    html:not(.light) .navbtn{color:#7891ad!important}
+    html:not(.light) .navbtn.text-emerald-400{color:#7cb2ff!important}
+    html:not(.light) .nav-fab{
+      background:linear-gradient(145deg,#3a7cff,#255de0)!important;
+      color:#fff!important;
+      box-shadow:0 14px 34px rgba(37,99,235,.35)!important;
+      border:4px solid rgba(8,16,29,.95);
+    }
+
+    html:not(.light) #page-analysis .glass,
+    html:not(.light) #page-budget .glass,
+    html:not(.light) #page-assets .glass,
+    html:not(.light) #page-goals .glass,
+    html:not(.light) #page-more .glass{
+      box-shadow:0 16px 38px rgba(2,8,23,.28)!important;
+    }
+    html:not(.light) #ai-report-card{
+      background:linear-gradient(180deg, rgba(10,38,53,.88), rgba(12,28,48,.95))!important;
+      border-color:rgba(34,197,94,.16)!important;
+    }
+    html:not(.light) .modal{
+      background:rgba(2,8,23,.70)!important;
+      backdrop-filter:blur(10px)
+    }
+    html:not(.light) .modal > .glass{
+      border-radius:1.6rem!important;
+      box-shadow:0 28px 80px rgba(2,8,23,.52)!important;
+    }
+    html:not(.light) .modal .bg-brand-600{background:#2563eb!important;color:#fff!important}
+    html:not(.light) .modal button.bg-slate-800{background:#15233a!important;color:#dce8f8!important}
+
+    html:not(.light) .status-pill{
+      background:rgba(16,185,129,.10)!important;
+      border:1px solid rgba(16,185,129,.18)!important;
+      color:#86efac!important;
+    }
+    html:not(.light) .status-dot{background:#34d399!important;box-shadow:0 0 0 6px rgba(16,185,129,.12)}
+
+    @media (max-width: 640px){
+      html:not(.light) .finora-balance-card #kpi-balance{font-size:2rem}
+    }
+
 </style>
 
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Finanze">
+  <meta name="apple-mobile-web-app-title" content="Finora">
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body class="min-h-full bg-slate-950 text-slate-100 pb-24">
@@ -1301,7 +1464,8 @@ function confirmAction(title,text,fn){
   const b=document.getElementById('confirm-yes');b.onclick=async()=>{closeModal('confirm-modal');await fn()};openModal('confirm-modal')
 }
 function togglePrivacy(){privacy=!privacy;document.body.classList.toggle('privacy',privacy)}
-function toggleTheme(){document.documentElement.classList.toggle('light');localStorage.setItem('finance_theme',document.documentElement.classList.contains('light')?'light':'dark')}
+function applyThemeMeta(){const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',document.documentElement.classList.contains('light')?'#f5f7fb':'#07111f')}
+function toggleTheme(){document.documentElement.classList.toggle('light');localStorage.setItem('finance_theme',document.documentElement.classList.contains('light')?'light':'dark');applyThemeMeta()}
 function isoMonth(d=new Date()){return d.toISOString().slice(0,7)}
 function monthStart(v){return v+'-01'}
 function fmt(v){return money.format(Number(v||0))}
@@ -1421,7 +1585,7 @@ async function deleteAccount(){
 async function logout(){await sb.auth.signOut();location.reload()}
 
 async function init(){
-  const savedTheme=localStorage.getItem('finance_theme');if(savedTheme==='light'||!savedTheme)document.documentElement.classList.add('light');
+  const savedTheme=localStorage.getItem('finance_theme');if(savedTheme==='light'||!savedTheme)document.documentElement.classList.add('light');applyThemeMeta();
   if(!SUPABASE_CONFIG.anonKey||SUPABASE_CONFIG.anonKey.includes('INCOLLA_QUI')){document.getElementById('auth-screen').classList.remove('hidden');msg('Inserisci la Publishable Key di Supabase nel file index.html.');return}
   sb=supabase.createClient(SUPABASE_CONFIG.url,SUPABASE_CONFIG.anonKey);
   sb.auth.onAuthStateChange(async(event,session)=>{
