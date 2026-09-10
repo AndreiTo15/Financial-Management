@@ -1436,17 +1436,28 @@ async function runAIFinancialAnalysis(){
     const payload=buildAggregatedAnalysisPayload(period);
     const {data,error}=await sb.functions.invoke('financial-analysis',{body:payload});
     if(error) throw error;
+
+    if(data?.ok===false){
+      const detail=data?.diagnostic?.message||'Nessun modello gratuito disponibile';
+      const code=data?.diagnostic?.status?`HTTP ${data.diagnostic.status}`:'';
+      report.textContent=`OpenRouter non ha completato il rapporto. ${detail}${code?' ('+code+')':''}. Ti mostro comunque l’analisi locale completa.`;
+      modelLabel.textContent=data?.diagnostic?.attempts?`Fallback dopo ${data.diagnostic.attempts} tentativi`:'Fallback locale';
+      document.getElementById('analysis-local-summary-card')?.classList.remove('hidden');
+      sourceNote.textContent='Diagnostica ricevuta dalla Edge Function. Nessuna chiave API viene esposta al browser.';
+      return;
+    }
+
     if(!data?.report) throw new Error('Risposta IA non valida');
     report.innerHTML=formatAIReport(data.report);
     modelLabel.textContent=data.model?`Modello: ${data.model}`:'OpenRouter';
     document.getElementById('analysis-local-summary-card')?.classList.add('hidden');
-    sourceNote.textContent='Il rapporto IA usa solo dati aggregati del periodo selezionato. Non costituisce consulenza finanziaria o di investimento.';
+    sourceNote.textContent=data.attempts>1?`Rapporto generato dopo ${data.attempts} tentativi. Non costituisce consulenza finanziaria o di investimento.`:'Il rapporto IA usa solo dati aggregati del periodo selezionato. Non costituisce consulenza finanziaria o di investimento.';
   }catch(e){
     console.warn('OpenRouter analysis fallback:',e);
-    report.textContent='Il servizio IA gratuito non è disponibile in questo momento. Ti mostro comunque l’analisi locale completa.';
+    report.textContent='La Edge Function non è raggiungibile o ha restituito un errore inatteso. Ti mostro comunque l’analisi locale completa.';
     modelLabel.textContent='Fallback locale';
     document.getElementById('analysis-local-summary-card')?.classList.remove('hidden');
-    sourceNote.textContent='OpenRouter non ha risposto: è stato mantenuto il report locale. I modelli gratuiti possono avere limiti giornalieri o disponibilità variabile.';
+    sourceNote.textContent='Controlla i log della funzione financial-analysis su Supabase per il dettaglio tecnico.';
   }
 }
 
