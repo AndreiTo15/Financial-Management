@@ -66,6 +66,137 @@
       max-width: 100% !important;
     }
 
+  
+    /* Mobile/iOS form sizing fixes */
+    input, select, textarea, button {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"] {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      input[type="date"],
+      input[type="datetime-local"],
+      input[type="month"],
+      input[type="time"] {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 16px;
+      }
+
+      input::-webkit-date-and-time-value {
+        min-width: 0;
+        text-align: left;
+      }
+    }
+
+    #transaction-modal form,
+    #subscription-modal form,
+    #budget-modal form,
+    #goal-modal form,
+    #asset-modal form,
+    #settings-modal .space-y-4 {
+      min-width: 0;
+    }
+
+    #transaction-modal .glass,
+    #subscription-modal .glass,
+    #budget-modal .glass,
+    #goal-modal .glass,
+    #asset-modal .glass,
+    #settings-modal .glass {
+      width: min(100%, 32rem);
+      max-width: calc(100vw - 2rem - var(--safe-left) - var(--safe-right));
+      overflow-x: hidden;
+    }
+
+  
+    /* Fix definitivo overflow modali su iOS */
+    .modal > .glass {
+      box-sizing: border-box;
+      width: calc(100% - 2rem) !important;
+      max-width: 32rem !important;
+      min-width: 0 !important;
+      overflow-x: hidden !important;
+    }
+
+    .modal form,
+    .modal form > *,
+    .modal .space-y-4,
+    .modal .space-y-4 > * {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .modal form > input,
+    .modal form > select,
+    .modal form > textarea,
+    .modal form > button,
+    .modal .space-y-4 input,
+    .modal .space-y-4 select,
+    .modal .space-y-4 textarea,
+    .modal .space-y-4 button {
+      display: block;
+      width: 100% !important;
+      inline-size: 100% !important;
+      min-width: 0 !important;
+      min-inline-size: 0 !important;
+      max-width: 100% !important;
+      max-inline-size: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    /* I controlli nativi data/ora di Safari possono ignorare la larghezza del box */
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"] {
+      width: 100% !important;
+      inline-size: 100% !important;
+      min-width: 0 !important;
+      min-inline-size: 0 !important;
+      max-width: 100% !important;
+      max-inline-size: 100% !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
+      box-sizing: border-box !important;
+    }
+
+    input[type="date"]::-webkit-date-and-time-value,
+    input[type="datetime-local"]::-webkit-date-and-time-value,
+    input[type="month"]::-webkit-date-and-time-value,
+    input[type="time"]::-webkit-date-and-time-value {
+      min-width: 0 !important;
+      width: 100% !important;
+      text-align: left;
+    }
+
+    @media (max-width: 640px) {
+      .modal {
+        padding-left: max(1rem, var(--safe-left)) !important;
+        padding-right: max(1rem, var(--safe-right)) !important;
+      }
+
+      .modal > .glass {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
   </style>
 
   <link rel="manifest" href="./manifest.json">
