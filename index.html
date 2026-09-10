@@ -813,6 +813,272 @@
       }
     }
 
+
+    /* =========================================================
+       FINORA VISUAL UNIFORMITY PASS
+       One visual language across Home, Movimenti, Analisi,
+       Budget, Patrimonio, Obiettivi, Abbonamenti, Altro, modali.
+       ========================================================= */
+
+    :root{
+      --ui-radius-xl:1.45rem;
+      --ui-radius-lg:1.1rem;
+      --ui-radius-md:.9rem;
+      --ui-gap:1rem;
+      --ui-blue:#2563eb;
+      --ui-blue-soft:#eaf2ff;
+      --ui-green:#10b981;
+      --ui-red:#ef476f;
+      --ui-violet:#8b5cf6;
+      --ui-amber:#f59e0b;
+    }
+
+    /* Page rhythm */
+    .page{max-width:100%;margin:0 auto}
+    .page > * + *{margin-top:1rem}
+    .page h2,.page h3{line-height:1.2}
+    .page h2{font-weight:800}
+    .page h3{font-weight:750}
+
+    /* Unified content cards */
+    .glass{
+      border-radius:var(--ui-radius-xl)!important;
+    }
+    html.light .glass{
+      background:#fff!important;
+      border:1px solid #e7edf5!important;
+      box-shadow:0 8px 28px rgba(15,23,42,.055)!important;
+    }
+    html:not(.light) .glass{
+      background:linear-gradient(180deg,rgba(15,24,41,.94),rgba(10,18,31,.98))!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 14px 38px rgba(2,8,23,.24)!important;
+    }
+
+    /* Section headers */
+    .finora-section-head,
+    .page .flex.justify-between:has(> h2),
+    .page .flex.justify-between:has(> h3){
+      align-items:center;
+    }
+    .page button.text-emerald-400,
+    .page button.text-cyan-400{
+      font-weight:700;
+    }
+
+    /* Compact surface items */
+    #recent-transactions > *,
+    #transactions-list > *,
+    #subscriptions-list > *,
+    #budgets-list > *,
+    #goals-list > *,
+    #assets-list > *{
+      border-radius:1rem!important;
+    }
+
+    html.light #recent-transactions > *,
+    html.light #transactions-list > *,
+    html.light #subscriptions-list > *,
+    html.light #budgets-list > *,
+    html.light #goals-list > *,
+    html.light #assets-list > *{
+      background:#fff!important;
+      border:1px solid #edf1f6!important;
+    }
+
+    html:not(.light) #recent-transactions > *,
+    html:not(.light) #transactions-list > *,
+    html:not(.light) #subscriptions-list > *,
+    html:not(.light) #budgets-list > *,
+    html:not(.light) #goals-list > *,
+    html:not(.light) #assets-list > *{
+      background:#0d1727!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+
+    /* All secondary buttons follow same neutral style */
+    html.light button.bg-slate-800,
+    html.light label.bg-slate-800{
+      background:#f1f4f8!important;
+      border:1px solid #e2e8f0!important;
+      color:#334155!important;
+    }
+    html:not(.light) button.bg-slate-800,
+    html:not(.light) label.bg-slate-800{
+      background:#15233a!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      color:#dce8f8!important;
+    }
+
+    /* Primary CTA consistency */
+    .bg-brand-600{
+      background:var(--ui-blue)!important;
+      color:#fff!important;
+      box-shadow:0 8px 18px rgba(37,99,235,.16);
+    }
+    .bg-brand-600:active{transform:scale(.985)}
+
+    /* Filters / pills */
+    .filter-chip{
+      min-height:38px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    html.light .filter-chip{
+      background:#f2f5f9!important;
+      color:#64748b!important;
+      border:1px solid #dde5ef!important;
+    }
+    html.light .filter-chip.active{
+      background:#eaf2ff!important;
+      color:#2563eb!important;
+      border-color:#b8d2ff!important;
+    }
+    html:not(.light) .filter-chip{
+      background:#132033!important;
+      color:#91a6c0!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+    }
+    html:not(.light) .filter-chip.active{
+      background:rgba(37,99,235,.16)!important;
+      color:#7cb2ff!important;
+      border-color:rgba(96,165,250,.28)!important;
+    }
+
+    /* Unified inputs */
+    input,select,textarea{
+      border-radius:.9rem!important;
+      min-height:44px;
+    }
+    html.light input,html.light select,html.light textarea{
+      background:#f8fafc!important;
+      color:#0f172a!important;
+      border:1px solid #e3e9f1!important;
+    }
+    html:not(.light) input,html:not(.light) select,html:not(.light) textarea{
+      background:#0b1422!important;
+      color:#eef5ff!important;
+      border:1px solid rgba(148,163,184,.12)!important;
+    }
+    input:focus,select:focus,textarea:focus{
+      outline:none!important;
+      border-color:#60a5fa!important;
+      box-shadow:0 0 0 3px rgba(37,99,235,.10)!important;
+    }
+
+    /* Analysis */
+    #page-analysis #analysis-empty,
+    #page-analysis #analysis-local-summary-card{
+      border-radius:1rem!important;
+    }
+    html.light #page-analysis #analysis-empty,
+    html.light #page-analysis #analysis-local-summary-card{
+      background:#f7f9fc!important;
+      color:#64748b!important;
+      border:1px solid #e6edf5!important;
+    }
+    html:not(.light) #page-analysis #analysis-empty,
+    html:not(.light) #page-analysis #analysis-local-summary-card{
+      background:#0d1727!important;
+      color:#91a6c0!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+    #ai-report-card{
+      border-radius:1.2rem!important;
+    }
+
+    /* Statistics and small metric tiles */
+    #stats-grid > div{
+      border-radius:1rem!important;
+    }
+    html.light #stats-grid > div{
+      background:#f8fafc!important;
+      border:1px solid #edf1f6!important;
+    }
+    html:not(.light) #stats-grid > div{
+      background:#0d1727!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+
+    /* Settings blocks */
+    #settings-modal .space-y-4 > .rounded-2xl{
+      border-radius:1rem!important;
+    }
+    html.light #settings-modal .space-y-4 > .rounded-2xl{
+      background:#f8fafc!important;
+      border:1px solid #e6edf5!important;
+    }
+    html:not(.light) #settings-modal .space-y-4 > .rounded-2xl{
+      background:#0d1727!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+
+    /* Quick add and action cards */
+    .finora-quick-tile{
+      border-radius:1.05rem!important;
+      min-height:88px;
+    }
+    .finora-quick-icon{
+      width:38px;height:38px;border-radius:12px;
+    }
+
+    /* Empty states */
+    .empty-state{
+      border-radius:1rem!important;
+    }
+    html.light .empty-state{
+      background:#fff!important;
+      border:1px dashed #cfd9e6!important;
+    }
+    html:not(.light) .empty-state{
+      background:#0d1727!important;
+      border:1px dashed rgba(148,163,184,.16)!important;
+    }
+
+    /* Modals */
+    .modal > .glass{
+      border-radius:1.5rem!important;
+    }
+    .modal .sticky,
+    .modal .border-b{
+      border-color:rgba(148,163,184,.10)!important;
+    }
+    html.light .modal .sticky{
+      background:rgba(255,255,255,.96)!important;
+    }
+    html:not(.light) .modal .sticky{
+      background:rgba(15,24,41,.96)!important;
+    }
+
+    /* Bottom navigation */
+    .navbtn{
+      min-height:48px;
+      border-radius:.9rem;
+    }
+    html.light .navbtn.text-emerald-400{
+      color:#2563eb!important;
+    }
+    html:not(.light) .navbtn.text-emerald-400{
+      color:#7cb2ff!important;
+    }
+
+    /* More page shortcut cards */
+    #page-more .grid > button.glass{
+      min-height:124px;
+    }
+    #page-more .grid > button.glass p:first-of-type{
+      font-weight:800;
+    }
+
+    /* Better responsive rhythm */
+    @media(max-width:640px){
+      .page > * + *{margin-top:.85rem}
+      .glass{border-radius:1.2rem!important}
+      .finora-quick-tile{min-height:82px}
+      .modal > .glass{border-radius:1.35rem!important}
+    }
+
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -883,7 +1149,7 @@
   <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex gap-3 items-center">
       <div class="brand-mark w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
-      <div><h1 class="font-bold text-white tracking-tight">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Gestisci tutto in modo semplice</p></div>
+      <div><h1 class="font-bold text-white tracking-tight">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Le tue finanze, in un unico posto</p></div>
     </div>
     <div class="flex gap-2 items-center">
       <span id="sync-status" class="status-pill hidden sm:inline-flex" aria-live="polite"><span class="status-dot"></span><span>Online</span></span>
@@ -1004,7 +1270,7 @@
 <section id="page-analysis" class="page space-y-5">
   <div>
     <p class="text-xs text-emerald-400 font-bold">INSIGHT PERSONALI</p>
-    <h2 class="text-2xl font-extrabold mt-1">Analisi finanziaria</h2>
+    <h2 class="text-2xl font-extrabold tracking-tight mt-1">Analisi finanziaria</h2>
     <p class="text-sm text-slate-400 mt-1">Confronta il periodo con le tue medie personali e ricevi un rapporto sintetico.</p>
   </div>
   <div class="glass rounded-3xl p-5 border border-emerald-500/10">
@@ -1086,7 +1352,7 @@
 <section id="page-transactions" class="page space-y-4">
   <div class="flex flex-wrap gap-2 justify-between items-center">
     <div>
-      <h2 class="text-xl font-bold">Movimenti</h2>
+      <h2 class="text-xl font-extrabold tracking-tight">Movimenti</h2>
       <p class="text-xs text-slate-500 mt-1">Cerca, filtra o aggiungi un movimento.</p><p class="hidden sm:block text-[10px] text-slate-600 mt-1">Suggerimento: premi <span class="kbd">/</span> per cercare rapidamente.</p>
     </div>
     <button onclick="openQuickAdd()" class="tap px-4 py-2.5 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Aggiungi</button>
@@ -1180,7 +1446,7 @@
 <section id="page-more" class="page space-y-5">
 
   <div>
-    <p class="text-xs text-slate-500 mb-2">Pianifica e organizza</p>
+    <p class="text-xs text-slate-500 mb-2">Organizza le tue finanze</p>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
       <button onclick="goPage('budgets')" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-gauge-high"></i></div>
