@@ -605,29 +605,15 @@
     </div>
   </div>
 
-  <div class="grid lg:grid-cols-2 gap-4">
-    <button onclick="goPage('subscriptions')" class="glass rounded-2xl p-4 text-left hover:border-emerald-500/40 transition group">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
-            <i class="fa-solid fa-repeat"></i>
-          </div>
-          <div>
-            <h3 class="font-bold">Abbonamenti</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Gestisci costi ricorrenti, pause e addebiti</p>
-          </div>
-        </div>
-        <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-emerald-400 transition"></i>
+  <div class="glass rounded-2xl p-4">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h3 class="font-bold">Categorie</h3>
+        <p class="text-xs text-slate-500 mt-1">Organizza entrate e uscite con categorie personalizzate.</p>
       </div>
-      <div class="flex gap-4 mt-3 text-[11px] text-slate-400">
-        <span><strong id="more-sub-active" class="text-white">0</strong> attivi</span>
-        <span><strong id="more-sub-total" class="money text-white">€0,00</strong>/mese</span>
-      </div>
-    </button>
-    <div class="glass rounded-2xl p-4">
-      <div class="flex justify-between"><h3 class="font-bold">Categorie</h3><button onclick="openCategoryModal()" class="text-xs text-emerald-400">+ Aggiungi</button></div>
-      <div id="categories-list" class="mt-3 flex flex-wrap gap-2"></div>
+      <button onclick="openCategoryModal()" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-xs font-bold text-emerald-400 whitespace-nowrap">+ Aggiungi</button>
     </div>
+    <div id="categories-list" class="mt-4 flex flex-wrap gap-2"></div>
   </div>
   <div class="glass rounded-2xl p-4">
     <h3 class="font-bold">Statistiche</h3>
