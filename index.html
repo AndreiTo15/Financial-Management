@@ -778,6 +778,41 @@
       transition:none!important;
     }
 
+
+    /* Settings modal: viewport-safe and always closable */
+    #settings-modal{
+      overflow:hidden!important;
+    }
+    #settings-modal > .glass{
+      width:min(100%,32rem)!important;
+      max-width:min(32rem,calc(100vw - 2rem - var(--safe-left) - var(--safe-right)))!important;
+      max-height:calc(100dvh - 2rem - var(--safe-top) - var(--safe-bottom))!important;
+      min-height:0!important;
+      padding:0!important;
+      overflow:hidden!important;
+    }
+    #settings-modal > .glass > .space-y-4{
+      min-height:0!important;
+      overflow-y:auto!important;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+    }
+    #settings-modal > .glass > .sticky{
+      background:inherit!important;
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    @media (max-width:640px){
+      #settings-modal{
+        align-items:flex-start!important;
+        padding-top:max(1rem,var(--safe-top))!important;
+        padding-bottom:max(1rem,var(--safe-bottom))!important;
+      }
+      #settings-modal > .glass{
+        max-height:calc(100dvh - max(1rem,var(--safe-top)) - max(1rem,var(--safe-bottom)))!important;
+      }
+    }
+
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -1415,9 +1450,14 @@
 </div>
 
 <div id="settings-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
-  <div class="glass rounded-3xl p-5 w-full max-w-lg">
-    <div class="flex justify-between mb-4"><h3 class="font-bold">Impostazioni</h3><button onclick="closeModal('settings-modal')"><i class="fa-solid fa-xmark"></i></button></div>
-    <div class="space-y-4">
+  <div class="glass rounded-3xl w-full max-w-lg max-h-[calc(100dvh-2rem-var(--safe-top)-var(--safe-bottom))] flex flex-col overflow-hidden">
+    <div class="sticky top-0 z-10 flex justify-between items-center gap-3 px-5 py-4 border-b border-slate-800 bg-inherit">
+      <h3 class="font-bold">Impostazioni</h3>
+      <button onclick="closeModal('settings-modal')" aria-label="Chiudi impostazioni" class="tap w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 flex-shrink-0">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="space-y-4 p-5 overflow-y-auto overscroll-contain">
       <div><label class="text-xs text-slate-400">Username</label><input id="settings-username" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
       <div><label class="text-xs text-slate-400">Saldo iniziale</label><input id="settings-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
       <button onclick="saveSettings()" class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva impostazioni</button>
