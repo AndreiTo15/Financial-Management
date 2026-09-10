@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#f5f7fb">
   <title>Finora</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -296,13 +296,222 @@
     .notif-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:rgb(244 63 94);color:white;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid rgb(2 6 23)}
     .sr-only-focusable:not(:focus){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
+
+    /* =========================================================
+       FINORA MOCKUP STYLE — visual redesign only
+       Keeps all existing features and data flows.
+       ========================================================= */
+
+    :root{
+      --finora-blue:#2563eb;
+      --finora-blue-2:#1d4ed8;
+      --finora-green:#10b981;
+      --finora-red:#ef4444;
+      --finora-purple:#8b5cf6;
+      --finora-orange:#f59e0b;
+      --finora-text:#0f172a;
+      --finora-muted:#64748b;
+      --finora-page:#f5f7fb;
+      --finora-card:#ffffff;
+      --finora-border:#e8edf5;
+      --finora-shadow:0 10px 35px rgba(15,23,42,.07);
+    }
+
+    html.light body{
+      background:var(--finora-page)!important;
+      color:var(--finora-text)!important;
+    }
+    html.light .bg-slate-950{background:var(--finora-page)!important}
+    html.light .bg-slate-900{background:#fff!important}
+    html.light .bg-slate-800{background:#eef2f7!important}
+    html.light .bg-slate-700{background:#e7ecf3!important}
+    html.light .text-white,
+    html.light .text-slate-100,
+    html.light .text-slate-200{color:#0f172a!important}
+    html.light .text-slate-300{color:#334155!important}
+    html.light .text-slate-400{color:#64748b!important}
+    html.light .text-slate-500{color:#8190a5!important}
+    html.light .text-slate-600{color:#94a3b8!important}
+    html.light .border-slate-800,
+    html.light .border-slate-700{border-color:var(--finora-border)!important}
+
+    html.light .glass{
+      background:rgba(255,255,255,.96)!important;
+      border:1px solid var(--finora-border)!important;
+      box-shadow:var(--finora-shadow);
+      backdrop-filter:blur(18px);
+    }
+
+    html.light header{
+      background:rgba(245,247,251,.9)!important;
+      border-bottom:0!important;
+      box-shadow:none!important;
+    }
+    html.light header .max-w-6xl{padding-top:.9rem;padding-bottom:.7rem}
+    html.light header button{
+      background:#fff!important;
+      border:1px solid var(--finora-border)!important;
+      box-shadow:0 4px 16px rgba(15,23,42,.04);
+      color:#0f172a!important;
+    }
+    html.light .brand-mark{
+      background:linear-gradient(145deg,#19c985,#06b679)!important;
+      box-shadow:0 9px 24px rgba(16,185,129,.20)!important;
+    }
+
+    html.light main{max-width:72rem}
+    html.light .page{padding-bottom:.4rem}
+    html.light h1,html.light h2,html.light h3{letter-spacing:-.025em}
+    html.light h2{color:#0f172a}
+    html.light input,
+    html.light select,
+    html.light textarea{
+      background:#f8fafc!important;
+      color:#0f172a!important;
+      border-color:#e5eaf1!important;
+    }
+    html.light input::placeholder,
+    html.light textarea::placeholder{color:#94a3b8}
+
+    /* Main blue wallet card */
+    html.light .finora-balance-card{
+      color:#fff!important;
+      border:0!important;
+      background:
+        radial-gradient(circle at 92% 5%,rgba(255,255,255,.20),transparent 30%),
+        linear-gradient(145deg,#2f74ee 0%,#2464df 52%,#1555c9 100%)!important;
+      box-shadow:0 18px 34px rgba(37,99,235,.25)!important;
+      overflow:hidden;
+      position:relative;
+    }
+    html.light .finora-balance-card::after{
+      content:"";position:absolute;right:-50px;bottom:-90px;width:220px;height:220px;
+      border-radius:999px;border:35px solid rgba(255,255,255,.05);pointer-events:none
+    }
+    html.light .finora-balance-card .text-slate-500,
+    html.light .finora-balance-card .text-slate-400{color:rgba(255,255,255,.72)!important}
+    html.light .finora-balance-card #kpi-balance{color:#fff!important;font-size:2.35rem}
+    html.light .finora-balance-card #home-month-label{
+      color:#dbeafe!important;background:rgba(12,55,145,.28)!important;border:1px solid rgba(255,255,255,.12)
+    }
+    html.light .finora-balance-card .finora-mini-stat{
+      background:rgba(255,255,255,.10)!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+      backdrop-filter:blur(7px)
+    }
+    html.light .finora-balance-card .finora-mini-stat p:first-child{color:rgba(255,255,255,.7)!important}
+
+    /* Quick action tiles */
+    .finora-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+    .finora-quick-tile{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:94px;padding:.8rem .45rem;border-radius:1.15rem;text-align:center;
+      font-size:.72rem;font-weight:700;gap:.55rem
+    }
+    .finora-quick-icon{
+      width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:.95rem
+    }
+    html.light .finora-quick-tile{
+      background:#fff;border:1px solid var(--finora-border);box-shadow:0 5px 18px rgba(15,23,42,.045);color:#334155
+    }
+    html.light .finora-quick-tile:nth-child(1) .finora-quick-icon{background:#eaf2ff;color:#2563eb}
+    html.light .finora-quick-tile:nth-child(2) .finora-quick-icon{background:#fff1f2;color:#f43f5e}
+    html.light .finora-quick-tile:nth-child(3) .finora-quick-icon{background:#ecfdf5;color:#10b981}
+    html.light .finora-quick-tile:nth-child(4) .finora-quick-icon{background:#f3e8ff;color:#8b5cf6}
+
+    /* Section titles and insights */
+    .finora-section-head{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+    .finora-section-head h2{font-size:1rem;font-weight:800}
+    html.light .insight-card{
+      background:#fff!important;border:1px solid var(--finora-border)!important;
+      box-shadow:0 5px 18px rgba(15,23,42,.045)
+    }
+    html.light #subscription-alert{
+      background:#fff9e8!important;border-color:#fde7a3!important;color:#a16207!important;
+      box-shadow:0 5px 16px rgba(146,64,14,.04)
+    }
+
+    /* Compact modern transaction/card surfaces */
+    html.light #recent-transactions > *,
+    html.light #transactions-list > *{
+      background:#fff!important;border-color:#edf1f6!important;box-shadow:none!important
+    }
+    html.light .empty-state{
+      background:#fff!important;border-color:#dbe3ec!important;color:#64748b!important
+    }
+
+    /* Analysis page */
+    html.light #page-analysis .glass{
+      box-shadow:0 7px 24px rgba(15,23,42,.055)
+    }
+    html.light #page-analysis select{
+      background:#eef2f7!important;border:0!important;border-radius:999px!important
+    }
+    html.light #ai-report-card{
+      background:linear-gradient(180deg,#fbfffd,#f6fffb)!important;
+      border-color:#ccefe0!important;
+    }
+
+    /* Better semantic colors in light mode */
+    html.light .text-emerald-400{color:#10b981!important}
+    html.light .text-cyan-400{color:#2563eb!important}
+    html.light .text-rose-400{color:#ef476f!important}
+    html.light .text-amber-400{color:#e69a00!important}
+    html.light .bg-brand-600{background:#2563eb!important}
+    html.light .bg-emerald-500{background:#10b981!important}
+    html.light .bg-cyan-500\/10{background:#eaf2ff!important}
+    html.light .border-cyan-500\/15{border-color:#d9e6ff!important}
+
+    /* Bottom navigation */
+    html.light .navglass{
+      background:rgba(255,255,255,.94)!important;
+      border-top:1px solid #edf1f6!important;
+      box-shadow:0 -10px 30px rgba(15,23,42,.05);
+      backdrop-filter:blur(20px)
+    }
+    html.light .navbtn{color:#8b99ac!important}
+    html.light .navbtn.text-emerald-400{color:#2563eb!important}
+    html.light .nav-fab{
+      background:linear-gradient(145deg,#2e7af2,#1d62df)!important;color:#fff!important;
+      box-shadow:0 10px 24px rgba(37,99,235,.35)!important;
+      border:4px solid #fff
+    }
+
+    /* Modal redesign */
+    html.light .modal{background:rgba(15,23,42,.34)!important;backdrop-filter:blur(7px)}
+    html.light .modal > .glass{
+      border:1px solid #edf1f6!important;box-shadow:0 30px 70px rgba(15,23,42,.20)!important;
+      border-radius:1.55rem!important
+    }
+    html.light .modal button.bg-slate-800{background:#f0f3f8!important;color:#334155!important}
+    html.light .modal .bg-brand-600{background:#2563eb!important;color:#fff!important}
+
+    /* Dark mode gets the same shape language while retaining dark colors */
+    html:not(.light) .glass{border-radius:1.35rem}
+    html:not(.light) .finora-balance-card{
+      background:linear-gradient(145deg,#1d4ed8,#153fa5)!important;border-color:rgba(96,165,250,.18)!important
+    }
+    html:not(.light) .finora-quick-tile{background:rgba(30,41,59,.72);border:1px solid rgba(255,255,255,.07)}
+    html:not(.light) .finora-quick-icon{background:rgba(59,130,246,.12);color:#60a5fa}
+    html:not(.light) .nav-fab{background:#2563eb!important;color:#fff!important;box-shadow:0 12px 32px rgba(37,99,235,.3)!important}
+
+    @media(max-width:640px){
+      header .max-w-6xl{padding-left:1rem;padding-right:1rem}
+      main{padding:.8rem 1rem 6.4rem!important}
+      #page-home{gap:1rem}
+      .finora-quick-grid{gap:.45rem}
+      .finora-quick-tile{min-height:82px;border-radius:1rem;font-size:.64rem;padding:.65rem .25rem}
+      .finora-quick-icon{width:36px;height:36px;border-radius:12px}
+      html.light .finora-balance-card #kpi-balance{font-size:2rem}
+    }
+
 </style>
 
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Finora">
+  <meta name="apple-mobile-web-app-title" content="Finanze">
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body class="min-h-full bg-slate-950 text-slate-100 pb-24">
@@ -366,7 +575,7 @@
   <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex gap-3 items-center">
       <div class="brand-mark w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
-      <div><h1 class="font-bold text-white tracking-tight">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Le tue finanze, più chiare</p></div>
+      <div><h1 class="font-bold text-white tracking-tight">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Gestisci tutto in modo semplice</p></div>
     </div>
     <div class="flex gap-2 items-center">
       <span id="sync-status" class="status-pill hidden sm:inline-flex" aria-live="polite"><span class="status-dot"></span><span>Online</span></span>
@@ -386,11 +595,11 @@
   <div class="pt-1">
     <p id="home-greeting" class="text-xs font-bold text-emerald-400"></p>
     <h2 id="home-greeting-title" class="text-xl font-extrabold tracking-tight mt-1">Panoramica finanziaria</h2>
-    <p class="text-xs text-slate-500 mt-1">Tutto ciò che conta, a colpo d'occhio.</p>
+    <p class="text-xs text-slate-500 mt-1">La tua situazione finanziaria, a colpo d'occhio.</p>
   </div>
   <div id="subscription-alert" class="hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs"></div>
 
-  <div class="glass rounded-3xl p-5">
+  <div class="glass finora-balance-card rounded-3xl p-5">
     <div class="flex items-start justify-between gap-3">
       <div>
         <p class="text-xs text-slate-500">Disponibile</p>
@@ -400,11 +609,11 @@
     </div>
 
     <div class="grid grid-cols-2 gap-3 mt-5">
-      <div class="rounded-2xl bg-rose-500/5 border border-rose-500/10 p-3">
+      <div class="finora-mini-stat rounded-2xl p-3">
         <p class="text-[10px] text-slate-500">Spese del mese</p>
         <p id="kpi-expense" class="money text-lg font-extrabold text-rose-400 mt-1">€0,00</p>
       </div>
-      <div class="rounded-2xl bg-emerald-500/5 border border-emerald-500/10 p-3">
+      <div class="finora-mini-stat rounded-2xl p-3">
         <p class="text-[10px] text-slate-500">Risparmio del mese</p>
         <p id="kpi-saving" class="money text-lg font-extrabold text-emerald-400 mt-1">€0,00</p>
       </div>
@@ -413,21 +622,33 @@
     <p id="kpi-investment" class="hidden"></p>
   </div>
 
-  <div class="grid grid-cols-2 gap-3">
-    <button onclick="openTransactionModal('EXPENSE')" class="tap quick-action bg-rose-500 text-white shadow-lg shadow-rose-950/20">
-      <i class="fa-solid fa-minus"></i><span>Spesa</span>
-    </button>
-    <button onclick="openTransactionModal('INCOME')" class="tap quick-action bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/20">
-      <i class="fa-solid fa-plus"></i><span>Entrata</span>
-    </button>
+  <div>
+    <div class="finora-section-head">
+      <h2>Azioni rapide</h2>
+    </div>
+    <div class="finora-quick-grid">
+      <button onclick="openQuickAdd()" class="tap finora-quick-tile">
+        <span class="finora-quick-icon"><i class="fa-solid fa-plus"></i></span>
+        <span>Movimento</span>
+      </button>
+      <button onclick="openTransactionModal('EXPENSE')" class="tap finora-quick-tile">
+        <span class="finora-quick-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+        <span>Spesa</span>
+      </button>
+      <button onclick="openTransactionModal('INCOME')" class="tap finora-quick-tile">
+        <span class="finora-quick-icon"><i class="fa-solid fa-arrow-down"></i></span>
+        <span>Entrata</span>
+      </button>
+      <button onclick="openTransactionModal('INVESTMENT')" class="tap finora-quick-tile">
+        <span class="finora-quick-icon"><i class="fa-solid fa-chart-simple"></i></span>
+        <span>Investimento</span>
+      </button>
+    </div>
   </div>
-  <button onclick="openTransactionModal('INVESTMENT')" class="tap w-full py-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400 text-xs font-bold">
-    <i class="fa-solid fa-chart-line mr-1"></i> Registra investimento
-  </button>
 
   <div class="glass rounded-2xl p-4">
     <div class="flex items-center justify-between gap-3">
-      <div><h2 class="font-bold">Da tenere d'occhio</h2><p class="text-[11px] text-slate-500 mt-1">Segnali automatici, sempre disponibili.</p></div>
+      <div><h2 class="font-bold">Insight Finora</h2><p class="text-[11px] text-slate-500 mt-1">Suggerimenti basati sulle tue abitudini.</p></div>
       <button onclick="openNotifications()" class="text-xs font-bold text-emerald-400">Vedi tutto</button>
     </div>
     <div id="home-insights" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-3"></div>
@@ -450,7 +671,7 @@
 
   <div class="grid lg:grid-cols-3 gap-4">
     <div class="glass rounded-2xl p-4 lg:col-span-2">
-      <div class="flex justify-between items-center mb-3"><h2 class="font-bold">Andamento mensile</h2><span id="mom-text" class="text-xs text-slate-400"></span></div>
+      <div class="flex justify-between items-center mb-3"><h2 class="font-bold">Andamento</h2><span id="mom-text" class="text-xs text-slate-400"></span></div>
       <div class="h-64"><canvas id="monthly-chart"></canvas></div>
     </div>
     <div class="glass rounded-2xl p-4">
@@ -1200,7 +1421,7 @@ async function deleteAccount(){
 async function logout(){await sb.auth.signOut();location.reload()}
 
 async function init(){
-  if(localStorage.getItem('finance_theme')==='light')document.documentElement.classList.add('light');
+  const savedTheme=localStorage.getItem('finance_theme');if(savedTheme==='light'||!savedTheme)document.documentElement.classList.add('light');
   if(!SUPABASE_CONFIG.anonKey||SUPABASE_CONFIG.anonKey.includes('INCOLLA_QUI')){document.getElementById('auth-screen').classList.remove('hidden');msg('Inserisci la Publishable Key di Supabase nel file index.html.');return}
   sb=supabase.createClient(SUPABASE_CONFIG.url,SUPABASE_CONFIG.anonKey);
   sb.auth.onAuthStateChange(async(event,session)=>{
