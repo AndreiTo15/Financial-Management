@@ -357,7 +357,7 @@
         <div id="ai-report" class="text-sm leading-6 text-slate-300 whitespace-pre-line"></div>
       </div>
 
-      <div class="bg-slate-900/50 rounded-2xl p-4">
+      <div id="analysis-local-summary-card" class="bg-slate-900/50 rounded-2xl p-4">
         <p id="analysis-summary" class="text-sm leading-6 text-slate-300"></p>
         <p id="analysis-source-note" class="text-[10px] text-slate-500 mt-3">Analisi automatica di budgeting basata sui dati registrati nell'app. Non costituisce consulenza finanziaria o di investimento.</p>
       </div>
@@ -1383,6 +1383,42 @@ function buildAggregatedAnalysisPayload(period){
   };
 }
 
+
+function formatAIReport(text){
+  if(!text) return '';
+  let safe=esc(String(text)).replace(/\r\n/g,'\n');
+
+  // Titoli Markdown: ## Titolo -> titolo grafico senza mostrare #
+  safe=safe.replace(/^#{1,6}\s+(.+)$/gm,
+    '<h4 class="text-base font-bold text-white mt-5 mb-2">$1</h4>');
+
+  // Grassetto Markdown
+  safe=safe.replace(/\*\*(.+?)\*\*/g,'<strong class="font-bold text-white">$1</strong>');
+
+  // Liste semplici
+  const lines=safe.split('\n');
+  let result=[];
+  let inList=false;
+  for(const line of lines){
+    const m=line.match(/^\s*[-•]\s+(.+)$/);
+    if(m){
+      if(!inList){ result.push('<ul class="list-disc pl-5 space-y-1.5 my-2">'); inList=true; }
+      result.push('<li>'+m[1]+'</li>');
+    }else{
+      if(inList){ result.push('</ul>'); inList=false; }
+      if(line.trim()===''){
+        result.push('<div class="h-2"></div>');
+      }else if(/^<h4 /.test(line)){
+        result.push(line);
+      }else{
+        result.push('<p class="mb-2">'+line+'</p>');
+      }
+    }
+  }
+  if(inList) result.push('</ul>');
+  return result.join('');
+}
+
 async function runAIFinancialAnalysis(){
   const period=document.getElementById('analysis-period').value;
   runFinancialAnalysis();
@@ -1392,6 +1428,7 @@ async function runAIFinancialAnalysis(){
   const modelLabel=document.getElementById('ai-model-label');
   const sourceNote=document.getElementById('analysis-source-note');
   reportCard.classList.remove('hidden');
+  document.getElementById('analysis-local-summary-card')?.classList.remove('hidden');
   report.textContent='Sto preparando il rapporto IA…';
   modelLabel.textContent='';
 
@@ -1400,13 +1437,15 @@ async function runAIFinancialAnalysis(){
     const {data,error}=await sb.functions.invoke('financial-analysis',{body:payload});
     if(error) throw error;
     if(!data?.report) throw new Error('Risposta IA non valida');
-    report.textContent=data.report;
+    report.innerHTML=formatAIReport(data.report);
     modelLabel.textContent=data.model?`Modello: ${data.model}`:'OpenRouter';
-    sourceNote.textContent='Il rapporto IA usa solo dati aggregati del periodo selezionato. Il report locale resta disponibile come supporto e fallback. Non costituisce consulenza finanziaria o di investimento.';
+    document.getElementById('analysis-local-summary-card')?.classList.add('hidden');
+    sourceNote.textContent='Il rapporto IA usa solo dati aggregati del periodo selezionato. Non costituisce consulenza finanziaria o di investimento.';
   }catch(e){
     console.warn('OpenRouter analysis fallback:',e);
-    report.textContent='Il servizio IA gratuito non è disponibile in questo momento. Ti mostro comunque l’analisi locale completa qui sopra.';
+    report.textContent='Il servizio IA gratuito non è disponibile in questo momento. Ti mostro comunque l’analisi locale completa.';
     modelLabel.textContent='Fallback locale';
+    document.getElementById('analysis-local-summary-card')?.classList.remove('hidden');
     sourceNote.textContent='OpenRouter non ha risposto: è stato mantenuto il report locale. I modelli gratuiti possono avere limiti giornalieri o disponibilità variabile.';
   }
 }
