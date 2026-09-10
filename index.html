@@ -756,6 +756,25 @@
 </div>
 
 
+
+<div id="legal-modal" class="modal fixed inset-0 z-[190] bg-black/80 items-center justify-center p-4">
+  <div class="glass rounded-3xl w-full max-w-2xl max-h-[82vh] flex flex-col overflow-hidden">
+    <div class="flex items-center justify-between gap-3 p-5 border-b border-slate-800">
+      <div>
+        <p class="text-xs font-bold text-emerald-400">FINORA</p>
+        <h3 id="legal-modal-title" class="font-bold text-xl mt-1">Privacy</h3>
+      </div>
+      <button onclick="closeModal('legal-modal')" aria-label="Chiudi" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="legal-modal-content" class="p-5 overflow-y-auto text-sm leading-6 text-slate-300"></div>
+    <div class="p-4 border-t border-slate-800">
+      <button onclick="closeModal('legal-modal')" class="tap w-full py-3 rounded-xl bg-slate-800 font-bold">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <div id="notifications-modal" class="modal fixed inset-0 z-[170] bg-black/75 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg max-h-[82vh] overflow-y-auto">
     <div class="flex items-start justify-between gap-3">
@@ -933,8 +952,8 @@
           <span id="settings-network-status" class="status-pill"><span class="status-dot"></span><span>Online</span></span>
         </div>
         <div class="flex flex-wrap gap-3 mt-3 text-xs">
-          <a href="./privacy.html" target="_blank" rel="noopener" class="text-emerald-400">Privacy</a>
-          <a href="./terms.html" target="_blank" rel="noopener" class="text-emerald-400">Termini</a>
+          <button onclick="openLegalModal('privacy')" class="text-emerald-400">Privacy</button>
+          <button onclick="openLegalModal('terms')" class="text-emerald-400">Termini</button>
           <button onclick="copyDiagnostics()" class="text-cyan-400">Copia diagnostica</button>
         </div>
       </div>
@@ -1014,16 +1033,7 @@
 </div>
 
 <div id="toast" class="fixed z-[200] bottom-24 left-1/2 -translate-x-1/2 hidden px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl text-sm"></div>
-<div id="app-loading" class="hidden fixed inset-0 z-[190] bg-slate-950/75 backdrop-blur-sm">
-  <div class="max-w-6xl mx-auto p-4 pt-24 space-y-4">
-    <div class="animate-pulse grid grid-cols-2 gap-3">
-      <div class="h-28 rounded-3xl bg-slate-900 border border-slate-800 col-span-2"></div>
-      <div class="h-16 rounded-2xl bg-slate-900 border border-slate-800"></div>
-      <div class="h-16 rounded-2xl bg-slate-900 border border-slate-800"></div>
-    </div>
-    <div class="animate-pulse h-64 rounded-3xl bg-slate-900 border border-slate-800"></div>
-  </div>
-</div>
+
 
 <script>
 let sb=null,user=null,profile=null,settings=null;
@@ -1207,7 +1217,7 @@ async function onUser(u){
 }
 async function loadAll(){
   if(!user)return;
-  document.getElementById('app-loading')?.classList.remove('hidden');
+  
   const requests=[
     sb.from('profiles').select('*').eq('id',user.id).maybeSingle(),
     sb.from('finance_settings').select('*').eq('user_id',user.id).maybeSingle(),
@@ -1220,7 +1230,7 @@ async function loadAll(){
     sb.from('net_worth_snapshots').select('*').eq('user_id',user.id).order('snapshot_date')
   ];
   const res=await Promise.all(requests);const err=res.find(x=>x.error)?.error;
-  if(err){console.error(err);loadCache();document.getElementById('app-loading')?.classList.add('hidden');toast('Modalità cache: errore di sincronizzazione');return}
+  if(err){console.error(err);loadCache();toast('Modalità cache: errore di sincronizzazione');return}
   [profile,settings]=[res[0].data,res[1].data];
   categories=res[2].data||[];transactions=res[3].data||[];subscriptions=res[4].data||[];budgets=res[5].data||[];
   goals=res[6].data||[];assets=res[7].data||[];snapshots=res[8].data||[];
@@ -1229,7 +1239,7 @@ async function loadAll(){
     if(!historyError) aiReports=historyData||[];
     else console.warn('Storico IA non disponibile:',historyError.message);
   }catch(e){ console.warn('Storico IA non disponibile:',e); }
-  saveCache();renderAll();scheduleSnapshot();document.getElementById('app-loading')?.classList.add('hidden');setTimeout(()=>showOnboarding(false),220)
+  saveCache();renderAll();scheduleSnapshot();setTimeout(()=>showOnboarding(false),220)
 }
 function saveCache(){localStorage.setItem(CACHE_PREFIX+user.id,JSON.stringify({profile,settings,categories,transactions,subscriptions,budgets,goals,assets,snapshots,aiReports}))}
 function loadCache(){
@@ -1382,6 +1392,35 @@ function renderNotifications(){
   const box=document.getElementById('notifications-list');if(!box)return;const list=buildNotifications();
   box.innerHTML=list.length?list.map(n=>`<div class="p-3 rounded-2xl bg-slate-900/55 border border-slate-800 flex gap-3"><div class="w-9 h-9 rounded-xl ${notifTone(n.level)} flex items-center justify-center flex-shrink-0"><i class="fa-solid ${n.icon}"></i></div><div><p class="text-sm font-bold">${esc(n.title)}</p><p class="text-xs text-slate-500 mt-1">${esc(n.text)}</p></div></div>`).join(''):'<div class="empty-state"><i class="fa-solid fa-circle-check text-emerald-400"></i><p class="text-sm font-bold mt-2">Tutto sotto controllo</p><p class="text-xs text-slate-500 mt-1">Non ci sono avvisi importanti in questo momento.</p></div>';
 }
+
+const LEGAL_CONTENT = {
+  privacy: {
+    title: 'Privacy',
+    html: `
+      <h4 class="font-bold text-base text-white mb-2">Privacy di Finora</h4>
+      <p>Finora è un'app per la gestione personale delle finanze. I dati dell'account e i dati finanziari inseriti vengono archiviati nel backend Supabase associato all'app e sono protetti da regole di accesso per utente.</p>
+      <p class="mt-3">La funzione di analisi IA invia alla Edge Function solo dati finanziari aggregati necessari a generare il rapporto; le descrizioni dei singoli movimenti non vengono inviate al modello IA.</p>
+      <p class="mt-3">L'utente può eliminare il proprio account e i dati associati direttamente dalle Impostazioni dell'app.</p>
+      <p class="mt-3 text-slate-500 text-xs">Questa è una base tecnica e dovrà essere completata con i dati legali del titolare, contatti, basi giuridiche, tempi di conservazione e fornitori prima della pubblicazione sugli store.</p>
+      <p class="mt-3 text-slate-500 text-xs">Aggiornamento: settembre 2026.</p>`
+  },
+  terms: {
+    title: 'Termini d’uso',
+    html: `
+      <h4 class="font-bold text-base text-white mb-2">Termini d'uso di Finora</h4>
+      <p>Finora fornisce strumenti informativi per registrare e organizzare finanze personali. Le informazioni e i rapporti generati, inclusi quelli prodotti con IA, non costituiscono consulenza finanziaria, d'investimento, fiscale o legale.</p>
+      <p class="mt-3">L'utente è responsabile dell'accuratezza dei dati inseriti e delle decisioni prese sulla base delle informazioni visualizzate.</p>
+      <p class="mt-3 text-slate-500 text-xs">Questo documento è una bozza tecnica e dovrà essere revisionato e completato con i dati del titolare, condizioni di servizio, limitazioni di responsabilità e legge applicabile prima della distribuzione pubblica.</p>
+      <p class="mt-3 text-slate-500 text-xs">Aggiornamento: settembre 2026.</p>`
+  }
+};
+function openLegalModal(type){
+  const data=LEGAL_CONTENT[type]||LEGAL_CONTENT.privacy;
+  document.getElementById('legal-modal-title').textContent=data.title;
+  document.getElementById('legal-modal-content').innerHTML=data.html;
+  openModal('legal-modal');
+}
+
 function openNotifications(){renderNotifications();openModal('notifications-modal')}
 function markNotificationsRead(){localStorage.setItem(notificationReadKey(),JSON.stringify(finoraNotifications.map(n=>n.id)));renderNotificationBadge();premiumToast('Notifiche segnate come lette')}
 function renderHomeInsights(){
@@ -2442,7 +2481,7 @@ if(window.visualViewport){
   window.visualViewport.addEventListener('resize',refreshVisibleChartsAfterResize,{passive:true});
 }
 
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();updateNetworkStatus();init();setTimeout(flushTxQueue,1200);setTimeout(()=>document.getElementById('app-loading')?.classList.add('hidden'),8000)});
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();updateNetworkStatus();init();setTimeout(flushTxQueue,1200)});
 </script>
 
 <script>
