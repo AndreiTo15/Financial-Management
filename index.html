@@ -557,7 +557,47 @@
       <div><label class="text-xs text-slate-400">Saldo iniziale</label><input id="settings-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
       <button onclick="saveSettings()" class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva impostazioni</button>
       <button onclick="authMode('reset-direct')" class="w-full py-3 bg-slate-800 rounded-xl text-sm">Cambia password</button>
-      <button onclick="logout()" class="w-full py-3 bg-rose-500/10 text-rose-400 rounded-xl text-sm font-bold">Esci</button>
+
+      <div class="mt-5 pt-5 border-t border-rose-500/20">
+        <div class="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <p class="font-bold text-rose-300">Elimina account</p>
+              <p class="text-xs text-slate-400 mt-1">Cancella definitivamente profilo, movimenti, budget, obiettivi, abbonamenti, categorie e patrimonio associati al tuo account.</p>
+            </div>
+          </div>
+          <button onclick="requestAccountDeletion()" class="w-full mt-4 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-bold">Elimina definitivamente il mio account</button>
+        </div>
+      </div>
+
+      <button onclick="logout()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl text-sm font-bold">Esci</button>
+    </div>
+  </div>
+</div>
+
+<div id="delete-account-modal" class="modal fixed inset-0 z-[140] bg-black/80 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-md">
+    <div class="flex justify-between items-start gap-3">
+      <div>
+        <h3 class="font-bold text-xl text-rose-300">Elimina account</h3>
+        <p class="text-sm text-slate-400 mt-2">Questa operazione è definitiva e non può essere annullata.</p>
+      </div>
+      <button onclick="closeModal('delete-account-modal')" class="p-2 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-200">
+      Verranno eliminati il tuo account e tutti i dati finanziari associati.
+    </div>
+
+    <label class="block text-xs text-slate-400 mt-5 mb-2">Per confermare, scrivi <strong class="text-white">ELIMINA</strong></label>
+    <input id="delete-account-confirm" autocomplete="off" placeholder="ELIMINA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
+
+    <div class="flex gap-2 mt-5">
+      <button onclick="closeModal('delete-account-modal')" class="flex-1 py-3 bg-slate-800 rounded-xl text-sm font-bold">Annulla</button>
+      <button id="delete-account-btn" onclick="deleteAccount()" class="flex-1 py-3 bg-rose-600 rounded-xl text-sm font-bold">Elimina account</button>
     </div>
   </div>
 </div>
@@ -695,6 +735,45 @@ async function register(e){
 async function login(e){e.preventDefault();clearMsg();try{const{data,error}=await sb.auth.signInWithPassword({email:document.getElementById('login-email').value.trim(),password:document.getElementById('login-password').value});if(error)throw error;await onUser(data.user)}catch(x){msg(friendly(x))}}
 async function forgotPassword(e){e.preventDefault();try{const email=document.getElementById('forgot-email').value.trim();const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;msg('Se l’email è associata a un account, riceverai il link di recupero.','success')}catch(x){msg(friendly(x))}}
 async function updatePassword(e){e.preventDefault();const p=document.getElementById('new-password').value,p2=document.getElementById('new-password2').value;if(p!==p2)return msg('Le password non coincidono.');try{const{error}=await sb.auth.updateUser({password:p});if(error)throw error;recovery=false;msg('Password aggiornata.','success');setTimeout(()=>{document.getElementById('auth-screen').classList.add('hidden');renderAll()},800)}catch(x){msg(friendly(x))}}
+function requestAccountDeletion(){
+  closeModal('settings-modal');
+  const input=document.getElementById('delete-account-confirm');
+  if(input) input.value='';
+  openModal('delete-account-modal');
+}
+
+async function deleteAccount(){
+  const input=document.getElementById('delete-account-confirm');
+  const btn=document.getElementById('delete-account-btn');
+  if(!input || input.value.trim()!=='ELIMINA'){
+    toast('Scrivi ELIMINA per confermare.');
+    return;
+  }
+  if(!user || !sb) return;
+
+  const userId=user.id;
+  btn.disabled=true;
+  btn.textContent='Eliminazione...';
+
+  try{
+    const {error}=await sb.rpc('delete_my_account');
+    if(error) throw error;
+
+    try{ localStorage.removeItem(CACHE_PREFIX+userId); }catch{}
+    try{ await sb.auth.signOut(); }catch{}
+
+    closeModal('delete-account-modal');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    authMode('login');
+    msg('Account eliminato definitivamente.','success');
+    setTimeout(()=>location.reload(),1200);
+  }catch(error){
+    toast(friendly(error));
+    btn.disabled=false;
+    btn.textContent='Elimina account';
+  }
+}
+
 async function logout(){await sb.auth.signOut();location.reload()}
 
 async function init(){
