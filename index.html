@@ -286,7 +286,17 @@
       *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
     }
 
-  </style>
+  
+    /* Product-ready UX */
+    .status-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.38rem .62rem;border-radius:999px;font-size:.64rem;font-weight:800;border:1px solid rgb(30 41 59);background:rgba(15,23,42,.78);color:rgb(148 163 184)}
+    .status-dot{width:.45rem;height:.45rem;border-radius:999px;background:currentColor;box-shadow:0 0 0 3px currentColor/10}
+    .insight-card{border:1px solid rgb(30 41 59);background:rgba(15,23,42,.55);border-radius:1rem;padding:.9rem}
+    .form-error{font-size:.68rem;color:rgb(251 113 133);margin-top:.35rem}
+    .field-invalid{border-color:rgba(244,63,94,.7)!important;box-shadow:0 0 0 2px rgba(244,63,94,.08)}
+    .notif-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:rgb(244 63 94);color:white;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid rgb(2 6 23)}
+    .sr-only-focusable:not(:focus){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+</style>
 
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -358,7 +368,11 @@
       <div class="brand-mark w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
       <div><h1 class="font-bold text-white tracking-tight">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Le tue finanze, più chiare</p></div>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 items-center">
+      <span id="sync-status" class="status-pill hidden sm:inline-flex" aria-live="polite"><span class="status-dot"></span><span>Online</span></span>
+      <button onclick="openNotifications()" aria-label="Centro notifiche" title="Notifiche" class="tap relative w-10 h-10 rounded-xl bg-slate-900 border border-slate-800">
+        <i class="fa-solid fa-bell"></i><span id="notification-badge" class="notif-badge hidden">0</span>
+      </button>
       <button onclick="togglePrivacy()" aria-label="Modalità privacy" title="Modalità privacy" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-eye"></i></button>
       <button onclick="toggleTheme()" aria-label="Cambia tema" title="Cambia tema" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-circle-half-stroke"></i></button>
       <button onclick="openModal('settings-modal')" aria-label="Impostazioni" title="Impostazioni" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-gear"></i></button>
@@ -366,7 +380,7 @@
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto p-4">
+<main id="main-content" tabindex="-1" class="max-w-6xl mx-auto p-4">
 
 <section id="page-home" class="page active space-y-5">
   <div class="pt-1">
@@ -410,6 +424,14 @@
   <button onclick="openTransactionModal('INVESTMENT')" class="tap w-full py-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400 text-xs font-bold">
     <i class="fa-solid fa-chart-line mr-1"></i> Registra investimento
   </button>
+
+  <div class="glass rounded-2xl p-4">
+    <div class="flex items-center justify-between gap-3">
+      <div><h2 class="font-bold">Da tenere d'occhio</h2><p class="text-[11px] text-slate-500 mt-1">Segnali automatici, sempre disponibili.</p></div>
+      <button onclick="openNotifications()" class="text-xs font-bold text-emerald-400">Vedi tutto</button>
+    </div>
+    <div id="home-insights" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-3"></div>
+  </div>
 
   <button onclick="goPage('analysis')" class="tap w-full glass interactive rounded-3xl p-4 text-left border border-emerald-500/10">
     <div class="flex items-center justify-between gap-3">
@@ -733,6 +755,34 @@
   </div>
 </div>
 
+
+<div id="notifications-modal" class="modal fixed inset-0 z-[170] bg-black/75 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg max-h-[82vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3">
+      <div><h3 class="font-bold text-xl">Notifiche</h3><p class="text-xs text-slate-500 mt-1">Avvisi utili generati dai tuoi dati.</p></div>
+      <button onclick="closeModal('notifications-modal')" aria-label="Chiudi notifiche" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="flex justify-end mt-3"><button onclick="markNotificationsRead()" class="text-xs text-emerald-400">Segna come lette</button></div>
+    <div id="notifications-list" class="space-y-2 mt-3"></div>
+  </div>
+</div>
+
+<div id="setup-modal" class="modal fixed inset-0 z-[180] bg-black/80 items-center justify-center p-4">
+  <div class="glass rounded-3xl p-5 w-full max-w-lg">
+    <div class="flex justify-between items-start gap-3">
+      <div><p class="text-xs font-bold text-cyan-400">SETUP GUIDATO</p><h3 class="font-bold text-xl mt-1">Configura Finora</h3></div>
+      <button onclick="closeModal('setup-modal')" aria-label="Chiudi setup" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-5 space-y-4">
+      <div><label class="text-xs text-slate-400">1. Saldo iniziale</label><input id="setup-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="0,00"></div>
+      <div><label class="text-xs text-slate-400">2. Budget mensile principale</label><div class="grid grid-cols-2 gap-2 mt-1"><select id="setup-budget-category" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select><input id="setup-budget-amount" type="number" min="0" step="0.01" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="Importo"></div></div>
+      <div><label class="text-xs text-slate-400">3. Primo obiettivo</label><div class="grid grid-cols-2 gap-2 mt-1"><input id="setup-goal-name" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="Es. Fondo emergenza"><input id="setup-goal-target" type="number" min="0" step="0.01" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="Obiettivo €"></div></div>
+      <p class="text-[10px] text-slate-500">Puoi lasciare vuoti budget e obiettivo e configurarli più tardi.</p>
+      <button onclick="saveSetupWizard()" class="tap w-full py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold">Completa configurazione</button>
+    </div>
+  </div>
+</div>
+
 <div id="quick-add-modal" class="modal fixed inset-0 z-[75] bg-black/70 items-end sm:items-center justify-center p-4">
   <div class="glass rounded-3xl p-4 w-full max-w-md mb-[calc(4.5rem+var(--safe-bottom))] sm:mb-0">
     <div class="flex items-center justify-between mb-3">
@@ -759,11 +809,11 @@
     <div class="flex justify-between mb-4"><h3 id="transaction-title" class="font-bold">Movimento</h3><button onclick="closeModal('transaction-modal')"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveTransaction(event)" class="space-y-3">
       <input id="tx-id" type="hidden"><input id="tx-type" type="hidden">
-      <input id="tx-amount" inputmode="decimal" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
-      <select id="tx-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
+      <input id="tx-amount" aria-describedby="tx-amount-error" inputmode="decimal" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <select id="tx-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select><p id="tx-category-error" class="form-error hidden"></p>
       <input id="tx-description" placeholder="Nota (facoltativa)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <input id="tx-date" type="datetime-local" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
-      <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
+      <button id="tx-save-btn" class="w-full py-3 bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl font-bold">Salva</button>
     </form>
   </div>
 </div>
@@ -868,6 +918,25 @@
           <button onclick="closeModal('settings-modal');showOnboarding(true)" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold">Apri guida</button>
         </div>
         <p class="hidden sm:block text-[10px] text-slate-600 mt-3">Scorciatoie: <span class="kbd">N</span> nuovo movimento · <span class="kbd">/</span> cerca nei movimenti</p>
+      </div>
+
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <div><p class="font-bold text-sm">Configura Finora</p><p class="text-xs text-slate-500 mt-1">Saldo iniziale, budget e primo obiettivo in un percorso guidato.</p></div>
+          <button onclick="closeModal('settings-modal');openSetupWizard()" class="tap px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-bold">Avvia setup</button>
+        </div>
+      </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 2.3 · PWA</p></div>
+          <span id="settings-network-status" class="status-pill"><span class="status-dot"></span><span>Online</span></span>
+        </div>
+        <div class="flex flex-wrap gap-3 mt-3 text-xs">
+          <a href="./privacy.html" target="_blank" rel="noopener" class="text-emerald-400">Privacy</a>
+          <a href="./terms.html" target="_blank" rel="noopener" class="text-emerald-400">Termini</a>
+          <button onclick="copyDiagnostics()" class="text-cyan-400">Copia diagnostica</button>
+        </div>
       </div>
 
       <div class="mt-5 pt-5 border-t border-rose-500/20">
@@ -1238,6 +1307,122 @@ function handleKeyboardShortcuts(e){
   }
 }
 document.addEventListener('keydown',handleKeyboardShortcuts);
+document.addEventListener('input',e=>{if(['tx-amount','tx-category'].includes(e.target?.id))validateTransactionForm()});
+document.addEventListener('change',e=>{if(['tx-amount','tx-category'].includes(e.target?.id))validateTransactionForm()});
+
+
+const FINORA_QUEUE_KEY='finora_offline_tx_queue_v1';
+let finoraNotifications=[];
+
+function getTxQueue(){try{return JSON.parse(localStorage.getItem(FINORA_QUEUE_KEY)||'[]')}catch{return []}}
+function setTxQueue(q){localStorage.setItem(FINORA_QUEUE_KEY,JSON.stringify(q));updateNetworkStatus()}
+function queueTxOperation(op){const q=getTxQueue();q.push({...op,queued_at:new Date().toISOString()});setTxQueue(q);premiumToast('Salvato offline: sincronizzerò appena torna la rete','info')}
+async function flushTxQueue(){
+  if(!navigator.onLine||!user)return;
+  const q=getTxQueue();if(!q.length){updateNetworkStatus();return}
+  updateNetworkStatus('syncing');
+  const remaining=[];
+  for(const op of q){
+    try{
+      let res;
+      if(op.action==='insert')res=await sb.from('transactions').insert(op.row);
+      else if(op.action==='update')res=await sb.from('transactions').update(op.row).eq('id',op.id).eq('user_id',user.id);
+      else if(op.action==='delete')res=await sb.from('transactions').delete().eq('id',op.id).eq('user_id',user.id);
+      if(res?.error)throw res.error;
+    }catch(e){remaining.push(op)}
+  }
+  setTxQueue(remaining);
+  updateNetworkStatus();
+  if(!remaining.length){premiumToast('Sincronizzazione completata');try{await loadAll()}catch{}}
+}
+function updateNetworkStatus(force){
+  const online=navigator.onLine,queued=getTxQueue().length;
+  const mode=force==='syncing'?'syncing':!online?'offline':queued?'pending':'online';
+  const map={online:['Online','text-emerald-400'],offline:['Offline','text-amber-400'],pending:[`${queued} da sincronizzare`,'text-amber-400'],syncing:['Sincronizzazione…','text-cyan-400']};
+  const [label,color]=map[mode];
+  ['sync-status','settings-network-status'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.className=`status-pill ${color}`+(id==='sync-status'?' hidden sm:inline-flex':'');
+    const span=el.querySelector('span:last-child');if(span)span.textContent=label;
+  });
+}
+window.addEventListener('online',()=>{updateNetworkStatus();flushTxQueue()});
+window.addEventListener('offline',updateNetworkStatus);
+
+function buildNotifications(){
+  const list=[],now=new Date(),month=isoMonth(),t=totals();
+  budgets.filter(b=>b.month.slice(0,7)===month).forEach(b=>{
+    const spent=transactions.filter(x=>x.type==='EXPENSE'&&x.category===b.category&&x.occurred_at.slice(0,7)===month).reduce((s,x)=>s+Number(x.amount||0),0);
+    const pct=Number(b.amount)>0?spent/Number(b.amount)*100:0;
+    if(pct>=100)list.push({id:`budget-over-${b.id}`,level:'danger',icon:'fa-triangle-exclamation',title:`Budget ${b.category} superato`,text:`Hai utilizzato il ${pct.toFixed(0)}% del budget mensile.`});
+    else if(pct>=80)list.push({id:`budget-near-${b.id}`,level:'warn',icon:'fa-gauge-high',title:`Budget ${b.category} quasi al limite`,text:`Hai già utilizzato il ${pct.toFixed(0)}% del budget.`});
+  });
+  subscriptions.filter(s=>s.active).forEach(s=>{
+    const day=Number(s.billing_day||1),today=now.getDate();
+    let delta=day-today;if(delta<0)delta+=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    if(delta<=3)list.push({id:`sub-${s.id}-${month}`,level:'warn',icon:'fa-repeat',title:`${s.name} tra ${delta===0?'oggi':delta+' giorni'}`,text:`Addebito previsto: ${fmt(Number(s.amount||0))}.`});
+  });
+  const history=completedMonthlyHistory(6),avg=averageHistory(history);
+  if(avg.monthsAvailable>=3&&avg.expenses){
+    const pct=(t.expense-avg.expenses)/avg.expenses*100;
+    if(pct>=20)list.push({id:`spend-high-${month}`,level:'warn',icon:'fa-arrow-trend-up',title:'Spese sopra la tua media',text:`Questo mese sei circa ${pct.toFixed(0)}% sopra la media recente.`});
+    if(pct<=-20)list.push({id:`spend-low-${month}`,level:'good',icon:'fa-arrow-trend-down',title:'Spese sotto la tua media',text:`Questo mese sei circa ${Math.abs(pct).toFixed(0)}% sotto la media recente.`});
+  }
+  goals.forEach(g=>{const p=Number(g.target_amount)>0?Number(g.current_amount||0)/Number(g.target_amount)*100:0;if(p>=80&&p<100)list.push({id:`goal-${g.id}`,level:'good',icon:'fa-bullseye',title:`Obiettivo “${g.name}” vicino`,text:`Hai raggiunto circa il ${p.toFixed(0)}% del traguardo.`})});
+  finoraNotifications=list;
+  renderNotificationBadge();renderHomeInsights();
+  return list;
+}
+function notificationReadKey(){return user?.id?`finora_notifications_read_${user.id}`:'finora_notifications_read'}
+function readNotificationIds(){try{return JSON.parse(localStorage.getItem(notificationReadKey())||'[]')}catch{return []}}
+function unreadNotifications(){const r=new Set(readNotificationIds());return finoraNotifications.filter(n=>!r.has(n.id))}
+function renderNotificationBadge(){const b=document.getElementById('notification-badge');if(!b)return;const n=unreadNotifications().length;b.textContent=n>9?'9+':n;b.classList.toggle('hidden',!n)}
+function notifTone(level){return level==='danger'?'text-rose-400 bg-rose-500/10':level==='warn'?'text-amber-400 bg-amber-500/10':'text-emerald-400 bg-emerald-500/10'}
+function renderNotifications(){
+  const box=document.getElementById('notifications-list');if(!box)return;const list=buildNotifications();
+  box.innerHTML=list.length?list.map(n=>`<div class="p-3 rounded-2xl bg-slate-900/55 border border-slate-800 flex gap-3"><div class="w-9 h-9 rounded-xl ${notifTone(n.level)} flex items-center justify-center flex-shrink-0"><i class="fa-solid ${n.icon}"></i></div><div><p class="text-sm font-bold">${esc(n.title)}</p><p class="text-xs text-slate-500 mt-1">${esc(n.text)}</p></div></div>`).join(''):'<div class="empty-state"><i class="fa-solid fa-circle-check text-emerald-400"></i><p class="text-sm font-bold mt-2">Tutto sotto controllo</p><p class="text-xs text-slate-500 mt-1">Non ci sono avvisi importanti in questo momento.</p></div>';
+}
+function openNotifications(){renderNotifications();openModal('notifications-modal')}
+function markNotificationsRead(){localStorage.setItem(notificationReadKey(),JSON.stringify(finoraNotifications.map(n=>n.id)));renderNotificationBadge();premiumToast('Notifiche segnate come lette')}
+function renderHomeInsights(){
+  const box=document.getElementById('home-insights');if(!box)return;const list=finoraNotifications.length?finoraNotifications:buildNotifications();
+  const top=list.slice(0,3);
+  box.innerHTML=top.length?top.map(n=>`<div class="insight-card"><div class="flex gap-2"><i class="fa-solid ${n.icon} ${n.level==='danger'?'text-rose-400':n.level==='warn'?'text-amber-400':'text-emerald-400'} mt-0.5"></i><div><p class="text-xs font-bold">${esc(n.title)}</p><p class="text-[11px] text-slate-500 mt-1">${esc(n.text)}</p></div></div></div>`).join(''):'<div class="insight-card sm:col-span-2 lg:col-span-3"><p class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i>Tutto sotto controllo</p><p class="text-[11px] text-slate-500 mt-1">Non emergono segnali particolari dai dati di questo mese.</p></div>';
+}
+function openSetupWizard(){
+  document.getElementById('setup-opening').value=Number(settings?.opening_balance||0);
+  const sel=document.getElementById('setup-budget-category');sel.innerHTML=categories.filter(c=>['expense','both'].includes(c.kind)).map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+  openModal('setup-modal');
+}
+async function saveSetupWizard(){
+  const opening=Number(document.getElementById('setup-opening').value||0);
+  const cat=document.getElementById('setup-budget-category').value;
+  const amount=Number(document.getElementById('setup-budget-amount').value||0);
+  const goalName=document.getElementById('setup-goal-name').value.trim();
+  const goalTarget=Number(document.getElementById('setup-goal-target').value||0);
+  try{
+    settings={...(settings||{}),opening_balance:opening};commitUI();
+    await sb.from('finance_settings').upsert({user_id:user.id,opening_balance:opening},{onConflict:'user_id'});
+    if(cat&&amount>0)await sb.from('budgets').upsert({user_id:user.id,month:isoMonth()+'-01',category:cat,amount},{onConflict:'user_id,month,category'});
+    if(goalName&&goalTarget>0)await sb.from('savings_goals').insert({user_id:user.id,name:goalName,target_amount:goalTarget,current_amount:0,goal_type:'savings'});
+    closeModal('setup-modal');premiumToast('Configurazione completata');await loadAll();
+  }catch(e){toast(friendly(e))}
+}
+function validateTransactionForm(){
+  const amount=document.getElementById('tx-amount'),cat=document.getElementById('tx-category'),btn=document.getElementById('tx-save-btn');
+  const amountErr=document.getElementById('tx-amount-error'),catErr=document.getElementById('tx-category-error');
+  const validAmount=Number(amount?.value)>0,validCat=!!cat?.value;
+  amount?.classList.toggle('field-invalid',!validAmount&&!!amount.value);
+  cat?.classList.toggle('field-invalid',!validCat);
+  if(amountErr){amountErr.textContent=validAmount?'':'Inserisci un importo maggiore di zero.';amountErr.classList.toggle('hidden',validAmount||!amount.value)}
+  if(catErr){catErr.textContent=validCat?'':'Seleziona una categoria.';catErr.classList.toggle('hidden',validCat)}
+  if(btn)btn.disabled=!(validAmount&&validCat);
+  return validAmount&&validCat;
+}
+function copyDiagnostics(){
+  const text=`Finora 2.3 | ${navigator.userAgent} | online=${navigator.onLine} | queue=${getTxQueue().length} | user=${user?.id?'signed-in':'signed-out'}`;
+  navigator.clipboard?.writeText(text);premiumToast('Diagnostica copiata');
+}
 
 function softHaptic(){
   try{ if(navigator.vibrate) navigator.vibrate(12); }catch{}
@@ -1296,7 +1481,7 @@ function goPage(p){
 }
 function renderAll(){
   document.getElementById('header-subtitle').textContent=profile?.username||user?.email||'Gestione personale';
-  renderSelects();renderHome();renderTransactions();renderBudgets();renderSubscriptions();renderCategories();renderGoals();renderWealth();renderStats();renderSettings();renderSubscriptionAlert();renderAIHistory();updateGreeting()
+  renderSelects();renderHome();renderTransactions();renderBudgets();renderSubscriptions();renderCategories();renderGoals();renderWealth();renderStats();renderSettings();renderSubscriptionAlert();renderAIHistory();updateGreeting();buildNotifications();updateNetworkStatus()
 }
 function renderSelects(){
   const catOptions='<option value="">Tutte le categorie</option>'+categories.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
@@ -1341,13 +1526,24 @@ function openTransactionModal(type='EXPENSE',t=null){
   document.getElementById('tx-id').value=t?.id||'';document.getElementById('tx-type').value=t?.type||type;document.getElementById('transaction-title').textContent=t?'Modifica movimento':type==='INCOME'?'Nuova entrata':type==='INVESTMENT'?'Nuovo investimento':'Nuova spesa';
   let valid=categories.filter(c=>type==='INCOME'?['income','both'].includes(c.kind):type==='INVESTMENT'?c.kind==='investment':['expense','both'].includes(c.kind));
   document.getElementById('tx-category').innerHTML=valid.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
-  document.getElementById('tx-amount').value=t?.amount||'';document.getElementById('tx-category').value=t?.category||valid[0]?.name||'';document.getElementById('tx-description').value=t?.description||'';document.getElementById('tx-date').value=localDT(t?.occurred_at);openModal('transaction-modal');softHaptic();setTimeout(()=>document.getElementById('tx-amount')?.focus(),180)
+  document.getElementById('tx-amount').value=t?.amount||'';document.getElementById('tx-category').value=t?.category||valid[0]?.name||'';document.getElementById('tx-description').value=t?.description||'';document.getElementById('tx-date').value=localDT(t?.occurred_at);openModal('transaction-modal');softHaptic();setTimeout(()=>{document.getElementById('tx-amount')?.focus();validateTransactionForm()},180)
 }
 function editTransaction(id){const t=transactions.find(x=>x.id===id);if(t)openTransactionModal(t.type,t)}
 async function saveTransaction(e){
   e.preventDefault();
+  if(!validateTransactionForm())return;
   const id=document.getElementById('tx-id').value;
   const row={user_id:user.id,type:document.getElementById('tx-type').value,amount:Number(document.getElementById('tx-amount').value),category:document.getElementById('tx-category').value,description:document.getElementById('tx-description').value.trim(),occurred_at:new Date(document.getElementById('tx-date').value).toISOString(),source:'manual'};
+  if(!navigator.onLine){
+    if(id){
+      const i=transactions.findIndex(t=>t.id===id);if(i!==-1)transactions[i]={...transactions[i],...row};
+      queueTxOperation({action:'update',id,row});
+    }else{
+      const optimistic={...row,id:tempId('tx'),created_at:new Date().toISOString(),updated_at:new Date().toISOString(),offline_pending:true};
+      transactions.unshift(optimistic);queueTxOperation({action:'insert',row});
+    }
+    closeModal('transaction-modal');commitUI();return;
+  }
 
   if(id){
     const i=transactions.findIndex(t=>t.id===id);
@@ -1378,6 +1574,13 @@ async function saveTransaction(e){
 }
 function deleteTransaction(id){
   confirmAction('Eliminare movimento?','Il saldo e i grafici verranno aggiornati.',async()=>{
+    if(!navigator.onLine){
+      const t=transactions.find(x=>x.id===id);
+      transactions=transactions.filter(x=>x.id!==id);commitUI();
+      if(t&&!String(id).startsWith('tmp_'))queueTxOperation({action:'delete',id});
+      else setTxQueue(getTxQueue().filter(q=>!(q.action==='insert'&&q.row?.occurred_at===t?.occurred_at&&q.row?.amount===t?.amount)));
+      return;
+    }
     const oldTransactions = [...transactions];
     transactions = transactions.filter(t => t.id !== id);
     commitUI();
@@ -2239,7 +2442,7 @@ if(window.visualViewport){
   window.visualViewport.addEventListener('resize',refreshVisibleChartsAfterResize,{passive:true});
 }
 
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();init()});
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();updateNetworkStatus();init();setTimeout(flushTxQueue,1200)});
 </script>
 
 <script>
