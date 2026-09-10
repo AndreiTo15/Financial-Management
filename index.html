@@ -197,6 +197,55 @@
       }
     }
 
+  
+    /* Finora UX refresh */
+    .tap {
+      transition: transform .12s ease, opacity .12s ease, border-color .18s ease, background-color .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tap:active { transform: scale(.97); }
+    .quick-action {
+      min-height: 58px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:.55rem;
+      font-weight:800;
+      border-radius:1rem;
+    }
+    .filter-chip {
+      border:1px solid rgb(30 41 59);
+      background:rgba(15,23,42,.72);
+      color:rgb(148 163 184);
+      border-radius:999px;
+      padding:.55rem .8rem;
+      font-size:.72rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .filter-chip.active {
+      border-color:rgba(16,185,129,.4);
+      background:rgba(16,185,129,.12);
+      color:rgb(52 211 153);
+    }
+    .empty-state {
+      border:1px dashed rgb(51 65 85);
+      background:rgba(15,23,42,.42);
+      border-radius:1rem;
+      padding:1.1rem;
+      text-align:center;
+    }
+    .nav-fab {
+      width:58px;height:58px;border-radius:999px;
+      margin:-25px auto 0;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 12px 32px rgba(16,185,129,.28);
+    }
+    .analysis-detail-collapsed { display:none; }
+    @media (min-width: 640px) {
+      .nav-fab { width:54px;height:54px; }
+    }
+
   </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -282,12 +331,55 @@
 <section id="page-home" class="page active space-y-5">
   <div id="subscription-alert" class="hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs"></div>
 
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Saldo</p><p id="kpi-balance" class="money text-xl font-extrabold mt-1">€0,00</p></div>
-    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Entrate mese</p><p id="kpi-income" class="money text-xl font-extrabold text-emerald-400 mt-1">€0,00</p></div>
-    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Spese mese</p><p id="kpi-expense" class="money text-xl font-extrabold text-rose-400 mt-1">€0,00</p></div>
-    <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Investimenti mese</p><p id="kpi-investment" class="money text-xl font-extrabold text-cyan-400 mt-1">€0,00</p></div>
+  <div class="glass rounded-3xl p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <p class="text-xs text-slate-500">Disponibile</p>
+        <p id="kpi-balance" class="money text-3xl font-extrabold mt-1">€0,00</p>
+      </div>
+      <span id="home-month-label" class="text-[10px] px-2.5 py-1.5 rounded-full bg-slate-900 text-slate-400"></span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mt-5">
+      <div class="rounded-2xl bg-rose-500/5 border border-rose-500/10 p-3">
+        <p class="text-[10px] text-slate-500">Spese del mese</p>
+        <p id="kpi-expense" class="money text-lg font-extrabold text-rose-400 mt-1">€0,00</p>
+      </div>
+      <div class="rounded-2xl bg-emerald-500/5 border border-emerald-500/10 p-3">
+        <p class="text-[10px] text-slate-500">Risparmio del mese</p>
+        <p id="kpi-saving" class="money text-lg font-extrabold text-emerald-400 mt-1">€0,00</p>
+      </div>
+    </div>
+    <p id="kpi-income" class="hidden"></p>
+    <p id="kpi-investment" class="hidden"></p>
   </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <button onclick="openTransactionModal('EXPENSE')" class="tap quick-action bg-rose-500 text-white shadow-lg shadow-rose-950/20">
+      <i class="fa-solid fa-minus"></i><span>Aggiungi spesa</span>
+    </button>
+    <button onclick="openTransactionModal('INCOME')" class="tap quick-action bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/20">
+      <i class="fa-solid fa-plus"></i><span>Aggiungi entrata</span>
+    </button>
+  </div>
+  <button onclick="openTransactionModal('INVESTMENT')" class="tap w-full py-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400 text-xs font-bold">
+    <i class="fa-solid fa-chart-line mr-1"></i> Registra investimento
+  </button>
+
+  <button onclick="goPage('analysis')" class="tap w-full glass rounded-3xl p-4 text-left border border-emerald-500/10">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="font-bold">Analisi finanziaria</p>
+          <p id="home-ai-insight" class="text-xs text-slate-400 mt-1 line-clamp-2">Scopri come stanno andando le tue finanze rispetto alle tue abitudini.</p>
+        </div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-600"></i>
+    </div>
+  </button>
 
   <div class="grid lg:grid-cols-3 gap-4">
     <div class="glass rounded-2xl p-4 lg:col-span-2">
@@ -310,7 +402,15 @@
       <div id="recent-transactions" class="mt-3 space-y-2"></div>
     </div>
   </div>
+</section>
 
+
+<section id="page-analysis" class="page space-y-5">
+  <div>
+    <p class="text-xs text-emerald-400 font-bold">INSIGHT PERSONALI</p>
+    <h2 class="text-2xl font-extrabold mt-1">Analisi finanziaria</h2>
+    <p class="text-sm text-slate-400 mt-1">Confronta il periodo con le tue medie personali e ricevi un rapporto sintetico.</p>
+  </div>
   <div class="glass rounded-3xl p-5 border border-emerald-500/10">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-start gap-3">
@@ -336,6 +436,10 @@
     <div id="analysis-empty" class="mt-4 p-4 rounded-2xl bg-slate-900/50 text-xs text-slate-500 text-center">Premi <strong class="text-slate-300">Analizza con IA</strong> per generare un rapporto. Verranno inviati solo dati aggregati, non le singole descrizioni dei movimenti.</div>
 
     <div id="analysis-result" class="hidden mt-4 space-y-4">
+      <button id="analysis-toggle-details" onclick="toggleAnalysisDetails()" class="tap hidden w-full py-3 rounded-xl bg-slate-900 text-xs font-bold text-slate-300">
+        <i class="fa-solid fa-chart-simple mr-1"></i> Vedi indicatori e dettagli
+      </button>
+      <div id="analysis-detail-panels">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="bg-slate-900/60 rounded-2xl p-3"><p class="text-[10px] text-slate-500">Punteggio</p><p id="analysis-score" class="text-xl font-extrabold mt-1">—</p></div>
         <div class="bg-slate-900/60 rounded-2xl p-3"><p class="text-[10px] text-slate-500">Tasso risparmio</p><p id="analysis-saving-rate" class="money text-xl font-extrabold mt-1">—</p></div>
@@ -347,6 +451,8 @@
         <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-emerald-400"><i class="fa-solid fa-circle-check"></i><h3 class="font-bold text-sm">Cosa va bene</h3></div><div id="analysis-good" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
         <div class="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-amber-400"><i class="fa-solid fa-chart-column"></i><h3 class="font-bold text-sm">Da osservare</h3></div><div id="analysis-watch" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
         <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4"><div class="flex items-center gap-2 text-cyan-400"><i class="fa-solid fa-lightbulb"></i><h3 class="font-bold text-sm">Suggerimenti</h3></div><div id="analysis-tips" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+      </div>
+
       </div>
 
       <div id="ai-report-card" class="hidden bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 border border-emerald-500/10 rounded-2xl p-4">
@@ -378,20 +484,30 @@
       <div id="ai-history" class="hidden mt-4 space-y-2"></div>
     </div>
   </div>
+
 </section>
 
 <section id="page-transactions" class="page space-y-4">
   <div class="flex flex-wrap gap-2 justify-between items-center">
-    <h2 class="text-xl font-bold">Movimenti</h2>
-    <div class="flex gap-2">
-      <button onclick="openTransactionModal('EXPENSE')" class="px-3 py-2 rounded-xl bg-rose-500/10 text-rose-400 text-xs font-bold"><i class="fa-solid fa-minus mr-1"></i> Spesa</button>
-      <button onclick="openTransactionModal('INCOME')" class="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Entrata</button>
-      <button onclick="openTransactionModal('INVESTMENT')" class="px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-bold"><i class="fa-solid fa-chart-line mr-1"></i> Investimento</button>
+    <div>
+      <h2 class="text-xl font-bold">Movimenti</h2>
+      <p class="text-xs text-slate-500 mt-1">Cerca, filtra o aggiungi un movimento.</p>
     </div>
+    <button onclick="openQuickAdd()" class="tap px-4 py-2.5 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Aggiungi</button>
   </div>
-  <div class="glass rounded-2xl p-3 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
+
+  <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+    <button data-chip="all" onclick="setQuickFilter('all')" class="filter-chip active tap">Tutti</button>
+    <button data-chip="EXPENSE" onclick="setQuickFilter('EXPENSE')" class="filter-chip tap">Spese</button>
+    <button data-chip="INCOME" onclick="setQuickFilter('INCOME')" class="filter-chip tap">Entrate</button>
+    <button data-chip="INVESTMENT" onclick="setQuickFilter('INVESTMENT')" class="filter-chip tap">Investimenti</button>
+    <button data-chip="month" onclick="setQuickFilter('month')" class="filter-chip tap">Questo mese</button>
+  </div>
+
+  <button onclick="toggleAdvancedFilters()" class="tap text-xs text-slate-400"><i class="fa-solid fa-sliders mr-1"></i> Filtri avanzati</button>
+  <div id="advanced-filters" class="hidden glass rounded-2xl p-3 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
     <input id="filter-search" oninput="renderTransactions()" placeholder="Cerca descrizione..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
-    <select id="filter-type" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <select id="filter-type" onchange="syncFilterChips();renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
       <option value="">Tutti i tipi</option><option>INCOME</option><option>EXPENSE</option><option>INVESTMENT</option>
     </select>
     <select id="filter-category" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></select>
@@ -466,6 +582,29 @@
 </section>
 
 <section id="page-more" class="page space-y-5">
+
+  <div>
+    <p class="text-xs text-slate-500 mb-2">Pianifica e organizza</p>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <button onclick="goPage('budgets')" class="tap glass rounded-2xl p-4 text-left">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-gauge-high"></i></div>
+        <p class="font-bold text-sm mt-3">Budget</p><p class="text-[10px] text-slate-500 mt-1">Controlla i limiti mensili</p>
+      </button>
+      <button onclick="goPage('wealth')" class="tap glass rounded-2xl p-4 text-left">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></div>
+        <p class="font-bold text-sm mt-3">Patrimonio</p><p class="text-[10px] text-slate-500 mt-1">Liquidità, asset e storico</p>
+      </button>
+      <button onclick="goPage('goals')" class="tap glass rounded-2xl p-4 text-left">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-bullseye"></i></div>
+        <p class="font-bold text-sm mt-3">Obiettivi</p><p class="text-[10px] text-slate-500 mt-1">Risparmio e investimenti</p>
+      </button>
+      <button onclick="goPage('subscriptions')" class="tap glass rounded-2xl p-4 text-left">
+        <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center"><i class="fa-solid fa-repeat"></i></div>
+        <p class="font-bold text-sm mt-3">Abbonamenti</p><p class="text-[10px] text-slate-500 mt-1">Costi ricorrenti e pause</p>
+      </button>
+    </div>
+  </div>
+
   <div class="grid lg:grid-cols-2 gap-4">
     <button onclick="goPage('subscriptions')" class="glass rounded-2xl p-4 text-left hover:border-emerald-500/40 transition group">
       <div class="flex items-center justify-between">
@@ -508,16 +647,35 @@
 </main>
 
 <nav class="navglass fixed bottom-0 left-0 right-0 z-50">
-  <div class="max-w-4xl mx-auto grid grid-cols-7 px-1.5 py-2">
-    <button data-nav="home" onclick="goPage('home')" class="navbtn text-emerald-400 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-house block text-base mb-1"></i>Home</button>
-    <button data-nav="transactions" onclick="goPage('transactions')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-list block text-base mb-1"></i>Movimenti</button>
-    <button data-nav="budgets" onclick="goPage('budgets')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-gauge-high block text-base mb-1"></i>Budget</button>
-    <button data-nav="wealth" onclick="goPage('wealth')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-chart-line block text-base mb-1"></i>Patrimonio</button>
-    <button data-nav="goals" onclick="goPage('goals')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-bullseye block text-base mb-1"></i>Obiettivi</button>
-    <button data-nav="subscriptions" onclick="goPage('subscriptions')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-repeat block text-base mb-1"></i>Abbonamenti</button>
-    <button data-nav="more" onclick="goPage('more')" class="navbtn text-slate-500 py-2 text-[9px] sm:text-[10px]"><i class="fa-solid fa-ellipsis block text-base mb-1"></i>Altro</button>
+  <div class="max-w-2xl mx-auto grid grid-cols-5 px-2 py-2 items-end">
+    <button data-nav="home" onclick="goPage('home')" class="navbtn tap text-emerald-400 py-2 text-[10px]"><i class="fa-solid fa-house block text-lg mb-1"></i>Home</button>
+    <button data-nav="transactions" onclick="goPage('transactions')" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-list block text-lg mb-1"></i>Movimenti</button>
+    <button onclick="openQuickAdd()" aria-label="Aggiungi movimento" class="tap nav-fab bg-emerald-500 text-slate-950 text-xl"><i class="fa-solid fa-plus"></i></button>
+    <button data-nav="analysis" onclick="goPage('analysis')" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-wand-magic-sparkles block text-lg mb-1"></i>Analisi</button>
+    <button data-nav="more" onclick="goPage('more')" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-ellipsis block text-lg mb-1"></i>Altro</button>
   </div>
 </nav>
+
+
+<div id="quick-add-modal" class="modal fixed inset-0 z-[75] bg-black/70 items-end sm:items-center justify-center p-4">
+  <div class="glass rounded-3xl p-4 w-full max-w-md mb-[calc(4.5rem+var(--safe-bottom))] sm:mb-0">
+    <div class="flex items-center justify-between mb-3">
+      <div><h3 class="font-bold">Aggiungi movimento</h3><p class="text-xs text-slate-500 mt-1">Cosa vuoi registrare?</p></div>
+      <button onclick="closeModal('quick-add-modal')" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+      <button onclick="quickAddType('EXPENSE')" class="tap p-4 rounded-2xl bg-rose-500/10 border border-rose-500/15 text-rose-400">
+        <i class="fa-solid fa-minus text-lg"></i><span class="block text-xs font-bold mt-2">Spesa</span>
+      </button>
+      <button onclick="quickAddType('INCOME')" class="tap p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/15 text-emerald-400">
+        <i class="fa-solid fa-plus text-lg"></i><span class="block text-xs font-bold mt-2">Entrata</span>
+      </button>
+      <button onclick="quickAddType('INVESTMENT')" class="tap p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400">
+        <i class="fa-solid fa-chart-line text-lg"></i><span class="block text-xs font-bold mt-2">Investimento</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- MODALI GENERICI -->
 <div id="transaction-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
@@ -525,9 +683,9 @@
     <div class="flex justify-between mb-4"><h3 id="transaction-title" class="font-bold">Movimento</h3><button onclick="closeModal('transaction-modal')"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveTransaction(event)" class="space-y-3">
       <input id="tx-id" type="hidden"><input id="tx-type" type="hidden">
-      <input id="tx-amount" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="tx-amount" inputmode="decimal" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <select id="tx-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
-      <input id="tx-description" placeholder="Descrizione" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
+      <input id="tx-description" placeholder="Nota (facoltativa)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <input id="tx-date" type="datetime-local" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
     </form>
@@ -701,6 +859,16 @@
 </div>
 
 <div id="toast" class="fixed z-[200] bottom-24 left-1/2 -translate-x-1/2 hidden px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl text-sm"></div>
+<div id="app-loading" class="hidden fixed inset-0 z-[190] bg-slate-950/75 backdrop-blur-sm">
+  <div class="max-w-6xl mx-auto p-4 pt-24 space-y-4">
+    <div class="animate-pulse grid grid-cols-2 gap-3">
+      <div class="h-28 rounded-3xl bg-slate-900 border border-slate-800 col-span-2"></div>
+      <div class="h-16 rounded-2xl bg-slate-900 border border-slate-800"></div>
+      <div class="h-16 rounded-2xl bg-slate-900 border border-slate-800"></div>
+    </div>
+    <div class="animate-pulse h-64 rounded-3xl bg-slate-900 border border-slate-800"></div>
+  </div>
+</div>
 
 <script>
 let sb=null,user=null,profile=null,settings=null;
@@ -884,6 +1052,7 @@ async function onUser(u){
 }
 async function loadAll(){
   if(!user)return;
+  document.getElementById('app-loading')?.classList.remove('hidden');
   const requests=[
     sb.from('profiles').select('*').eq('id',user.id).maybeSingle(),
     sb.from('finance_settings').select('*').eq('user_id',user.id).maybeSingle(),
@@ -896,7 +1065,7 @@ async function loadAll(){
     sb.from('net_worth_snapshots').select('*').eq('user_id',user.id).order('snapshot_date')
   ];
   const res=await Promise.all(requests);const err=res.find(x=>x.error)?.error;
-  if(err){console.error(err);loadCache();toast('Modalità cache: errore di sincronizzazione');return}
+  if(err){console.error(err);loadCache();document.getElementById('app-loading')?.classList.add('hidden');toast('Modalità cache: errore di sincronizzazione');return}
   [profile,settings]=[res[0].data,res[1].data];
   categories=res[2].data||[];transactions=res[3].data||[];subscriptions=res[4].data||[];budgets=res[5].data||[];
   goals=res[6].data||[];assets=res[7].data||[];snapshots=res[8].data||[];
@@ -905,7 +1074,7 @@ async function loadAll(){
     if(!historyError) aiReports=historyData||[];
     else console.warn('Storico IA non disponibile:',historyError.message);
   }catch(e){ console.warn('Storico IA non disponibile:',e); }
-  saveCache();renderAll();scheduleSnapshot()
+  saveCache();renderAll();scheduleSnapshot();document.getElementById('app-loading')?.classList.add('hidden')
 }
 function saveCache(){localStorage.setItem(CACHE_PREFIX+user.id,JSON.stringify({profile,settings,categories,transactions,subscriptions,budgets,goals,assets,snapshots,aiReports}))}
 function loadCache(){
@@ -931,11 +1100,61 @@ async function saveSnapshot(){
   await sb.from('net_worth_snapshots').upsert(row,{onConflict:'user_id,snapshot_date'});
 }
 
+
+function softHaptic(){
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch{}
+}
+function openQuickAdd(){ softHaptic(); openModal('quick-add-modal'); }
+function quickAddType(type){ closeModal('quick-add-modal'); setTimeout(()=>openTransactionModal(type),80); }
+function toggleAdvancedFilters(){ document.getElementById('advanced-filters')?.classList.toggle('hidden'); }
+function syncFilterChips(){
+  const type=document.getElementById('filter-type')?.value||'';
+  document.querySelectorAll('[data-chip]').forEach(x=>x.classList.remove('active'));
+  const key=type||'all';document.querySelector(`[data-chip="${key}"]`)?.classList.add('active');
+}
+function setQuickFilter(mode){
+  const type=document.getElementById('filter-type'),from=document.getElementById('filter-from'),to=document.getElementById('filter-to');
+  if(!type)return;
+  if(mode==='month'){
+    type.value='';
+    const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),end=new Date(now.getFullYear(),now.getMonth()+1,0);
+    from.value=start.toISOString().slice(0,10);to.value=end.toISOString().slice(0,10);
+  }else{
+    type.value=mode==='all'?'':mode;
+    if(from)from.value='';if(to)to.value='';
+  }
+  document.querySelectorAll('[data-chip]').forEach(x=>x.classList.toggle('active',x.dataset.chip===mode));
+  renderTransactions();softHaptic();
+}
+function toggleAnalysisDetails(){
+  const box=document.getElementById('analysis-detail-panels'),btn=document.getElementById('analysis-toggle-details');
+  if(!box||!btn)return;
+  const hidden=box.classList.toggle('analysis-detail-collapsed');
+  btn.innerHTML=hidden?'<i class="fa-solid fa-chart-simple mr-1"></i> Vedi indicatori e dettagli':'<i class="fa-solid fa-chevron-up mr-1"></i> Nascondi indicatori e dettagli';
+}
+function renderHomeAIInsight(){
+  const el=document.getElementById('home-ai-insight');if(!el)return;
+  const current=totals(),history=completedMonthlyHistory(6),avg=averageHistory(history);
+  if(!transactions.length){el.textContent='Registra qualche movimento: poi Finora potrà evidenziare trend e abitudini.';return}
+  if(avg.monthsAvailable>=3&&avg.expenses!==null){
+    const diff=avg.expenses?((current.expense-avg.expenses)/avg.expenses*100):0;
+    if(Math.abs(diff)>=12) el.textContent=`Le spese di questo mese sono ${Math.abs(diff).toFixed(0)}% ${diff>0?'sopra':'sotto'} la tua media recente.`;
+    else el.textContent='Le spese di questo mese sono in linea con la tua media recente.';
+  }else{
+    const saving=current.income-current.expense-current.investment;
+    el.textContent=saving>=0?`Questo mese il saldo tra entrate e uscite è positivo di ${fmt(saving)}.`:`Questo mese le uscite superano le entrate di ${fmt(Math.abs(saving))}.`;
+  }
+}
+
 function goPage(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p)?.classList.add('active');
   document.querySelectorAll('.navbtn').forEach(x=>x.className=x.className.replace('text-emerald-400','text-slate-500'));
-  const b=document.querySelector(`[data-nav="${p}"]`);if(b)b.className=b.className.replace('text-slate-500','text-emerald-400');
-  if(p==='budgets')renderBudgets();if(p==='wealth')renderWealth();if(p==='subscriptions')renderSubscriptions()
+  const navMap={budgets:'more',wealth:'more',goals:'more',subscriptions:'more'};
+  const navKey=navMap[p]||p;
+  const b=document.querySelector(`[data-nav="${navKey}"]`);if(b)b.className=b.className.replace('text-slate-500','text-emerald-400');
+  if(p==='budgets')renderBudgets();if(p==='wealth')renderWealth();if(p==='subscriptions')renderSubscriptions();if(p==='analysis')renderAIHistory();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderAll(){
   document.getElementById('header-subtitle').textContent=profile?.username||user?.email||'Gestione personale';
@@ -950,16 +1169,23 @@ function renderSelects(){
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function renderHome(){
-  const t=totals();document.getElementById('kpi-balance').textContent=fmt(currentBalance());document.getElementById('kpi-income').textContent=fmt(t.income);document.getElementById('kpi-expense').textContent=fmt(t.expense);document.getElementById('kpi-investment').textContent=fmt(t.investment);
+  const t=totals();
+  const saving=t.income-t.expense-t.investment;
+  document.getElementById('kpi-balance').textContent=fmt(currentBalance());
+  document.getElementById('kpi-income').textContent=fmt(t.income);
+  document.getElementById('kpi-expense').textContent=fmt(t.expense);
+  document.getElementById('kpi-investment').textContent=fmt(t.investment);
+  const savingEl=document.getElementById('kpi-saving');if(savingEl){savingEl.textContent=fmt(saving);savingEl.className='money text-lg font-extrabold mt-1 '+(saving>=0?'text-emerald-400':'text-rose-400')}
+  const monthEl=document.getElementById('home-month-label');if(monthEl)monthEl.textContent=new Date().toLocaleDateString('it-IT',{month:'long',year:'numeric'});
   const prev=new Date();prev.setMonth(prev.getMonth()-1);const pt=totals(isoMonth(prev));const diff=pt.expense?((t.expense-pt.expense)/pt.expense*100):0;
   document.getElementById('mom-text').textContent=pt.expense?`${Math.abs(diff).toFixed(0)}% ${diff<=0?'in meno':'in più'} vs mese scorso`:'';
-  renderHomeBudgets();renderRecent();renderCharts()
+  renderHomeBudgets();renderRecent();renderCharts();renderHomeAIInsight()
 }
 function renderHomeBudgets(){
   const m=isoMonth(),box=document.getElementById('home-budgets');const rows=budgets.filter(b=>b.month.slice(0,7)===m).slice(0,5);
-  box.innerHTML=rows.length?rows.map(b=>budgetCard(b,false)).join(''):'<p class="text-xs text-slate-500">Nessun budget impostato.</p>'
+  box.innerHTML=rows.length?rows.map(b=>budgetCard(b,false)).join(''):'<div class="empty-state"><i class="fa-solid fa-gauge-high text-slate-600"></i><p class="text-xs text-slate-400 mt-2">Nessun budget per questo mese.</p><button onclick="goPage(\'budgets\')" class="mt-3 text-xs font-bold text-emerald-400">Crea un budget</button></div>'
 }
-function renderRecent(){const box=document.getElementById('recent-transactions');box.innerHTML=transactions.slice(0,6).map(txCard).join('')||'<p class="text-xs text-slate-500">Nessun movimento.</p>'}
+function renderRecent(){const box=document.getElementById('recent-transactions');box.innerHTML=transactions.slice(0,6).map(txCard).join('')||'<div class="empty-state"><i class="fa-solid fa-receipt text-slate-600"></i><p class="text-xs text-slate-400 mt-2">Ancora nessun movimento.</p><button onclick="openQuickAdd()" class="mt-3 text-xs font-bold text-emerald-400">Aggiungi il primo</button></div>'}
 function txCard(t){
   const c=catByName(t.category);return `<div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/50">
     <div class="flex items-center gap-3 min-w-0"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:${c.color}22;color:${c.color}"><i class="fa-solid ${c.icon}"></i></div>
@@ -971,13 +1197,13 @@ function txCard(t){
 function renderTransactions(){
   const q=(document.getElementById('filter-search')?.value||'').toLowerCase(),type=document.getElementById('filter-type')?.value||'',cat=document.getElementById('filter-category')?.value||'',from=document.getElementById('filter-from')?.value||'',to=document.getElementById('filter-to')?.value||'';
   let list=transactions.filter(t=>(!q||(t.description||'').toLowerCase().includes(q)||t.category.toLowerCase().includes(q))&&(!type||t.type===type)&&(!cat||t.category===cat)&&(!from||t.occurred_at.slice(0,10)>=from)&&(!to||t.occurred_at.slice(0,10)<=to));
-  document.getElementById('transactions-list').innerHTML=list.map(txCard).join('')||'<div class="glass rounded-2xl p-6 text-center text-sm text-slate-500">Nessun movimento trovato.</div>'
+  document.getElementById('transactions-list').innerHTML=list.map(txCard).join('')||'<div class="empty-state"><i class="fa-solid fa-magnifying-glass text-slate-600"></i><p class="text-sm text-slate-400 mt-2">Nessun movimento trovato.</p><button onclick="setQuickFilter(\'all\')" class="mt-3 text-xs font-bold text-emerald-400">Azzera i filtri</button></div>'
 }
 function openTransactionModal(type='EXPENSE',t=null){
   document.getElementById('tx-id').value=t?.id||'';document.getElementById('tx-type').value=t?.type||type;document.getElementById('transaction-title').textContent=t?'Modifica movimento':type==='INCOME'?'Nuova entrata':type==='INVESTMENT'?'Nuovo investimento':'Nuova spesa';
   let valid=categories.filter(c=>type==='INCOME'?['income','both'].includes(c.kind):type==='INVESTMENT'?c.kind==='investment':['expense','both'].includes(c.kind));
   document.getElementById('tx-category').innerHTML=valid.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
-  document.getElementById('tx-amount').value=t?.amount||'';document.getElementById('tx-category').value=t?.category||valid[0]?.name||'';document.getElementById('tx-description').value=t?.description||'';document.getElementById('tx-date').value=localDT(t?.occurred_at);openModal('transaction-modal')
+  document.getElementById('tx-amount').value=t?.amount||'';document.getElementById('tx-category').value=t?.category||valid[0]?.name||'';document.getElementById('tx-description').value=t?.description||'';document.getElementById('tx-date').value=localDT(t?.occurred_at);openModal('transaction-modal');softHaptic();setTimeout(()=>document.getElementById('tx-amount')?.focus(),180)
 }
 function editTransaction(id){const t=transactions.find(x=>x.id===id);if(t)openTransactionModal(t.type,t)}
 async function saveTransaction(e){
@@ -1033,7 +1259,7 @@ function deleteTransaction(id){
 
 function renderBudgets(){
   const m=document.getElementById('budget-month').value||isoMonth();document.getElementById('budget-month').value=m;
-  const list=budgets.filter(b=>b.month.slice(0,7)===m);document.getElementById('budgets-list').innerHTML=list.map(b=>budgetCard(b,true)).join('')||'<div class="glass rounded-2xl p-5 text-sm text-slate-500">Nessun budget per questo mese.</div>'
+  const list=budgets.filter(b=>b.month.slice(0,7)===m);document.getElementById('budgets-list').innerHTML=list.map(b=>budgetCard(b,true)).join('')||'<div class="empty-state"><i class="fa-solid fa-gauge-high text-2xl text-slate-600"></i><p class="text-sm font-bold text-slate-300 mt-3">Nessun budget per questo mese</p><p class="text-xs text-slate-500 mt-1">Imposta un limite per capire subito quando una categoria sta crescendo troppo.</p><button onclick="openBudgetModal()" class="mt-4 px-4 py-2 rounded-xl bg-brand-600 text-xs font-bold">Crea budget</button></div>'
 }
 function budgetCard(b,actions){
   const spent=transactions.filter(t=>t.type==='EXPENSE'&&t.category===b.category&&t.occurred_at.slice(0,7)===b.month.slice(0,7)).reduce((s,t)=>s+Number(t.amount),0);const pct=Math.min(100,spent/Number(b.amount)*100),over=spent>Number(b.amount);
@@ -1661,6 +1887,8 @@ async function runAIFinancialAnalysis(){
   const sourceNote=document.getElementById('analysis-source-note');
   reportCard.classList.remove('hidden');
   document.getElementById('analysis-local-summary-card')?.classList.remove('hidden');
+      document.getElementById('analysis-detail-panels')?.classList.remove('analysis-detail-collapsed');
+      document.getElementById('analysis-toggle-details')?.classList.add('hidden');
   report.textContent='Sto preparando il rapporto IA…';
   modelLabel.textContent='';
 
@@ -1684,6 +1912,8 @@ async function runAIFinancialAnalysis(){
     modelLabel.textContent=data.model?`Modello: ${data.model}`:'OpenRouter';
     await saveAIReport(period,payload,data);
     document.getElementById('analysis-local-summary-card')?.classList.add('hidden');
+    document.getElementById('analysis-detail-panels')?.classList.add('analysis-detail-collapsed');
+    document.getElementById('analysis-toggle-details')?.classList.remove('hidden');
     sourceNote.textContent=data.attempts>1?`Rapporto generato dopo ${data.attempts} tentativi. Non costituisce consulenza finanziaria o di investimento.`:'Il rapporto IA usa solo dati aggregati del periodo selezionato. Non costituisce consulenza finanziaria o di investimento.';
   }catch(e){
     console.warn('OpenRouter analysis fallback:',e);
