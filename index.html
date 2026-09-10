@@ -1079,6 +1079,95 @@
       .modal > .glass{border-radius:1.35rem!important}
     }
 
+
+    /* =========================================================
+       FIX: hero balance card in light theme lost visual hierarchy
+       because the generic .glass rule was overriding the special
+       balance-card styles. Restore the dedicated card look.
+       ========================================================= */
+    html.light .glass.finora-balance-card{
+      background-color:#2563eb!important;
+      background-image:linear-gradient(145deg,#2f74ee 0%,#2464df 52%,#1555c9 100%)!important;
+      color:#fff!important;
+      border:0!important;
+      box-shadow:0 18px 34px rgba(37,99,235,.25)!important;
+      overflow:hidden;
+      position:relative;
+    }
+
+    html.light .glass.finora-balance-card .text-slate-500,
+    html.light .glass.finora-balance-card .text-slate-400{
+      color:rgba(255,255,255,.78)!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-balance{
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      color:#ffffff!important;
+      text-shadow:none!important;
+      font-size:2.35rem!important;
+      line-height:1.1!important;
+    }
+
+    html.light .glass.finora-balance-card #home-month-label{
+      color:#dbeafe!important;
+      background:rgba(12,55,145,.28)!important;
+      border:1px solid rgba(255,255,255,.12)!important;
+    }
+
+    html.light .glass.finora-balance-card .finora-mini-stat{
+      background:rgba(255,255,255,.10)!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+      backdrop-filter:blur(7px);
+      -webkit-backdrop-filter:blur(7px);
+    }
+
+    html.light .glass.finora-balance-card .finora-mini-stat p:first-child{
+      color:rgba(255,255,255,.74)!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-expense{
+      color:#ff7a97!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-saving.text-emerald-400{
+      color:#7ff3d0!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-saving.text-rose-400{
+      color:#ff8aa2!important;
+    }
+
+    @media (max-width: 640px){
+      html.light .glass.finora-balance-card #kpi-balance{
+        font-size:2rem!important;
+      }
+    }
+
+
+    /* Subscription checkbox alignment */
+    #subscription-modal .subscription-checkbox{
+      width:1rem!important;
+      inline-size:1rem!important;
+      min-width:1rem!important;
+      min-inline-size:1rem!important;
+      max-width:1rem!important;
+      max-inline-size:1rem!important;
+      height:1rem!important;
+      min-height:1rem!important;
+      margin:0!important;
+      padding:0!important;
+      flex:0 0 1rem!important;
+      accent-color:#2563eb;
+    }
+    #subscription-modal label[for="sub-active"]{
+      width:max-content;
+      max-width:100%;
+      min-height:2rem;
+      align-items:center!important;
+    }
+
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -1641,7 +1730,10 @@
       <input id="sub-amount" type="number" step="0.01" min="0.01" required placeholder="Importo mensile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <select id="sub-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
       <input id="sub-day" type="number" min="1" max="31" required placeholder="Giorno addebito" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
-      <label class="flex gap-2 text-sm"><input id="sub-active" type="checkbox" checked> Abbonamento attivo</label>
+      <label for="sub-active" class="flex items-center gap-2.5 text-sm cursor-pointer select-none">
+        <input id="sub-active" type="checkbox" checked class="subscription-checkbox">
+        <span>Abbonamento attivo</span>
+      </label>
       <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva</button>
     </form>
   </div>
