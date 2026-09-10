@@ -246,6 +246,46 @@
       .nav-fab { width:54px;height:54px; }
     }
 
+  
+    /* Finora premium polish */
+    :root { --finora-glow: rgba(16,185,129,.18); }
+    .brand-mark {
+      position:relative;
+      box-shadow:0 8px 28px var(--finora-glow);
+    }
+    .brand-mark::after{
+      content:"";position:absolute;inset:1px;border-radius:inherit;
+      border:1px solid rgba(255,255,255,.13);pointer-events:none;
+    }
+    .page.active { animation: finoraPageIn .24s cubic-bezier(.2,.8,.2,1); }
+    @keyframes finoraPageIn {
+      from { opacity:0; transform:translateY(5px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    .glass, .empty-state { transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+    @media (hover:hover) {
+      .glass.interactive:hover { border-color:rgba(16,185,129,.24); transform:translateY(-1px); }
+    }
+    .premium-gradient {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(16,185,129,.12), transparent 35%),
+        radial-gradient(circle at 95% 10%, rgba(34,211,238,.07), transparent 30%);
+    }
+    .onboarding-dot { width:7px;height:7px;border-radius:999px;background:rgb(51 65 85);transition:.2s ease; }
+    .onboarding-dot.active { width:22px;background:rgb(52 211 153); }
+    .onboarding-slide { display:none; }
+    .onboarding-slide.active { display:block; animation:finoraSlide .22s ease; }
+    @keyframes finoraSlide { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:none} }
+    .success-pop { animation:successPop .28s cubic-bezier(.2,.8,.2,1); }
+    @keyframes successPop { 0%{transform:translate(-50%,8px) scale(.96);opacity:0} 100%{transform:translate(-50%,0) scale(1);opacity:1} }
+    .kbd {
+      border:1px solid rgb(51 65 85);background:rgb(15 23 42);border-radius:.4rem;
+      padding:.08rem .35rem;font-size:.6rem;color:rgb(148 163 184);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
+    }
+
   </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -315,20 +355,25 @@
 <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur border-b border-slate-800">
   <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex gap-3 items-center">
-      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
-      <div><h1 class="font-bold text-white">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Gestione personale</p></div>
+      <div class="brand-mark w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
+      <div><h1 class="font-bold text-white tracking-tight">Finora</h1><p id="header-subtitle" class="text-xs text-slate-400">Le tue finanze, più chiare</p></div>
     </div>
     <div class="flex gap-2">
-      <button onclick="togglePrivacy()" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-eye"></i></button>
-      <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-circle-half-stroke"></i></button>
-      <button onclick="openModal('settings-modal')" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-gear"></i></button>
+      <button onclick="togglePrivacy()" aria-label="Modalità privacy" title="Modalità privacy" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-eye"></i></button>
+      <button onclick="toggleTheme()" aria-label="Cambia tema" title="Cambia tema" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-circle-half-stroke"></i></button>
+      <button onclick="openModal('settings-modal')" aria-label="Impostazioni" title="Impostazioni" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-gear"></i></button>
     </div>
   </div>
 </header>
 
 <main class="max-w-6xl mx-auto p-4">
 
-<section id="page-home" class="page active space-y-5">
+<section id="page-home" class="page active space-y-5 premium-gradient">
+  <div class="pt-1">
+    <p id="home-greeting" class="text-xs font-bold text-emerald-400"></p>
+    <h2 id="home-greeting-title" class="text-xl font-extrabold tracking-tight mt-1">Panoramica finanziaria</h2>
+    <p class="text-xs text-slate-500 mt-1">Tutto ciò che conta, a colpo d'occhio.</p>
+  </div>
   <div id="subscription-alert" class="hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs"></div>
 
   <div class="glass rounded-3xl p-5">
@@ -356,17 +401,17 @@
 
   <div class="grid grid-cols-2 gap-3">
     <button onclick="openTransactionModal('EXPENSE')" class="tap quick-action bg-rose-500 text-white shadow-lg shadow-rose-950/20">
-      <i class="fa-solid fa-minus"></i><span>Aggiungi spesa</span>
+      <i class="fa-solid fa-minus"></i><span>Spesa</span>
     </button>
     <button onclick="openTransactionModal('INCOME')" class="tap quick-action bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/20">
-      <i class="fa-solid fa-plus"></i><span>Aggiungi entrata</span>
+      <i class="fa-solid fa-plus"></i><span>Entrata</span>
     </button>
   </div>
   <button onclick="openTransactionModal('INVESTMENT')" class="tap w-full py-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400 text-xs font-bold">
     <i class="fa-solid fa-chart-line mr-1"></i> Registra investimento
   </button>
 
-  <button onclick="goPage('analysis')" class="tap w-full glass rounded-3xl p-4 text-left border border-emerald-500/10">
+  <button onclick="goPage('analysis')" class="tap w-full glass interactive rounded-3xl p-4 text-left border border-emerald-500/10">
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">
@@ -491,7 +536,7 @@
   <div class="flex flex-wrap gap-2 justify-between items-center">
     <div>
       <h2 class="text-xl font-bold">Movimenti</h2>
-      <p class="text-xs text-slate-500 mt-1">Cerca, filtra o aggiungi un movimento.</p>
+      <p class="text-xs text-slate-500 mt-1">Cerca, filtra o aggiungi un movimento.</p><p class="hidden sm:block text-[10px] text-slate-600 mt-1">Suggerimento: premi <span class="kbd">/</span> per cercare rapidamente.</p>
     </div>
     <button onclick="openQuickAdd()" class="tap px-4 py-2.5 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Aggiungi</button>
   </div>
@@ -586,19 +631,19 @@
   <div>
     <p class="text-xs text-slate-500 mb-2">Pianifica e organizza</p>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <button onclick="goPage('budgets')" class="tap glass rounded-2xl p-4 text-left">
+      <button onclick="goPage('budgets')" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-gauge-high"></i></div>
         <p class="font-bold text-sm mt-3">Budget</p><p class="text-[10px] text-slate-500 mt-1">Controlla i limiti mensili</p>
       </button>
-      <button onclick="goPage('wealth')" class="tap glass rounded-2xl p-4 text-left">
+      <button onclick="goPage('wealth')" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></div>
         <p class="font-bold text-sm mt-3">Patrimonio</p><p class="text-[10px] text-slate-500 mt-1">Liquidità, asset e storico</p>
       </button>
-      <button onclick="goPage('goals')" class="tap glass rounded-2xl p-4 text-left">
+      <button onclick="goPage('goals')" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-bullseye"></i></div>
         <p class="font-bold text-sm mt-3">Obiettivi</p><p class="text-[10px] text-slate-500 mt-1">Risparmio e investimenti</p>
       </button>
-      <button onclick="goPage('subscriptions')" class="tap glass rounded-2xl p-4 text-left">
+      <button onclick="goPage('subscriptions')" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center"><i class="fa-solid fa-repeat"></i></div>
         <p class="font-bold text-sm mt-3">Abbonamenti</p><p class="text-[10px] text-slate-500 mt-1">Costi ricorrenti e pause</p>
       </button>
@@ -642,6 +687,51 @@
   </div>
 </nav>
 
+
+
+<div id="onboarding-modal" class="modal fixed inset-0 z-[210] bg-slate-950/90 backdrop-blur-md items-center justify-center p-4">
+  <div class="glass rounded-[2rem] p-6 w-full max-w-md overflow-hidden premium-gradient">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="brand-mark w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
+        <span class="font-extrabold tracking-tight">Finora</span>
+      </div>
+      <button onclick="finishOnboarding()" class="tap text-xs text-slate-500 px-2 py-2">Salta</button>
+    </div>
+
+    <div class="mt-7 min-h-[285px]">
+      <div class="onboarding-slide active" data-onboarding-slide="0">
+        <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-sparkles"></i></div>
+        <p class="text-xs font-bold text-emerald-400 mt-6">BENVENUTO</p>
+        <h2 class="text-2xl font-extrabold mt-2">Le tue finanze, senza confusione.</h2>
+        <p class="text-sm text-slate-400 leading-6 mt-3">Finora riunisce movimenti, budget, patrimonio, obiettivi e abbonamenti in un'unica esperienza semplice.</p>
+      </div>
+
+      <div class="onboarding-slide" data-onboarding-slide="1">
+        <div class="w-16 h-16 rounded-3xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-plus"></i></div>
+        <p class="text-xs font-bold text-cyan-400 mt-6">VELOCE</p>
+        <h2 class="text-2xl font-extrabold mt-2">Registra in pochi secondi.</h2>
+        <p class="text-sm text-slate-400 leading-6 mt-3">Il pulsante centrale <strong class="text-slate-200">+</strong> ti permette di aggiungere subito una spesa, un'entrata o un investimento da qualsiasi sezione.</p>
+      </div>
+
+      <div class="onboarding-slide" data-onboarding-slide="2">
+        <div class="w-16 h-16 rounded-3xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <p class="text-xs font-bold text-violet-400 mt-6">PERSONALE</p>
+        <h2 class="text-2xl font-extrabold mt-2">Capisci meglio le tue abitudini.</h2>
+        <p class="text-sm text-slate-400 leading-6 mt-3">L'analisi di Finora confronta i tuoi dati con le tue medie personali e ti aiuta a individuare trend, senza sostituire una consulenza finanziaria professionale.</p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-4">
+      <div class="flex gap-1.5">
+        <span class="onboarding-dot active" data-onboarding-dot="0"></span>
+        <span class="onboarding-dot" data-onboarding-dot="1"></span>
+        <span class="onboarding-dot" data-onboarding-dot="2"></span>
+      </div>
+      <button id="onboarding-next" onclick="nextOnboarding()" class="tap px-5 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-sm font-extrabold">Continua <i class="fa-solid fa-arrow-right ml-1"></i></button>
+    </div>
+  </div>
+</div>
 
 <div id="quick-add-modal" class="modal fixed inset-0 z-[75] bg-black/70 items-end sm:items-center justify-center p-4">
   <div class="glass rounded-3xl p-4 w-full max-w-md mb-[calc(4.5rem+var(--safe-bottom))] sm:mb-0">
@@ -769,6 +859,16 @@
       <div><label class="text-xs text-slate-400">Saldo iniziale</label><input id="settings-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
       <button onclick="saveSettings()" class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva impostazioni</button>
       <button onclick="authMode('reset-direct')" class="w-full py-3 bg-slate-800 rounded-xl text-sm">Cambia password</button>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="font-bold text-sm">Guida rapida</p>
+            <p class="text-xs text-slate-500 mt-1">Rivedi le funzioni principali di Finora.</p>
+          </div>
+          <button onclick="closeModal('settings-modal');showOnboarding(true)" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold">Apri guida</button>
+        </div>
+        <p class="hidden sm:block text-[10px] text-slate-600 mt-3">Scorciatoie: <span class="kbd">N</span> nuovo movimento · <span class="kbd">/</span> cerca nei movimenti</p>
+      </div>
 
       <div class="mt-5 pt-5 border-t border-rose-500/20">
         <div class="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4">
@@ -878,7 +978,7 @@ function friendly(e){
   if(m.includes('duplicate key')) return 'Esiste già un elemento con questo nome.';
   return e?.message||'Si è verificato un errore.';
 }
-function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),2500)}
+function toast(t){premiumToast(t,'success')}
 let snapshotTimer=null;
 function tempId(prefix='tmp'){
   const rnd=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now();
@@ -1060,7 +1160,7 @@ async function loadAll(){
     if(!historyError) aiReports=historyData||[];
     else console.warn('Storico IA non disponibile:',historyError.message);
   }catch(e){ console.warn('Storico IA non disponibile:',e); }
-  saveCache();renderAll();scheduleSnapshot();document.getElementById('app-loading')?.classList.add('hidden')
+  saveCache();renderAll();scheduleSnapshot();document.getElementById('app-loading')?.classList.add('hidden');setTimeout(()=>showOnboarding(false),220)
 }
 function saveCache(){localStorage.setItem(CACHE_PREFIX+user.id,JSON.stringify({profile,settings,categories,transactions,subscriptions,budgets,goals,assets,snapshots,aiReports}))}
 function loadCache(){
@@ -1086,6 +1186,58 @@ async function saveSnapshot(){
   await sb.from('net_worth_snapshots').upsert(row,{onConflict:'user_id,snapshot_date'});
 }
 
+
+
+let onboardingStep=0;
+function onboardingKey(){ return user?.id ? `finora_onboarding_v2_${user.id}` : 'finora_onboarding_v2'; }
+function showOnboarding(force=false){
+  if(!force && localStorage.getItem(onboardingKey())==='done') return;
+  onboardingStep=0;renderOnboarding();openModal('onboarding-modal');
+}
+function renderOnboarding(){
+  document.querySelectorAll('[data-onboarding-slide]').forEach(el=>el.classList.toggle('active',Number(el.dataset.onboardingSlide)===onboardingStep));
+  document.querySelectorAll('[data-onboarding-dot]').forEach(el=>el.classList.toggle('active',Number(el.dataset.onboardingDot)===onboardingStep));
+  const btn=document.getElementById('onboarding-next');
+  if(btn) btn.innerHTML=onboardingStep===2?'Inizia a usare Finora <i class="fa-solid fa-check ml-1"></i>':'Continua <i class="fa-solid fa-arrow-right ml-1"></i>';
+}
+function nextOnboarding(){
+  softHaptic();
+  if(onboardingStep<2){onboardingStep++;renderOnboarding()}
+  else finishOnboarding();
+}
+function finishOnboarding(){
+  try{localStorage.setItem(onboardingKey(),'done')}catch{}
+  closeModal('onboarding-modal');softHaptic();
+}
+function updateGreeting(){
+  const greeting=document.getElementById('home-greeting');
+  const title=document.getElementById('home-greeting-title');
+  if(!greeting||!title)return;
+  const hour=new Date().getHours();
+  const part=hour<12?'Buongiorno':hour<18?'Buon pomeriggio':'Buonasera';
+  const name=(profile?.username||'').trim();
+  greeting.textContent=name?`${part}, ${name}`:part;
+  const t=totals(),saving=t.income-t.expense-t.investment;
+  title.textContent=!transactions.length?'Cominciamo dalla tua prima operazione':saving>=0?'Stai costruendo margine questo mese':'Tieni d’occhio il margine di questo mese';
+}
+function premiumToast(text,type='success'){
+  const e=document.getElementById('toast');if(!e)return;
+  e.innerHTML=`<span class="inline-flex items-center gap-2"><i class="fa-solid ${type==='success'?'fa-circle-check text-emerald-400':'fa-circle-info text-cyan-400'}"></i><span>${esc(text)}</span></span>`;
+  e.classList.remove('hidden');e.classList.add('success-pop');
+  setTimeout(()=>{e.classList.add('hidden');e.classList.remove('success-pop')},2600);
+}
+function handleKeyboardShortcuts(e){
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const tag=(document.activeElement?.tagName||'').toLowerCase();
+  const typing=['input','textarea','select'].includes(tag);
+  if(!typing && (e.key==='n'||e.key==='N')){e.preventDefault();openQuickAdd()}
+  if(!typing && e.key==='/'){
+    e.preventDefault();goPage('transactions');
+    document.getElementById('advanced-filters')?.classList.remove('hidden');
+    setTimeout(()=>document.getElementById('filter-search')?.focus(),120);
+  }
+}
+document.addEventListener('keydown',handleKeyboardShortcuts);
 
 function softHaptic(){
   try{ if(navigator.vibrate) navigator.vibrate(12); }catch{}
@@ -1144,7 +1296,7 @@ function goPage(p){
 }
 function renderAll(){
   document.getElementById('header-subtitle').textContent=profile?.username||user?.email||'Gestione personale';
-  renderSelects();renderHome();renderTransactions();renderBudgets();renderSubscriptions();renderCategories();renderGoals();renderWealth();renderStats();renderSettings();renderSubscriptionAlert();renderAIHistory()
+  renderSelects();renderHome();renderTransactions();renderBudgets();renderSubscriptions();renderCategories();renderGoals();renderWealth();renderStats();renderSettings();renderSubscriptionAlert();renderAIHistory();updateGreeting()
 }
 function renderSelects(){
   const catOptions='<option value="">Tutte le categorie</option>'+categories.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
