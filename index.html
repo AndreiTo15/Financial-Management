@@ -1385,8 +1385,8 @@ function renderNotifications(){
 function openNotifications(){renderNotifications();openModal('notifications-modal')}
 function markNotificationsRead(){localStorage.setItem(notificationReadKey(),JSON.stringify(finoraNotifications.map(n=>n.id)));renderNotificationBadge();premiumToast('Notifiche segnate come lette')}
 function renderHomeInsights(){
-  const box=document.getElementById('home-insights');if(!box)return;const list=finoraNotifications.length?finoraNotifications:buildNotifications();
-  const top=list.slice(0,3);
+  const box=document.getElementById('home-insights');if(!box)return;
+  const top=(finoraNotifications||[]).slice(0,3);
   box.innerHTML=top.length?top.map(n=>`<div class="insight-card"><div class="flex gap-2"><i class="fa-solid ${n.icon} ${n.level==='danger'?'text-rose-400':n.level==='warn'?'text-amber-400':'text-emerald-400'} mt-0.5"></i><div><p class="text-xs font-bold">${esc(n.title)}</p><p class="text-[11px] text-slate-500 mt-1">${esc(n.text)}</p></div></div></div>`).join(''):'<div class="insight-card sm:col-span-2 lg:col-span-3"><p class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i>Tutto sotto controllo</p><p class="text-[11px] text-slate-500 mt-1">Non emergono segnali particolari dai dati di questo mese.</p></div>';
 }
 function openSetupWizard(){
@@ -2442,7 +2442,7 @@ if(window.visualViewport){
   window.visualViewport.addEventListener('resize',refreshVisibleChartsAfterResize,{passive:true});
 }
 
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();updateNetworkStatus();init();setTimeout(flushTxQueue,1200)});
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('budget-month').value=isoMonth();updateNetworkStatus();init();setTimeout(flushTxQueue,1200);setTimeout(()=>document.getElementById('app-loading')?.classList.add('hidden'),8000)});
 </script>
 
 <script>
