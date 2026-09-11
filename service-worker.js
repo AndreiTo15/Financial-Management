@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finora-1.0.0-beta.4-ai-history-ui';
+const CACHE_NAME = 'finora-1.0.0-beta.5-pwa-diagnostics';
 const APP_SHELL = [
   './',
   './index.html',
@@ -22,6 +22,7 @@ const APP_SHELL = [
   './assets/js/settings.js',
   './assets/js/charts.js',
   './assets/js/data-io.js',
+  './assets/js/diagnostics.js',
   './assets/js/namespace.js',
   './assets/js/events.js',
   './assets/js/bootstrap.js',
@@ -32,7 +33,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -79,4 +79,8 @@ self.addEventListener('fetch', event => {
       return cached || network;
     })
   );
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
