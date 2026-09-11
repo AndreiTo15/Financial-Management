@@ -30,7 +30,7 @@ function validateTransactionForm(){
   return validAmount&&validCat;
 }
 function copyDiagnostics(){
-  const text=`Finora 2.3 | ${navigator.userAgent} | online=${navigator.onLine} | queue=${getTxQueue().length} | user=${user?.id?'signed-in':'signed-out'}`;
+  const text=`Finora ${Finora.meta.version} | ${navigator.userAgent} | online=${navigator.onLine} | queue=${getTxQueue().length} | user=${user?.id?'signed-in':'signed-out'}`;
   navigator.clipboard?.writeText(text);premiumToast('Diagnostica copiata');
 }
 
@@ -116,6 +116,6 @@ function renderHome(){
 }
 function renderHomeBudgets(){
   const m=isoMonth(),box=document.getElementById('home-budgets');const rows=budgets.filter(b=>b.month.slice(0,7)===m).slice(0,5);
-  box.innerHTML=rows.length?rows.map(b=>budgetCard(b,false)).join(''):'<div class="empty-state"><i class="fa-solid fa-gauge-high text-slate-600"></i><p class="text-xs text-slate-400 mt-2">Nessun budget per questo mese.</p><button onclick="goPage(\'budgets\')" class="mt-3 text-xs font-bold text-emerald-400">Crea un budget</button></div>'
+  box.innerHTML=rows.length?rows.map(b=>budgetCard(b,false)).join(''):'<div class="empty-state"><i class="fa-solid fa-gauge-high text-slate-600"></i><p class="text-xs text-slate-400 mt-2">Nessun budget per questo mese.</p><button data-action="navigate" data-page="budgets" class="mt-3 text-xs font-bold text-emerald-400">Crea un budget</button></div>'
 }
-function renderRecent(){const box=document.getElementById('recent-transactions');box.innerHTML=transactions.slice(0,6).map(txCard).join('')||'<div class="empty-state"><i class="fa-solid fa-receipt text-slate-600"></i><p class="text-xs text-slate-400 mt-2">Ancora nessun movimento.</p><button onclick="openQuickAdd()" class="mt-3 text-xs font-bold text-emerald-400">Aggiungi il primo</button></div>'}
+function renderRecent(){const box=document.getElementById('recent-transactions');box.innerHTML=transactions.slice(0,6).map(txCard).join('')||'<div class="empty-state"><i class="fa-solid fa-receipt text-slate-600"></i><p class="text-xs text-slate-400 mt-2">Ancora nessun movimento.</p><button data-action="quick-add" class="mt-3 text-xs font-bold text-emerald-400">Aggiungi il primo</button></div>'}

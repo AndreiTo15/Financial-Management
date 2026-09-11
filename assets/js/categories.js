@@ -1,6 +1,6 @@
 // Finora — categories
 function renderCategories(){
-  document.getElementById('categories-list').innerHTML=categories.map(c=>`<button onclick="openCategoryModalById('${c.id}')" class="px-3 py-2 rounded-xl border border-slate-800 text-xs flex items-center gap-2"><i class="fa-solid ${c.icon}" style="color:${c.color}"></i>${esc(c.name)}</button>`).join('')
+  document.getElementById('categories-list').innerHTML=categories.map(c=>`<button data-action="edit-category" data-id="${c.id}" class="px-3 py-2 rounded-xl border border-slate-800 text-xs flex items-center gap-2"><i class="fa-solid ${c.icon}" style="color:${c.color}"></i>${esc(c.name)}</button>`).join('')
 }
 function openCategoryModal(c=null){document.getElementById('cat-id').value=c?.id||'';document.getElementById('cat-old-name').value=c?.name||'';document.getElementById('cat-name').value=c?.name||'';document.getElementById('cat-icon').value=c?.icon||'fa-tag';document.getElementById('cat-color').value=c?.color||'#10b981';document.getElementById('cat-kind').value=c?.kind||'expense';openModal('category-modal')}
 function openCategoryModalById(id){openCategoryModal(categories.find(c=>c.id===id))}

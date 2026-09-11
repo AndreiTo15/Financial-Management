@@ -240,7 +240,7 @@ function renderAIHistory(){
     const created=new Date(r.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
     const score=r.score==null?'—':`${r.score}/100`;
     const rate=r.saving_rate==null?'—':`${Number(r.saving_rate).toFixed(0)}%`;
-    return `<button onclick="openAIHistoryReport('${r.id}')" class="w-full text-left p-3.5 rounded-2xl bg-slate-900/55 border border-slate-800 hover:border-emerald-500/30 transition">
+    return `<button data-action="open-ai-history-report" data-id="${r.id}" class="w-full text-left p-3.5 rounded-2xl bg-slate-900/55 border border-slate-800 hover:border-emerald-500/30 transition">
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <p class="text-xs font-bold text-slate-200">${esc(r.period_label||r.period_key)}</p>
@@ -268,7 +268,10 @@ function openAIHistoryReport(id){
   document.getElementById('history-report-score').textContent=r.score==null?'—':`${r.score}/100`;
   document.getElementById('history-report-saving').textContent=r.saving_rate==null?'—':`${Number(r.saving_rate).toFixed(0)}%`;
   document.getElementById('history-report-net').textContent=fmt(Number(r.net_savings||0));
-  document.getElementById('history-delete-btn').onclick=()=>deleteAIHistoryReport(id);
+  const deleteBtn=document.getElementById('history-delete-btn');
+  if(deleteBtn._finoraDeleteHandler)deleteBtn.removeEventListener('click',deleteBtn._finoraDeleteHandler);
+  deleteBtn._finoraDeleteHandler=()=>deleteAIHistoryReport(id);
+  deleteBtn.addEventListener('click',deleteBtn._finoraDeleteHandler);
   openModal('ai-history-modal');
 }
 

@@ -33,7 +33,11 @@ function openModal(id){document.getElementById(id)?.classList.add('open')}
 function closeModal(id){document.getElementById(id)?.classList.remove('open')}
 function confirmAction(title,text,fn){
   document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-text').textContent=text;
-  const b=document.getElementById('confirm-yes');b.onclick=async()=>{closeModal('confirm-modal');await fn()};openModal('confirm-modal')
+  const b=document.getElementById('confirm-yes');
+  if(b._finoraConfirmHandler)b.removeEventListener('click',b._finoraConfirmHandler);
+  b._finoraConfirmHandler=async()=>{closeModal('confirm-modal');await fn()};
+  b.addEventListener('click',b._finoraConfirmHandler);
+  openModal('confirm-modal')
 }
 function togglePrivacy(){privacy=!privacy;document.body.classList.toggle('privacy',privacy)}
 function applyThemeMeta(){

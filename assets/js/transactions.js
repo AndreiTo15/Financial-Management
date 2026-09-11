@@ -4,13 +4,13 @@ function txCard(t){
     <div class="flex items-center gap-3 min-w-0"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:${c.color}22;color:${c.color}"><i class="fa-solid ${c.icon}"></i></div>
     <div class="min-w-0"><p class="text-xs font-bold truncate">${esc(t.description||t.category)}</p><p class="text-[10px] text-slate-500">${new Date(t.occurred_at).toLocaleDateString('it-IT')} · #${esc(t.category)}</p></div></div>
     <div class="flex items-center"><span class="money text-xs font-bold ${txColor(t)}">${txSign(t)}${fmt(t.amount)}</span>
-    <button onclick="editTransaction('${t.id}')" class="p-2 text-slate-500 hover:text-emerald-400"><i class="fa-solid fa-pen"></i></button>
-    <button onclick="deleteTransaction('${t.id}')" class="p-2 text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`
+    <button data-action="edit-transaction" data-id="${t.id}" class="p-2 text-slate-500 hover:text-emerald-400"><i class="fa-solid fa-pen"></i></button>
+    <button data-action="delete-transaction" data-id="${t.id}" class="p-2 text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`
 }
 function renderTransactions(){
   const q=(document.getElementById('filter-search')?.value||'').toLowerCase(),type=document.getElementById('filter-type')?.value||'',cat=document.getElementById('filter-category')?.value||'',from=document.getElementById('filter-from')?.value||'',to=document.getElementById('filter-to')?.value||'';
   let list=transactions.filter(t=>(!q||(t.description||'').toLowerCase().includes(q)||t.category.toLowerCase().includes(q))&&(!type||t.type===type)&&(!cat||t.category===cat)&&(!from||t.occurred_at.slice(0,10)>=from)&&(!to||t.occurred_at.slice(0,10)<=to));
-  document.getElementById('transactions-list').innerHTML=list.map(txCard).join('')||'<div class="empty-state"><i class="fa-solid fa-magnifying-glass text-slate-600"></i><p class="text-sm text-slate-400 mt-2">Nessun movimento trovato.</p><button onclick="setQuickFilter(\'all\')" class="mt-3 text-xs font-bold text-emerald-400">Azzera i filtri</button></div>'
+  document.getElementById('transactions-list').innerHTML=list.map(txCard).join('')||'<div class="empty-state"><i class="fa-solid fa-magnifying-glass text-slate-600"></i><p class="text-sm text-slate-400 mt-2">Nessun movimento trovato.</p><button data-action="quick-filter" data-filter="all" class="mt-3 text-xs font-bold text-emerald-400">Azzera i filtri</button></div>'
 }
 function openTransactionModal(type='EXPENSE',t=null){
   document.getElementById('tx-id').value=t?.id||'';document.getElementById('tx-type').value=t?.type||type;document.getElementById('transaction-title').textContent=t?'Modifica movimento':type==='INCOME'?'Nuova entrata':type==='INVESTMENT'?'Nuovo investimento':'Nuova spesa';

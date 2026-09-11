@@ -32,9 +32,9 @@ function renderSubscriptions(){
         </div>
       </div>
       <div class="flex items-center gap-1 flex-shrink-0">
-        <button onclick="toggleSubscription('${s.id}',${!s.active})" class="px-2 py-1 rounded-lg text-[10px] ${s.active?'bg-emerald-500/10 text-emerald-400':'bg-slate-800 text-slate-400'}">${s.active?'Attivo':'Pausa'}</button>
-        <button onclick="editSubscription('${s.id}')" class="p-2 text-slate-500 hover:text-emerald-400"><i class="fa-solid fa-pen"></i></button>
-        <button onclick="deleteSubscription('${s.id}')" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button>
+        <button data-action="toggle-subscription" data-id="${s.id}" data-active="${!s.active}" class="px-2 py-1 rounded-lg text-[10px] ${s.active?'bg-emerald-500/10 text-emerald-400':'bg-slate-800 text-slate-400'}">${s.active?'Attivo':'Pausa'}</button>
+        <button data-action="edit-subscription" data-id="${s.id}" class="p-2 text-slate-500 hover:text-emerald-400"><i class="fa-solid fa-pen"></i></button>
+        <button data-action="delete-subscription" data-id="${s.id}" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>`;
   }).join('')||'<p class="text-xs text-slate-500">Nessun abbonamento.</p>'

@@ -22,13 +22,13 @@ function renderGoals(){
           </div>
         </div>
         <div class="flex">
-          <button onclick="editGoal('${g.id}')" class="p-2 text-slate-500"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteGoal('${g.id}')" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button>
+          <button data-action="edit-goal" data-id="${g.id}" class="p-2 text-slate-500"><i class="fa-solid fa-pen"></i></button>
+          <button data-action="delete-goal" data-id="${g.id}" class="p-2 text-rose-400"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
       <p class="money text-sm mt-3">${fmt(g.current_amount)} / ${fmt(g.target_amount)}</p>
       <div class="h-2 bg-slate-800 rounded-full mt-2"><div class="h-full ${accent} rounded-full" style="width:${p}%"></div></div>
-      <button onclick="contributeGoal('${g.id}')" class="mt-3 text-xs ${accentText}">${isInvestment?'+ Aggiungi capitale':'+ Aggiungi risparmio'}</button>
+      <button data-action="contribute-goal" data-id="${g.id}" class="mt-3 text-xs ${accentText}">${isInvestment?'+ Aggiungi capitale':'+ Aggiungi risparmio'}</button>
     </div>`
   }).join('')||'<p class="text-sm text-slate-500">Nessun obiettivo.</p>'
 }
