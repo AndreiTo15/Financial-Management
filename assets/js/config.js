@@ -1,6 +1,6 @@
 const SUPABASE_CONFIG = {
       url: 'https://ybwnfijzqlkgwdrbdtxg.supabase.co',
-      anonKey: 'INCOLLA_QUI_LA_TUA_PUBLISHABLE_KEY'
+      anonKey: 'sb_publishable_Rn2pdpsPqLjDmYMfHcvebw_juC1jv0J'
     };
     tailwind.config = {
       darkMode: 'class',
