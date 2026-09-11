@@ -1,6 +1,6 @@
 // Finora — public application namespace
 window.Finora = {
-  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.2',channel:'beta',refactor:3}),
+  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.3',channel:'beta',refactor:3}),
 
   state: {
     get user() { return user; },

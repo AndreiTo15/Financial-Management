@@ -324,6 +324,13 @@ async function runAIFinancialAnalysis(){
 
   try{
     const payload=buildAggregatedAnalysisPayload(period);
+
+    // Ensure the browser is still holding a valid Supabase session before
+    // invoking the authenticated Edge Function.
+    const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+    if(sessionError) throw sessionError;
+    if(!sessionData?.session) throw new Error('Sessione Supabase non disponibile. Effettua nuovamente il login.');
+
     const {data,error}=await sb.functions.invoke('financial-analysis',{body:payload});
     if(error) throw error;
 
@@ -347,10 +354,36 @@ async function runAIFinancialAnalysis(){
     sourceNote.textContent=data.attempts>1?`Rapporto generato dopo ${data.attempts} tentativi. Non costituisce consulenza finanziaria o di investimento.`:'Il rapporto IA usa solo dati aggregati del periodo selezionato. Non costituisce consulenza finanziaria o di investimento.';
   }catch(e){
     console.warn('OpenRouter analysis fallback:',e);
-    report.textContent='La Edge Function non è raggiungibile o ha restituito un errore inatteso. Ti mostro comunque l’analisi locale completa.';
+
+    let detail='Errore sconosciuto';
+    let status='';
+    let hint='';
+
+    try{
+      detail=e?.message||e?.error_description||e?.context?.statusText||String(e);
+      status=e?.context?.status?`HTTP ${e.context.status}`:'';
+
+      if(/Failed to send a request|fetch|network/i.test(detail)){
+        hint='La chiamata non ha raggiunto correttamente la Edge Function. Verifica connessione, deploy della funzione e configurazione Supabase.';
+      }else if(/401|JWT|unauthorized|invalid.*token/i.test(`${status} ${detail}`)){
+        hint='La sessione Supabase potrebbe essere scaduta o la chiave Publishable del frontend non corrisponde al progetto.';
+      }else if(/404|not found/i.test(`${status} ${detail}`)){
+        hint='La Edge Function "financial-analysis" non risulta disponibile nel progetto Supabase configurato.';
+      }else if(/500|502|503|504/i.test(`${status} ${detail}`)){
+        hint='La Edge Function è stata raggiunta ma ha avuto un errore server. Controlla i log Supabase e il secret OPENROUTER_API_KEY.';
+      }
+    }catch{}
+
+    report.innerHTML=`
+      <p>Il rapporto IA non è stato generato, ma l’analisi locale resta disponibile.</p>
+      <div id="ai-error-details" class="mt-3 p-3 rounded-xl border text-xs">
+        <strong>Dettaglio tecnico:</strong> ${esc([status,detail].filter(Boolean).join(' · '))}
+        ${hint?`<br><span class="opacity-80">${esc(hint)}</span>`:''}
+      </div>`;
+
     modelLabel.textContent='Fallback locale';
     document.getElementById('analysis-local-summary-card')?.classList.remove('hidden');
-    sourceNote.textContent='Controlla i log della funzione financial-analysis su Supabase per il dettaglio tecnico.';
+    sourceNote.textContent='Il dettaglio tecnico sopra serve a capire se il problema è frontend, autenticazione o Edge Function.';
   }
 }
 
