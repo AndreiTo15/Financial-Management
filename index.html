@@ -35,13 +35,13 @@
     </div>
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
       <div id="auth-tabs" class="flex gap-2 p-1 bg-slate-950 rounded-2xl mb-6">
-        <button id="tab-login" onclick="authMode('login')" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold">Accedi</button>
-        <button id="tab-register" onclick="authMode('register')" class="flex-1 py-2.5 rounded-xl text-slate-400 text-sm font-bold">Registrati</button>
+        <button id="tab-login" data-action="auth-mode" data-mode="login" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold">Accedi</button>
+        <button id="tab-register" data-action="auth-mode" data-mode="register" class="flex-1 py-2.5 rounded-xl text-slate-400 text-sm font-bold">Registrati</button>
       </div>
       <form id="login-form" onsubmit="login(event)" class="space-y-4">
         <input id="login-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <input id="login-password" type="password" required placeholder="Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
-        <div class="text-right"><button type="button" onclick="authMode('forgot')" class="text-xs text-emerald-400 font-semibold">Password dimenticata?</button></div>
+        <div class="text-right"><button type="button" data-action="auth-mode" data-mode="forgot" class="text-xs text-emerald-400 font-semibold">Password dimenticata?</button></div>
         <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Accedi</button>
       </form>
       <form id="register-form" onsubmit="register(event)" class="space-y-4 hidden">
@@ -55,7 +55,7 @@
         <p class="text-xs text-slate-400">Riceverai una mail con il link per scegliere una nuova password.</p>
         <input id="forgot-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Invia email</button>
-        <button type="button" onclick="authMode('login')" class="w-full text-xs text-slate-400">Torna all'accesso</button>
+        <button type="button" data-action="auth-mode" data-mode="login" class="w-full text-xs text-slate-400">Torna all'accesso</button>
       </form>
       <form id="reset-form" onsubmit="updatePassword(event)" class="space-y-4 hidden">
         <h3 class="font-bold text-white">Imposta nuova password</h3>
@@ -74,7 +74,7 @@
     <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i class="fa-solid fa-envelope-circle-check text-2xl"></i></div>
     <h3 class="font-bold text-xl text-white">Controlla la tua email</h3>
     <p class="text-sm text-slate-300 mt-2">Abbiamo inviato una mail di conferma a <strong id="email-confirm-address"></strong>. Aprila e clicca sul link per completare la registrazione.</p>
-    <button onclick="closeModal('email-modal');authMode('login')" class="mt-5 w-full py-3 bg-brand-600 rounded-xl font-bold">Ho capito</button>
+    <button data-action="email-confirm-ok" class="mt-5 w-full py-3 bg-brand-600 rounded-xl font-bold">Ho capito</button>
   </div>
 </div>
 
@@ -86,12 +86,12 @@
     </div>
     <div class="flex gap-2 items-center">
       <span id="sync-status" class="status-pill hidden sm:inline-flex" aria-live="polite"><span class="status-dot"></span><span>Online</span></span>
-      <button onclick="openNotifications()" aria-label="Centro notifiche" title="Notifiche" class="tap relative w-10 h-10 rounded-xl bg-slate-900 border border-slate-800">
+      <button data-action="open-notifications" aria-label="Centro notifiche" title="Notifiche" class="tap relative w-10 h-10 rounded-xl bg-slate-900 border border-slate-800">
         <i class="fa-solid fa-bell"></i><span id="notification-badge" class="notif-badge hidden">0</span>
       </button>
-      <button onclick="togglePrivacy()" aria-label="Modalità privacy" title="Modalità privacy" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-eye"></i></button>
-      <button onclick="toggleTheme()" aria-label="Cambia tema" title="Cambia tema" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-circle-half-stroke"></i></button>
-      <button onclick="openModal('settings-modal')" aria-label="Impostazioni" title="Impostazioni" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-gear"></i></button>
+      <button data-action="toggle-privacy" aria-label="Modalità privacy" title="Modalità privacy" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-eye"></i></button>
+      <button data-action="toggle-theme" aria-label="Cambia tema" title="Cambia tema" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-circle-half-stroke"></i></button>
+      <button data-action="open-modal" data-target="settings-modal" aria-label="Impostazioni" title="Impostazioni" class="tap w-10 h-10 rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-gear"></i></button>
     </div>
   </div>
 </header>
@@ -134,19 +134,19 @@
       <h2>Azioni rapide</h2>
     </div>
     <div class="finora-quick-grid">
-      <button onclick="openQuickAdd()" class="tap finora-quick-tile">
+      <button data-action="quick-add" class="tap finora-quick-tile">
         <span class="finora-quick-icon"><i class="fa-solid fa-plus"></i></span>
         <span>Movimento</span>
       </button>
-      <button onclick="openTransactionModal('EXPENSE')" class="tap finora-quick-tile">
+      <button data-action="new-transaction" data-type="EXPENSE" class="tap finora-quick-tile">
         <span class="finora-quick-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
         <span>Spesa</span>
       </button>
-      <button onclick="openTransactionModal('INCOME')" class="tap finora-quick-tile">
+      <button data-action="new-transaction" data-type="INCOME" class="tap finora-quick-tile">
         <span class="finora-quick-icon"><i class="fa-solid fa-arrow-down"></i></span>
         <span>Entrata</span>
       </button>
-      <button onclick="openTransactionModal('INVESTMENT')" class="tap finora-quick-tile">
+      <button data-action="new-transaction" data-type="INVESTMENT" class="tap finora-quick-tile">
         <span class="finora-quick-icon"><i class="fa-solid fa-chart-simple"></i></span>
         <span>Investimento</span>
       </button>
@@ -156,12 +156,12 @@
   <div class="glass rounded-2xl p-4">
     <div class="flex items-center justify-between gap-3">
       <div><h2 class="font-bold">Insight Finora</h2><p class="text-[11px] text-slate-500 mt-1">Suggerimenti basati sulle tue abitudini.</p></div>
-      <button onclick="openNotifications()" class="text-xs font-bold text-emerald-400">Vedi tutto</button>
+      <button data-action="open-notifications" class="text-xs font-bold text-emerald-400">Vedi tutto</button>
     </div>
     <div id="home-insights" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-3"></div>
   </div>
 
-  <button onclick="goPage('analysis')" class="tap w-full glass interactive rounded-3xl p-4 text-left border border-emerald-500/10">
+  <button data-action="navigate" data-page="analysis" class="tap w-full glass interactive rounded-3xl p-4 text-left border border-emerald-500/10">
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">
@@ -189,11 +189,11 @@
 
   <div class="grid lg:grid-cols-2 gap-4">
     <div class="glass rounded-2xl p-4">
-      <div class="flex justify-between"><h2 class="font-bold">Budget del mese</h2><button onclick="goPage('budgets')" class="text-xs text-emerald-400">Gestisci</button></div>
+      <div class="flex justify-between"><h2 class="font-bold">Budget del mese</h2><button data-action="navigate" data-page="budgets" class="text-xs text-emerald-400">Gestisci</button></div>
       <div id="home-budgets" class="mt-3 space-y-3"></div>
     </div>
     <div class="glass rounded-2xl p-4">
-      <div class="flex justify-between"><h2 class="font-bold">Ultimi movimenti</h2><button onclick="goPage('transactions')" class="text-xs text-emerald-400">Vedi tutti</button></div>
+      <div class="flex justify-between"><h2 class="font-bold">Ultimi movimenti</h2><button data-action="navigate" data-page="transactions" class="text-xs text-emerald-400">Vedi tutti</button></div>
       <div id="recent-transactions" class="mt-3 space-y-2"></div>
     </div>
   </div>
@@ -224,14 +224,14 @@
           <option value="6">Ultimi 6 mesi</option>
           <option value="year">Anno corrente</option>
         </select>
-        <button onclick="runAIFinancialAnalysis()" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-sparkles mr-1"></i> Analizza con IA</button>
+        <button data-action="run-ai-analysis" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-sparkles mr-1"></i> Analizza con IA</button>
       </div>
     </div>
 
     <div id="analysis-empty" class="mt-4 p-4 rounded-2xl bg-slate-900/50 text-xs text-slate-500 text-center">Premi <strong class="text-slate-300">Analizza con IA</strong> per generare un rapporto. Verranno inviati solo dati aggregati, non le singole descrizioni dei movimenti.</div>
 
     <div id="analysis-result" class="hidden mt-4 space-y-4">
-      <button id="analysis-toggle-details" onclick="toggleAnalysisDetails()" class="tap hidden w-full py-3 rounded-xl bg-slate-900 text-xs font-bold text-slate-300">
+      <button id="analysis-toggle-details" data-action="toggle-analysis-details" class="tap hidden w-full py-3 rounded-xl bg-slate-900 text-xs font-bold text-slate-300">
         <i class="fa-solid fa-chart-simple mr-1"></i> Vedi indicatori e dettagli
       </button>
       <div id="analysis-detail-panels">
@@ -274,7 +274,7 @@
           <h3 class="font-bold text-sm">Storico rapporti IA</h3>
           <p class="text-[11px] text-slate-500 mt-1">Conserva l'ultimo rapporto di ogni periodo per confrontare l'andamento nel tempo.</p>
         </div>
-        <button onclick="toggleAIHistory()" class="px-3 py-2 rounded-xl bg-slate-900 text-xs font-bold text-slate-300"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Storico</button>
+        <button data-action="toggle-ai-history" class="px-3 py-2 rounded-xl bg-slate-900 text-xs font-bold text-slate-300"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Storico</button>
       </div>
       <div id="ai-history" class="hidden mt-4 space-y-2"></div>
     </div>
@@ -288,18 +288,18 @@
       <h2 class="text-xl font-extrabold tracking-tight">Movimenti</h2>
       <p class="text-xs text-slate-500 mt-1">Cerca, filtra o aggiungi un movimento.</p><p class="hidden sm:block text-[10px] text-slate-600 mt-1">Suggerimento: premi <span class="kbd">/</span> per cercare rapidamente.</p>
     </div>
-    <button onclick="openQuickAdd()" class="tap px-4 py-2.5 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Aggiungi</button>
+    <button data-action="quick-add" class="tap px-4 py-2.5 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Aggiungi</button>
   </div>
 
   <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-    <button data-chip="all" onclick="setQuickFilter('all')" class="filter-chip active tap">Tutti</button>
-    <button data-chip="EXPENSE" onclick="setQuickFilter('EXPENSE')" class="filter-chip tap">Spese</button>
-    <button data-chip="INCOME" onclick="setQuickFilter('INCOME')" class="filter-chip tap">Entrate</button>
-    <button data-chip="INVESTMENT" onclick="setQuickFilter('INVESTMENT')" class="filter-chip tap">Investimenti</button>
-    <button data-chip="month" onclick="setQuickFilter('month')" class="filter-chip tap">Questo mese</button>
+    <button data-chip="all" data-action="quick-filter" data-filter="all" class="filter-chip active tap">Tutti</button>
+    <button data-chip="EXPENSE" data-action="quick-filter" data-filter="EXPENSE" class="filter-chip tap">Spese</button>
+    <button data-chip="INCOME" data-action="quick-filter" data-filter="INCOME" class="filter-chip tap">Entrate</button>
+    <button data-chip="INVESTMENT" data-action="quick-filter" data-filter="INVESTMENT" class="filter-chip tap">Investimenti</button>
+    <button data-chip="month" data-action="quick-filter" data-filter="month" class="filter-chip tap">Questo mese</button>
   </div>
 
-  <button onclick="toggleAdvancedFilters()" class="tap text-xs text-slate-400"><i class="fa-solid fa-sliders mr-1"></i> Filtri avanzati</button>
+  <button data-action="toggle-advanced-filters" class="tap text-xs text-slate-400"><i class="fa-solid fa-sliders mr-1"></i> Filtri avanzati</button>
   <div id="advanced-filters" class="hidden glass rounded-2xl p-3 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
     <input id="filter-search" oninput="renderTransactions()" placeholder="Cerca descrizione..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
     <select id="filter-type" onchange="syncFilterChips();renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
@@ -313,7 +313,7 @@
 </section>
 
 <section id="page-budgets" class="page space-y-4">
-  <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Budget</h2><button onclick="openBudgetModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Budget</button></div>
+  <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Budget</h2><button data-action="open-budget" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Budget</button></div>
   <div class="glass rounded-2xl p-3 flex items-center gap-3"><label class="text-xs text-slate-400">Mese</label><input id="budget-month" type="month" onchange="renderBudgets()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></div>
   <div id="budgets-list" class="grid md:grid-cols-2 gap-3"></div>
 </section>
@@ -326,12 +326,12 @@
     <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Risparmio mese</p><p id="wealth-saving" class="money text-xl font-bold">€0</p></div>
   </div>
   <div class="glass rounded-2xl p-4"><h3 class="font-bold mb-3">Patrimonio nel tempo</h3><div class="h-64"><canvas id="wealth-chart"></canvas></div></div>
-  <div class="flex justify-between items-center"><h3 class="font-bold">Asset</h3><button onclick="openAssetModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">+ Asset</button></div>
+  <div class="flex justify-between items-center"><h3 class="font-bold">Asset</h3><button data-action="open-asset" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">+ Asset</button></div>
   <div id="assets-list" class="grid md:grid-cols-2 gap-3"></div>
 </section>
 
 <section id="page-goals" class="page space-y-4">
-  <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Obiettivi</h2><button onclick="openGoalModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">+ Obiettivo</button></div>
+  <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Obiettivi</h2><button data-action="open-goal" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">+ Obiettivo</button></div>
   <div id="goals-list" class="grid md:grid-cols-2 gap-3"></div>
 </section>
 
@@ -339,7 +339,7 @@
 <section id="page-subscriptions" class="page space-y-4">
   <div class="flex flex-wrap gap-3 justify-between items-center">
     <div class="flex items-center gap-3">
-      <button onclick="goPage('more')" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white" title="Torna ad Altro">
+      <button data-action="navigate" data-page="more" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white" title="Torna ad Altro">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <div>
@@ -347,7 +347,7 @@
         <p class="text-xs text-slate-500">Gestisci i tuoi costi ricorrenti mensili</p>
       </div>
     </div>
-    <button onclick="openSubscriptionModal()" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">
+    <button data-action="open-subscription" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold">
       <i class="fa-solid fa-plus mr-1"></i> Nuovo abbonamento
     </button>
   </div>
@@ -381,19 +381,19 @@
   <div>
     <p class="text-xs text-slate-500 mb-2">Organizza le tue finanze</p>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <button onclick="goPage('budgets')" class="tap glass interactive rounded-2xl p-4 text-left">
+      <button data-action="navigate" data-page="budgets" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-gauge-high"></i></div>
         <p class="font-bold text-sm mt-3">Budget</p><p class="text-[10px] text-slate-500 mt-1">Controlla i limiti mensili</p>
       </button>
-      <button onclick="goPage('wealth')" class="tap glass interactive rounded-2xl p-4 text-left">
+      <button data-action="navigate" data-page="wealth" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></div>
         <p class="font-bold text-sm mt-3">Patrimonio</p><p class="text-[10px] text-slate-500 mt-1">Liquidità, asset e storico</p>
       </button>
-      <button onclick="goPage('goals')" class="tap glass interactive rounded-2xl p-4 text-left">
+      <button data-action="navigate" data-page="goals" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-bullseye"></i></div>
         <p class="font-bold text-sm mt-3">Obiettivi</p><p class="text-[10px] text-slate-500 mt-1">Risparmio e investimenti</p>
       </button>
-      <button onclick="goPage('subscriptions')" class="tap glass interactive rounded-2xl p-4 text-left">
+      <button data-action="navigate" data-page="subscriptions" class="tap glass interactive rounded-2xl p-4 text-left">
         <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center"><i class="fa-solid fa-repeat"></i></div>
         <p class="font-bold text-sm mt-3">Abbonamenti</p><p class="text-[10px] text-slate-500 mt-1">Costi ricorrenti e pause</p>
       </button>
@@ -406,7 +406,7 @@
         <h3 class="font-bold">Categorie</h3>
         <p class="text-xs text-slate-500 mt-1">Organizza entrate e uscite con categorie personalizzate.</p>
       </div>
-      <button onclick="openCategoryModal()" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-xs font-bold text-emerald-400 whitespace-nowrap">+ Aggiungi</button>
+      <button data-action="open-category" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-xs font-bold text-emerald-400 whitespace-nowrap">+ Aggiungi</button>
     </div>
     <div id="categories-list" class="mt-4 flex flex-wrap gap-2"></div>
   </div>
@@ -417,8 +417,8 @@
   <div class="glass rounded-2xl p-4">
     <h3 class="font-bold mb-3">Dati e backup</h3>
     <div class="flex flex-wrap gap-2">
-      <button onclick="exportCSV()" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Esporta CSV</button>
-      <button onclick="exportBackup()" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Backup JSON</button>
+      <button data-action="export-csv" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Esporta CSV</button>
+      <button data-action="export-backup" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Backup JSON</button>
       <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa JSON<input id="import-json" type="file" accept=".json" class="hidden" onchange="importBackup(event)"></label>
       <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa CSV<input id="import-csv" type="file" accept=".csv,text/csv" class="hidden" onchange="importCSV(event)"></label>
     </div>
@@ -429,11 +429,11 @@
 
 <nav class="navglass fixed bottom-0 left-0 right-0 z-50">
   <div class="max-w-2xl mx-auto grid grid-cols-5 px-2 py-2 items-end">
-    <button data-nav="home" onclick="goPage('home')" class="navbtn tap text-emerald-400 py-2 text-[10px]"><i class="fa-solid fa-house block text-lg mb-1"></i>Home</button>
-    <button data-nav="transactions" onclick="goPage('transactions')" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-list block text-lg mb-1"></i>Movimenti</button>
-    <button onclick="openQuickAdd()" aria-label="Aggiungi movimento" class="tap nav-fab bg-emerald-500 text-slate-950 text-xl"><i class="fa-solid fa-plus"></i></button>
-    <button data-nav="analysis" onclick="goPage('analysis')" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-wand-magic-sparkles block text-lg mb-1"></i>Analisi</button>
-    <button data-nav="more" onclick="goPage('more')" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-ellipsis block text-lg mb-1"></i>Altro</button>
+    <button data-nav="home" data-action="navigate" data-page="home" class="navbtn tap text-emerald-400 py-2 text-[10px]"><i class="fa-solid fa-house block text-lg mb-1"></i>Home</button>
+    <button data-nav="transactions" data-action="navigate" data-page="transactions" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-list block text-lg mb-1"></i>Movimenti</button>
+    <button data-action="quick-add" aria-label="Aggiungi movimento" class="tap nav-fab bg-emerald-500 text-slate-950 text-xl"><i class="fa-solid fa-plus"></i></button>
+    <button data-nav="analysis" data-action="navigate" data-page="analysis" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-wand-magic-sparkles block text-lg mb-1"></i>Analisi</button>
+    <button data-nav="more" data-action="navigate" data-page="more" class="navbtn tap text-slate-500 py-2 text-[10px]"><i class="fa-solid fa-ellipsis block text-lg mb-1"></i>Altro</button>
   </div>
 </nav>
 
@@ -446,7 +446,7 @@
         <div class="brand-mark w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
         <span class="font-extrabold tracking-tight">Finora</span>
       </div>
-      <button onclick="finishOnboarding()" class="tap text-xs text-slate-500 px-2 py-2">Salta</button>
+      <button data-action="finish-onboarding" class="tap text-xs text-slate-500 px-2 py-2">Salta</button>
     </div>
 
     <div class="mt-7 min-h-[285px]">
@@ -478,7 +478,7 @@
         <span class="onboarding-dot" data-onboarding-dot="1"></span>
         <span class="onboarding-dot" data-onboarding-dot="2"></span>
       </div>
-      <button id="onboarding-next" onclick="nextOnboarding()" class="tap px-5 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-sm font-extrabold">Continua <i class="fa-solid fa-arrow-right ml-1"></i></button>
+      <button id="onboarding-next" data-action="next-onboarding" class="tap px-5 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-sm font-extrabold">Continua <i class="fa-solid fa-arrow-right ml-1"></i></button>
     </div>
   </div>
 </div>
@@ -492,13 +492,13 @@
         <p class="text-xs font-bold text-emerald-400">FINORA</p>
         <h3 id="legal-modal-title" class="font-bold text-xl mt-1">Privacy</h3>
       </div>
-      <button onclick="closeModal('legal-modal')" aria-label="Chiudi" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400 flex items-center justify-center">
+      <button data-action="close-modal" data-target="legal-modal" aria-label="Chiudi" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400 flex items-center justify-center">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
     <div id="legal-modal-content" class="p-5 overflow-y-auto text-sm leading-6 text-slate-300"></div>
     <div class="p-4 border-t border-slate-800">
-      <button onclick="closeModal('legal-modal')" class="tap w-full py-3 rounded-xl bg-slate-800 font-bold">Chiudi</button>
+      <button data-action="close-modal" data-target="legal-modal" class="tap w-full py-3 rounded-xl bg-slate-800 font-bold">Chiudi</button>
     </div>
   </div>
 </div>
@@ -507,9 +507,9 @@
   <div class="glass rounded-3xl p-5 w-full max-w-lg max-h-[82vh] overflow-y-auto">
     <div class="flex items-start justify-between gap-3">
       <div><h3 class="font-bold text-xl">Notifiche</h3><p class="text-xs text-slate-500 mt-1">Avvisi utili generati dai tuoi dati.</p></div>
-      <button onclick="closeModal('notifications-modal')" aria-label="Chiudi notifiche" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+      <button data-action="close-modal" data-target="notifications-modal" aria-label="Chiudi notifiche" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="flex justify-end mt-3"><button onclick="markNotificationsRead()" class="text-xs text-emerald-400">Segna come lette</button></div>
+    <div class="flex justify-end mt-3"><button data-action="mark-notifications-read" class="text-xs text-emerald-400">Segna come lette</button></div>
     <div id="notifications-list" class="space-y-2 mt-3"></div>
   </div>
 </div>
@@ -518,14 +518,14 @@
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
     <div class="flex justify-between items-start gap-3">
       <div><p class="text-xs font-bold text-cyan-400">SETUP GUIDATO</p><h3 class="font-bold text-xl mt-1">Configura Finora</h3></div>
-      <button onclick="closeModal('setup-modal')" aria-label="Chiudi setup" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+      <button data-action="close-modal" data-target="setup-modal" aria-label="Chiudi setup" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mt-5 space-y-4">
       <div><label class="text-xs text-slate-400">1. Saldo iniziale</label><input id="setup-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="0,00"></div>
       <div><label class="text-xs text-slate-400">2. Budget mensile principale</label><div class="grid grid-cols-2 gap-2 mt-1"><select id="setup-budget-category" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select><input id="setup-budget-amount" type="number" min="0" step="0.01" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="Importo"></div></div>
       <div><label class="text-xs text-slate-400">3. Primo obiettivo</label><div class="grid grid-cols-2 gap-2 mt-1"><input id="setup-goal-name" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="Es. Fondo emergenza"><input id="setup-goal-target" type="number" min="0" step="0.01" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3" placeholder="Obiettivo €"></div></div>
       <p class="text-[10px] text-slate-500">Puoi lasciare vuoti budget e obiettivo e configurarli più tardi.</p>
-      <button onclick="saveSetupWizard()" class="tap w-full py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold">Completa configurazione</button>
+      <button data-action="save-setup" class="tap w-full py-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold">Completa configurazione</button>
     </div>
   </div>
 </div>
@@ -534,16 +534,16 @@
   <div class="glass rounded-3xl p-4 w-full max-w-md mb-[calc(4.5rem+var(--safe-bottom))] sm:mb-0">
     <div class="flex items-center justify-between mb-3">
       <div><h3 class="font-bold">Aggiungi movimento</h3><p class="text-xs text-slate-500 mt-1">Cosa vuoi registrare?</p></div>
-      <button onclick="closeModal('quick-add-modal')" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+      <button data-action="close-modal" data-target="quick-add-modal" class="tap w-10 h-10 rounded-xl bg-slate-900 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="grid grid-cols-3 gap-2">
-      <button onclick="quickAddType('EXPENSE')" class="tap p-4 rounded-2xl bg-rose-500/10 border border-rose-500/15 text-rose-400">
+      <button data-action="quick-add-type" data-type="EXPENSE" class="tap p-4 rounded-2xl bg-rose-500/10 border border-rose-500/15 text-rose-400">
         <i class="fa-solid fa-minus text-lg"></i><span class="block text-xs font-bold mt-2">Spesa</span>
       </button>
-      <button onclick="quickAddType('INCOME')" class="tap p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/15 text-emerald-400">
+      <button data-action="quick-add-type" data-type="INCOME" class="tap p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/15 text-emerald-400">
         <i class="fa-solid fa-plus text-lg"></i><span class="block text-xs font-bold mt-2">Entrata</span>
       </button>
-      <button onclick="quickAddType('INVESTMENT')" class="tap p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400">
+      <button data-action="quick-add-type" data-type="INVESTMENT" class="tap p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/15 text-cyan-400">
         <i class="fa-solid fa-chart-line text-lg"></i><span class="block text-xs font-bold mt-2">Investimento</span>
       </button>
     </div>
@@ -553,7 +553,7 @@
 <!-- MODALI GENERICI -->
 <div id="transaction-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg max-h-[90vh] overflow-auto">
-    <div class="flex justify-between mb-4"><h3 id="transaction-title" class="font-bold">Movimento</h3><button onclick="closeModal('transaction-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between mb-4"><h3 id="transaction-title" class="font-bold">Movimento</h3><button data-action="close-modal" data-target="transaction-modal"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveTransaction(event)" class="space-y-3">
       <input id="tx-id" type="hidden"><input id="tx-type" type="hidden">
       <input id="tx-amount" aria-describedby="tx-amount-error" inputmode="decimal" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -567,7 +567,7 @@
 
 <div id="subscription-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
-    <div class="flex justify-between mb-4"><h3 class="font-bold">Abbonamento</h3><button onclick="closeModal('subscription-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Abbonamento</h3><button data-action="close-modal" data-target="subscription-modal"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveSubscription(event)" class="space-y-3">
       <input id="sub-id" type="hidden">
       <input id="sub-name" required placeholder="Nome (es. Netflix)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -585,7 +585,7 @@
 
 <div id="category-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
-    <div class="flex justify-between mb-4"><h3 class="font-bold">Categoria</h3><button onclick="closeModal('category-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Categoria</h3><button data-action="close-modal" data-target="category-modal"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveCategory(event)" class="space-y-3">
       <input id="cat-id" type="hidden"><input id="cat-old-name" type="hidden">
       <input id="cat-name" required placeholder="Nome categoria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -606,7 +606,7 @@
 
 <div id="budget-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
-    <div class="flex justify-between mb-4"><h3 class="font-bold">Budget mensile</h3><button onclick="closeModal('budget-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Budget mensile</h3><button data-action="close-modal" data-target="budget-modal"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveBudget(event)" class="space-y-3">
       <input id="budget-id" type="hidden">
       <select id="budget-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
@@ -619,7 +619,7 @@
 
 <div id="goal-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
-    <div class="flex justify-between mb-4"><h3 class="font-bold">Obiettivo</h3><button onclick="closeModal('goal-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Obiettivo</h3><button data-action="close-modal" data-target="goal-modal"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveGoal(event)" class="space-y-3">
       <input id="goal-id" type="hidden">
       <input id="goal-name" required placeholder="Nome obiettivo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -637,7 +637,7 @@
 
 <div id="asset-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
-    <div class="flex justify-between mb-4"><h3 class="font-bold">Asset</h3><button onclick="closeModal('asset-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between mb-4"><h3 class="font-bold">Asset</h3><button data-action="close-modal" data-target="asset-modal"><i class="fa-solid fa-xmark"></i></button></div>
     <form onsubmit="saveAsset(event)" class="space-y-3">
       <input id="asset-id" type="hidden">
       <input id="asset-name" required placeholder="Nome asset" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -655,22 +655,22 @@
   <div class="glass rounded-3xl w-full max-w-lg max-h-[calc(100dvh-2rem-var(--safe-top)-var(--safe-bottom))] flex flex-col overflow-hidden">
     <div class="sticky top-0 z-10 flex justify-between items-center gap-3 px-5 py-4 border-b border-slate-800 bg-inherit">
       <h3 class="font-bold">Impostazioni</h3>
-      <button onclick="closeModal('settings-modal')" aria-label="Chiudi impostazioni" class="tap w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 flex-shrink-0">
+      <button data-action="close-modal" data-target="settings-modal" aria-label="Chiudi impostazioni" class="tap w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 flex-shrink-0">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
     <div class="space-y-4 p-5 overflow-y-auto overscroll-contain">
       <div><label class="text-xs text-slate-400">Username</label><input id="settings-username" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
       <div><label class="text-xs text-slate-400">Saldo iniziale</label><input id="settings-opening" type="number" step="0.01" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></div>
-      <button onclick="saveSettings()" class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva impostazioni</button>
-      <button onclick="authMode('reset-direct')" class="w-full py-3 bg-slate-800 rounded-xl text-sm">Cambia password</button>
+      <button data-action="save-settings" class="w-full py-3 bg-brand-600 rounded-xl font-bold">Salva impostazioni</button>
+      <button data-action="change-password" class="w-full py-3 bg-slate-800 rounded-xl text-sm">Cambia password</button>
       <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
         <div class="flex items-center justify-between gap-3">
           <div>
             <p class="font-bold text-sm">Guida rapida</p>
             <p class="text-xs text-slate-500 mt-1">Rivedi le funzioni principali di Finora.</p>
           </div>
-          <button onclick="closeModal('settings-modal');showOnboarding(true)" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold">Apri guida</button>
+          <button data-action="onboarding-from-settings" class="tap px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold">Apri guida</button>
         </div>
         <p class="hidden sm:block text-[10px] text-slate-600 mt-3">Scorciatoie: <span class="kbd">N</span> nuovo movimento · <span class="kbd">/</span> cerca nei movimenti</p>
       </div>
@@ -679,18 +679,18 @@
       <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
         <div class="flex items-center justify-between gap-3">
           <div><p class="font-bold text-sm">Configura Finora</p><p class="text-xs text-slate-500 mt-1">Saldo iniziale, budget e primo obiettivo in un percorso guidato.</p></div>
-          <button onclick="closeModal('settings-modal');openSetupWizard()" class="tap px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-bold">Avvia setup</button>
+          <button data-action="setup-from-settings" class="tap px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-bold">Avvia setup</button>
         </div>
       </div>
       <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
         <div class="flex items-center justify-between gap-3">
-          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 2.3 · PWA</p></div>
+          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 1.0.0-beta.1 · PWA</p></div>
           <span id="settings-network-status" class="status-pill"><span class="status-dot"></span><span>Online</span></span>
         </div>
         <div class="flex flex-wrap gap-3 mt-3 text-xs">
-          <button onclick="openLegalModal('privacy')" class="text-emerald-400">Privacy</button>
-          <button onclick="openLegalModal('terms')" class="text-emerald-400">Termini</button>
-          <button onclick="copyDiagnostics()" class="text-cyan-400">Copia diagnostica</button>
+          <button data-action="open-legal" data-document="privacy" class="text-emerald-400">Privacy</button>
+          <button data-action="open-legal" data-document="terms" class="text-emerald-400">Termini</button>
+          <button data-action="copy-diagnostics" class="text-cyan-400">Copia diagnostica</button>
         </div>
       </div>
 
@@ -705,11 +705,11 @@
               <p class="text-xs text-slate-400 mt-1">Cancella definitivamente profilo, movimenti, budget, obiettivi, abbonamenti, categorie e patrimonio associati al tuo account.</p>
             </div>
           </div>
-          <button onclick="requestAccountDeletion()" class="w-full mt-4 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-bold">Elimina definitivamente il mio account</button>
+          <button data-action="request-account-deletion" class="w-full mt-4 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-bold">Elimina definitivamente il mio account</button>
         </div>
       </div>
 
-      <button onclick="logout()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl text-sm font-bold">Esci</button>
+      <button data-action="logout" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl text-sm font-bold">Esci</button>
     </div>
   </div>
 </div>
@@ -721,7 +721,7 @@
         <h3 id="history-report-title" class="font-bold text-xl">Rapporto IA</h3>
         <p id="history-report-meta" class="text-[11px] text-slate-500 mt-1"></p>
       </div>
-      <button onclick="closeModal('ai-history-modal')" class="p-2 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+      <button data-action="close-modal" data-target="ai-history-modal" class="p-2 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="grid grid-cols-3 gap-2 mt-4">
       <div class="rounded-xl bg-slate-900/60 p-3"><p class="text-[10px] text-slate-500">Punteggio</p><p id="history-report-score" class="font-bold mt-1">—</p></div>
@@ -743,7 +743,7 @@
         <h3 class="font-bold text-xl text-rose-300">Elimina account</h3>
         <p class="text-sm text-slate-400 mt-2">Questa operazione è definitiva e non può essere annullata.</p>
       </div>
-      <button onclick="closeModal('delete-account-modal')" class="p-2 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+      <button data-action="close-modal" data-target="delete-account-modal" class="p-2 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <div class="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-200">
@@ -754,8 +754,8 @@
     <input id="delete-account-confirm" autocomplete="off" placeholder="ELIMINA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
 
     <div class="flex gap-2 mt-5">
-      <button onclick="closeModal('delete-account-modal')" class="flex-1 py-3 bg-slate-800 rounded-xl text-sm font-bold">Annulla</button>
-      <button id="delete-account-btn" onclick="deleteAccount()" class="flex-1 py-3 bg-rose-600 rounded-xl text-sm font-bold">Elimina account</button>
+      <button data-action="close-modal" data-target="delete-account-modal" class="flex-1 py-3 bg-slate-800 rounded-xl text-sm font-bold">Annulla</button>
+      <button id="delete-account-btn" data-action="delete-account" class="flex-1 py-3 bg-rose-600 rounded-xl text-sm font-bold">Elimina account</button>
     </div>
   </div>
 </div>
@@ -764,7 +764,7 @@
   <div class="glass rounded-3xl p-5 w-full max-w-sm text-center">
     <div class="w-12 h-12 mx-auto rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
     <h3 id="confirm-title" class="font-bold mt-3">Conferma</h3><p id="confirm-text" class="text-sm text-slate-400 mt-2"></p>
-    <div class="flex gap-2 mt-5"><button onclick="closeModal('confirm-modal')" class="flex-1 py-2.5 bg-slate-800 rounded-xl">Annulla</button><button id="confirm-yes" class="flex-1 py-2.5 bg-rose-600 rounded-xl font-bold">Conferma</button></div>
+    <div class="flex gap-2 mt-5"><button data-action="close-modal" data-target="confirm-modal" class="flex-1 py-2.5 bg-slate-800 rounded-xl">Annulla</button><button id="confirm-yes" class="flex-1 py-2.5 bg-rose-600 rounded-xl font-bold">Conferma</button></div>
   </div>
 </div>
 
@@ -788,6 +788,8 @@
   <script src="./assets/js/settings.js" defer></script>
   <script src="./assets/js/charts.js" defer></script>
   <script src="./assets/js/data-io.js" defer></script>
+  <script src="./assets/js/namespace.js" defer></script>
+  <script src="./assets/js/events.js" defer></script>
   <script src="./assets/js/bootstrap.js" defer></script>
 
   <script src="./assets/js/pwa.js" defer></script>
