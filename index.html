@@ -684,13 +684,14 @@
       </div>
       <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
         <div class="flex items-center justify-between gap-3">
-          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 1.0.0-beta.4 · PWA</p></div>
+          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 1.0.0-beta.5 · PWA</p></div>
           <span id="settings-network-status" class="status-pill"><span class="status-dot"></span><span>Online</span></span>
         </div>
         <div class="flex flex-wrap gap-3 mt-3 text-xs">
           <button data-action="open-legal" data-document="privacy" class="text-emerald-400">Privacy</button>
           <button data-action="open-legal" data-document="terms" class="text-emerald-400">Termini</button>
-          <button data-action="copy-diagnostics" class="text-cyan-400">Copia diagnostica</button>
+          <button data-action="open-diagnostics" class="text-cyan-500 font-bold">Diagnostica</button>
+          <button data-action="pwa-check-update" class="text-blue-500 font-bold">Controlla aggiornamenti</button>
         </div>
       </div>
 
@@ -710,6 +711,43 @@
       </div>
 
       <button data-action="logout" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl text-sm font-bold">Esci</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="diagnostics-modal" class="modal fixed inset-0 z-[150] bg-black/75 items-center justify-center p-4">
+  <div class="glass rounded-3xl w-full max-w-xl max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden">
+    <div class="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-inherit">
+      <div>
+        <h3 class="font-bold">Diagnostica Finora</h3>
+        <p class="text-[11px] text-slate-500 mt-1">Informazioni utili per individuare problemi durante la beta.</p>
+      </div>
+      <button data-action="close-modal" data-target="diagnostics-modal" class="tap w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="p-5 overflow-y-auto overscroll-contain space-y-4">
+      <div class="diagnostic-grid">
+        <div class="diagnostic-item"><span>Versione</span><strong id="diag-version">—</strong></div>
+        <div class="diagnostic-item"><span>Rete</span><strong id="diag-network">—</strong></div>
+        <div class="diagnostic-item"><span>Sessione Supabase</span><strong id="diag-session">—</strong></div>
+        <div class="diagnostic-item"><span>Utente</span><strong id="diag-user">—</strong></div>
+        <div class="diagnostic-item"><span>Coda offline</span><strong id="diag-queue">—</strong></div>
+        <div class="diagnostic-item"><span>Ultima sync offline</span><strong id="diag-last-sync">—</strong></div>
+        <div class="diagnostic-item"><span>Ultimo caricamento cloud</span><strong id="diag-last-load">—</strong></div>
+        <div class="diagnostic-item"><span>Service worker</span><strong id="diag-sw">—</strong></div>
+        <div class="diagnostic-item"><span>Modalità</span><strong id="diag-pwa">—</strong></div>
+        <div class="diagnostic-item"><span>Tema</span><strong id="diag-theme">—</strong></div>
+      </div>
+      <div class="rounded-2xl border border-slate-800 p-4">
+        <p class="font-bold text-sm">Ultimi errori locali</p>
+        <p class="text-[11px] text-slate-500 mt-1 mb-3">Restano solo sul dispositivo e vengono conservati in forma limitata.</p>
+        <div id="diag-logs" class="space-y-2"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button data-action="refresh-diagnostics" class="py-3 rounded-xl bg-slate-800 text-sm font-bold"><i class="fa-solid fa-rotate mr-1"></i> Aggiorna</button>
+        <button data-action="copy-diagnostics" class="py-3 rounded-xl bg-brand-600 text-white text-sm font-bold"><i class="fa-solid fa-copy mr-1"></i> Copia</button>
+      </div>
+      <button data-action="clear-diagnostics" class="w-full py-2 text-xs text-slate-500">Cancella log locali</button>
     </div>
   </div>
 </div>
@@ -771,6 +809,23 @@
 <div id="toast" class="fixed z-[200] bottom-24 left-1/2 -translate-x-1/2 hidden px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl text-sm"></div>
 
 
+
+<div id="pwa-update-banner" class="hidden fixed left-4 right-4 bottom-[calc(5.6rem+var(--safe-bottom))] z-[180] mx-auto max-w-xl">
+  <div class="pwa-update-card">
+    <div class="flex items-start gap-3">
+      <div class="pwa-update-icon"><i class="fa-solid fa-arrow-up"></i></div>
+      <div class="min-w-0 flex-1">
+        <p class="font-extrabold text-sm">Nuova versione disponibile</p>
+        <p class="text-xs text-slate-500 mt-1">Aggiorna Finora per usare l'ultima build. I tuoi dati restano sincronizzati su Supabase.</p>
+        <div class="flex gap-2 mt-3">
+          <button data-action="pwa-apply-update" class="px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-bold">Aggiorna ora</button>
+          <button data-action="pwa-dismiss-update" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold">Più tardi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
   <script src="./assets/js/state.js" defer></script>
   <script src="./assets/js/utils.js" defer></script>
   <script src="./assets/js/auth.js" defer></script>
@@ -788,6 +843,7 @@
   <script src="./assets/js/settings.js" defer></script>
   <script src="./assets/js/charts.js" defer></script>
   <script src="./assets/js/data-io.js" defer></script>
+  <script src="./assets/js/diagnostics.js" defer></script>
   <script src="./assets/js/namespace.js" defer></script>
   <script src="./assets/js/events.js" defer></script>
   <script src="./assets/js/bootstrap.js" defer></script>
