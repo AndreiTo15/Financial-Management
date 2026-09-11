@@ -240,21 +240,30 @@ function renderAIHistory(){
     const created=new Date(r.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
     const score=r.score==null?'—':`${r.score}/100`;
     const rate=r.saving_rate==null?'—':`${Number(r.saving_rate).toFixed(0)}%`;
-    return `<button data-action="open-ai-history-report" data-id="${r.id}" class="w-full text-left p-3.5 rounded-2xl bg-slate-900/55 border border-slate-800 hover:border-emerald-500/30 transition">
+    return `<button data-action="open-ai-history-report" data-id="${r.id}" class="ai-history-card w-full text-left p-4 rounded-2xl transition">
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <p class="text-xs font-bold text-slate-200">${esc(r.period_label||r.period_key)}</p>
-          <p class="text-[10px] text-slate-500 mt-1">${created} · ${esc(r.model||'OpenRouter')}</p>
+          <p class="ai-history-title text-xs font-extrabold">${esc(r.period_label||r.period_key)}</p>
+          <p class="ai-history-meta text-[10px] mt-1">${created} · ${esc(r.model||'OpenRouter')}</p>
         </div>
         <div class="text-right flex-shrink-0">
-          <p class="text-xs font-bold ${Number(r.net_savings)>=0?'text-emerald-400':'text-rose-400'}">${fmt(Number(r.net_savings||0))}</p>
-          <p class="text-[10px] text-slate-500">${trend}</p>
+          <p class="text-sm font-extrabold ${Number(r.net_savings)>=0?'text-emerald-500':'text-rose-500'}">${fmt(Number(r.net_savings||0))}</p>
+          <p class="ai-history-trend text-[10px] mt-1">${trend}</p>
         </div>
       </div>
-      <div class="grid grid-cols-3 gap-2 mt-3 text-[10px]">
-        <div class="rounded-xl bg-slate-950/60 p-2"><span class="text-slate-500">Score</span><div class="font-bold text-slate-300 mt-0.5">${score}</div></div>
-        <div class="rounded-xl bg-slate-950/60 p-2"><span class="text-slate-500">Risparmio</span><div class="font-bold text-slate-300 mt-0.5">${rate}</div></div>
-        <div class="rounded-xl bg-slate-950/60 p-2"><span class="text-slate-500">Spese</span><div class="font-bold text-slate-300 mt-0.5">${fmt(Number(r.expenses||0))}</div></div>
+      <div class="grid grid-cols-3 gap-2.5 mt-3">
+        <div class="ai-history-stat">
+          <span class="ai-history-stat-label">Score</span>
+          <div class="ai-history-stat-value">${score}</div>
+        </div>
+        <div class="ai-history-stat">
+          <span class="ai-history-stat-label">Risparmio</span>
+          <div class="ai-history-stat-value ${Number(r.saving_rate)>=0?'text-emerald-500':'text-rose-500'}">${rate}</div>
+        </div>
+        <div class="ai-history-stat">
+          <span class="ai-history-stat-label">Spese</span>
+          <div class="ai-history-stat-value">${fmt(Number(r.expenses||0))}</div>
+        </div>
       </div>
     </button>`;
   }).join('');
