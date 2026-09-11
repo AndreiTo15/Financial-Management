@@ -1,0 +1,10 @@
+// Finora — CSV/JSON import and export
+function download(name,text,type='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function exportCSV(){const rows=[['data','tipo','importo','categoria','descrizione'],...transactions.map(t=>[t.occurred_at,t.type,t.amount,t.category,(t.description||'').replaceAll('"','""')])];download('transazioni.csv',rows.map(r=>r.map(x=>`"${x}"`).join(',')).join('\n'),'text/csv')}
+function exportBackup(){download('gestione-finanze-backup.json',JSON.stringify({version:2,profile,settings,categories,transactions,subscriptions,budgets,goals,assets},null,2),'application/json')}
+async function importBackup(e){
+  const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());for(const [table,rows] of [['categories',d.categories],['transactions',d.transactions],['subscriptions',d.subscriptions],['budgets',d.budgets],['savings_goals',d.goals],['assets',d.assets]]){if(rows?.length){const clean=rows.map(r=>({...r,user_id:user.id}));const{error}=await sb.from(table).upsert(clean);if(error)throw error}}toast('Backup importato')}catch(x){toast(friendly(x))}e.target.value=''
+}
+async function importCSV(e){
+  const f=e.target.files[0];if(!f)return;try{const lines=(await f.text()).split(/\r?\n/).filter(Boolean);if(lines.length<2)throw new Error('CSV vuoto');const rows=lines.slice(1).map(line=>{const cols=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(v=>v.replace(/^"|"$/g,'').replaceAll('""','"'))||[];return{user_id:user.id,occurred_at:new Date(cols[0]).toISOString(),type:String(cols[1]).toUpperCase(),amount:Number(String(cols[2]).replace(',','.')),category:String(cols[3]||'spesa').toLowerCase(),description:cols[4]||'',source:'import'}}).filter(r=>['INCOME','EXPENSE','INVESTMENT'].includes(r.type)&&r.amount>0);const{error}=await sb.from('transactions').insert(rows);if(error)throw error;toast(`${rows.length} movimenti importati`)}catch(x){toast(friendly(x))}e.target.value=''
+}
