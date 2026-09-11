@@ -1,6 +1,6 @@
 // Finora — public application namespace
 window.Finora = {
-  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.5',channel:'beta',refactor:3}),
+  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.6',channel:'beta',refactor:3}),
 
   pwa: {
     check:()=>checkPWAUpdate(true),
