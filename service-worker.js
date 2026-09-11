@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finora-1.0.0-beta.2-budget-progress';
+const CACHE_NAME = 'finora-1.0.0-beta.4-ai-history-ui';
 const APP_SHELL = [
   './',
   './index.html',
