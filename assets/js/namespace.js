@@ -1,6 +1,6 @@
 // Finora — public application namespace
 window.Finora = {
-  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.1',channel:'beta',refactor:3}),
+  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.2',channel:'beta',refactor:3}),
 
   state: {
     get user() { return user; },
@@ -32,7 +32,7 @@ window.Finora = {
     open:openTransactionModal,edit:editTransaction,remove:deleteTransaction,save:saveTransaction
   },
   budgets: {
-    open:openBudgetModal,edit:editBudget,remove:deleteBudget,save:saveBudget
+    open:openBudgetModal,edit:editBudget,remove:deleteBudget,save:saveBudget,addExpense:addBudgetExpense
   },
   subscriptions: {
     open:openSubscriptionModal,edit:editSubscription,remove:deleteSubscription,

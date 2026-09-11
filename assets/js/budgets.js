@@ -4,9 +4,64 @@ function renderBudgets(){
   const list=budgets.filter(b=>b.month.slice(0,7)===m);document.getElementById('budgets-list').innerHTML=list.map(b=>budgetCard(b,true)).join('')||'<div class="empty-state"><i class="fa-solid fa-gauge-high text-2xl text-slate-600"></i><p class="text-sm font-bold text-slate-300 mt-3">Nessun budget per questo mese</p><p class="text-xs text-slate-500 mt-1">Imposta un limite per capire subito quando una categoria sta crescendo troppo.</p><button data-action="open-budget" class="mt-4 px-4 py-2 rounded-xl bg-brand-600 text-xs font-bold">Crea budget</button></div>'
 }
 function budgetCard(b,actions){
-  const spent=transactions.filter(t=>t.type==='EXPENSE'&&t.category===b.category&&t.occurred_at.slice(0,7)===b.month.slice(0,7)).reduce((s,t)=>s+Number(t.amount),0);const pct=Math.min(100,spent/Number(b.amount)*100),over=spent>Number(b.amount);
-  return `<div class="${actions?'glass rounded-2xl p-4':''}"><div class="flex justify-between text-xs"><span class="font-bold">#${esc(b.category)}</span><span class="money ${over?'text-rose-400':'text-slate-400'}">${fmt(spent)} / ${fmt(b.amount)}</span></div>
-  <div class="h-2 bg-slate-800 rounded-full mt-2 overflow-hidden"><div class="h-full rounded-full ${over?'bg-rose-500':'bg-emerald-500'}" style="width:${pct}%"></div></div>${actions?`<div class="mt-2 text-right"><button data-action="edit-budget" data-id="${b.id}" class="text-xs text-slate-400 mr-3">Modifica</button><button data-action="delete-budget" data-id="${b.id}" class="text-xs text-rose-400">Elimina</button></div>`:''}</div>`
+  const amount=Number(b.amount)||0;
+  const spent=transactions
+    .filter(t=>t.type==='EXPENSE'&&t.category===b.category&&t.occurred_at.slice(0,7)===b.month.slice(0,7))
+    .reduce((s,t)=>s+Number(t.amount),0);
+  const rawPct=amount>0?(spent/amount*100):0;
+  const barPct=Math.min(100,Math.max(0,rawPct));
+  const over=spent>amount;
+  const remaining=Math.max(0,amount-spent);
+  const pctLabel=`${Math.round(rawPct)}%`;
+
+  return `<div class="${actions?'glass rounded-2xl p-4':''}">
+    <div class="flex justify-between items-start gap-3 text-xs">
+      <div>
+        <span class="font-bold">#${esc(b.category)}</span>
+        <div class="mt-1 flex items-center gap-2">
+          <span class="budget-percent ${over?'text-rose-400':'text-brand-600'}">${pctLabel}</span>
+          <span class="text-slate-500">${over?'Budget superato':`${fmt(remaining)} disponibili`}</span>
+        </div>
+      </div>
+      <span class="money ${over?'text-rose-400':'text-slate-400'}">${fmt(spent)} / ${fmt(amount)}</span>
+    </div>
+    <div class="h-2.5 bg-slate-800 rounded-full mt-3 overflow-hidden" role="progressbar" aria-label="Budget ${esc(b.category)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(barPct)}">
+      <div class="h-full rounded-full ${over?'bg-rose-500':rawPct>=80?'bg-amber-500':'bg-emerald-500'}" style="width:${barPct}%"></div>
+    </div>
+    ${actions?`<div class="mt-3 flex items-center justify-between gap-3">
+      <button data-action="add-budget-expense" data-id="${b.id}" class="text-xs font-bold text-brand-600 inline-flex items-center gap-1.5">
+        <i class="fa-solid fa-plus"></i><span>Aggiungi spesa</span>
+      </button>
+      <div class="text-right">
+        <button data-action="edit-budget" data-id="${b.id}" class="text-xs text-slate-400 mr-3">Modifica</button>
+        <button data-action="delete-budget" data-id="${b.id}" class="text-xs text-rose-400">Elimina</button>
+      </div>
+    </div>`:''}
+  </div>`
+}
+
+function addBudgetExpense(id){
+  const b=budgets.find(x=>x.id===id);
+  if(!b)return;
+
+  openTransactionModal('EXPENSE');
+
+  const category=document.getElementById('tx-category');
+  if(category&&[...category.options].some(o=>o.value===b.category))category.value=b.category;
+
+  const budgetMonth=b.month.slice(0,7);
+  const now=new Date();
+  const currentMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const date=document.getElementById('tx-date');
+
+  if(date&&budgetMonth!==currentMonth){
+    date.value=`${budgetMonth}-01T12:00`;
+  }
+
+  const title=document.getElementById('transaction-title');
+  if(title)title.textContent=`Spesa · #${b.category}`;
+
+  validateTransactionForm();
 }
 function openBudgetModal(b=null){document.getElementById('budget-id').value=b?.id||'';renderSelects();document.getElementById('budget-category').value=b?.category||'';document.getElementById('budget-form-month').value=b?.month?.slice(0,7)||document.getElementById('budget-month').value||isoMonth();document.getElementById('budget-amount').value=b?.amount||'';openModal('budget-modal')}
 function editBudget(id){openBudgetModal(budgets.find(x=>x.id===id))}

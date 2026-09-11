@@ -26,6 +26,7 @@
     'open-budget':()=>Finora.budgets.open(),
     'edit-budget':el=>Finora.budgets.edit(el.dataset.id),
     'delete-budget':el=>Finora.budgets.remove(el.dataset.id),
+    'add-budget-expense':el=>Finora.budgets.addExpense(el.dataset.id),
 
     'open-subscription':()=>Finora.subscriptions.open(),
     'edit-subscription':el=>Finora.subscriptions.edit(el.dataset.id),
