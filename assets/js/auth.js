@@ -134,6 +134,7 @@ async function loadAll(){
     if(!historyError) aiReports=historyData||[];
     else console.warn('Storico IA non disponibile:',historyError.message);
   }catch(e){ console.warn('Storico IA non disponibile:',e); }
+  localStorage.setItem(FINORA_LAST_LOAD_KEY,new Date().toISOString());
   saveCache();renderAll();scheduleSnapshot();setTimeout(()=>showOnboarding(false),220)
 }
 function saveCache(){localStorage.setItem(CACHE_PREFIX+user.id,JSON.stringify({profile,settings,categories,transactions,subscriptions,budgets,goals,assets,snapshots,aiReports}))}

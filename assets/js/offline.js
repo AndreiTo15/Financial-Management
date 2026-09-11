@@ -21,7 +21,11 @@ async function flushTxQueue(){
   }
   setTxQueue(remaining);
   updateNetworkStatus();
-  if(!remaining.length){premiumToast('Sincronizzazione completata');try{await loadAll()}catch{}}
+  if(!remaining.length){
+    localStorage.setItem(FINORA_LAST_SYNC_KEY,new Date().toISOString());
+    premiumToast('Sincronizzazione completata');
+    try{await loadAll()}catch{}
+  }
 }
 function updateNetworkStatus(force){
   const online=navigator.onLine,queued=getTxQueue().length;

@@ -29,11 +29,6 @@ function validateTransactionForm(){
   if(btn)btn.disabled=!(validAmount&&validCat);
   return validAmount&&validCat;
 }
-function copyDiagnostics(){
-  const text=`Finora ${Finora.meta.version} | ${navigator.userAgent} | online=${navigator.onLine} | queue=${getTxQueue().length} | user=${user?.id?'signed-in':'signed-out'}`;
-  navigator.clipboard?.writeText(text);premiumToast('Diagnostica copiata');
-}
-
 function softHaptic(){
   try{ if(navigator.vibrate) navigator.vibrate(12); }catch{}
 }

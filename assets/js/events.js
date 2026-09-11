@@ -67,7 +67,13 @@
 
     'export-csv':()=>Finora.data.exportCSV(),
     'export-backup':()=>Finora.data.exportBackup(),
-    'copy-diagnostics':()=>Finora.ui.copyDiagnostics()
+    'open-diagnostics':()=>Finora.ui.openDiagnostics(),
+    'refresh-diagnostics':()=>Finora.ui.renderDiagnostics(),
+    'copy-diagnostics':()=>Finora.ui.copyDiagnostics(),
+    'clear-diagnostics':()=>Finora.ui.clearDiagnostics(),
+    'pwa-check-update':()=>Finora.pwa.check(),
+    'pwa-apply-update':()=>Finora.pwa.apply(),
+    'pwa-dismiss-update':()=>Finora.pwa.dismiss()
   };
 
   document.addEventListener('click',event=>{

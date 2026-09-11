@@ -1,6 +1,12 @@
 // Finora — public application namespace
 window.Finora = {
-  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.4',channel:'beta',refactor:3}),
+  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.5',channel:'beta',refactor:3}),
+
+  pwa: {
+    check:()=>checkPWAUpdate(true),
+    apply:()=>applyPWAUpdate(),
+    dismiss:()=>dismissPWAUpdate()
+  },
 
   state: {
     get user() { return user; },
@@ -20,7 +26,7 @@ window.Finora = {
     togglePrivacy,toggleTheme,toggleAdvancedFilters,setQuickFilter,
     toggleAnalysisDetails,openSetupWizard,saveSetupWizard,
     showOnboarding,nextOnboarding,finishOnboarding,
-    toast,premiumToast,copyDiagnostics
+    toast,premiumToast,copyDiagnostics,openDiagnostics,renderDiagnostics,clearDiagnostics
   },
 
   auth: {
