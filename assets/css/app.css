@@ -1,0 +1,1141 @@
+body{font-family:Inter,sans-serif;-webkit-tap-highlight-color:transparent}
+    .glass{background:rgba(30,41,59,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)}
+    .navglass{background:rgba(15,23,42,.92);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.1)}
+    .scroll::-webkit-scrollbar{width:5px;height:5px}.scroll::-webkit-scrollbar-thumb{background:#475569;border-radius:99px}
+    .page{display:none}.page.active{display:block}
+    .modal{display:none}.modal.open{display:flex}
+    .privacy .money{filter:blur(6px);user-select:none}
+    .light body{background:#f8fafc;color:#0f172a}.light .bg-slate-950{background:#f8fafc!important}
+    .light .bg-slate-900{background:#fff!important}.light .bg-slate-800{background:#e2e8f0!important}
+    .light .text-white{color:#0f172a!important}.light .text-slate-100{color:#0f172a!important}
+    .light .text-slate-300,.light .text-slate-400{color:#475569!important}
+    .light .border-slate-800{border-color:#cbd5e1!important}.light .glass{background:rgba(255,255,255,.9)}
+  
+    :root{
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+    body{
+      padding-left: var(--safe-left);
+      padding-right: var(--safe-right);
+    }
+    header{
+      padding-top: var(--safe-top);
+    }
+    nav{
+      padding-bottom: var(--safe-bottom);
+    }
+
+  
+    html, body {
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+    canvas {
+      max-width: 100% !important;
+    }
+
+  
+    /* Mobile/iOS form sizing fixes */
+    input, select, textarea, button {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"] {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      input[type="date"],
+      input[type="datetime-local"],
+      input[type="month"],
+      input[type="time"] {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 16px;
+      }
+
+      input::-webkit-date-and-time-value {
+        min-width: 0;
+        text-align: left;
+      }
+    }
+
+    #transaction-modal form,
+    #subscription-modal form,
+    #budget-modal form,
+    #goal-modal form,
+    #asset-modal form,
+    #settings-modal .space-y-4 {
+      min-width: 0;
+    }
+
+    #transaction-modal .glass,
+    #subscription-modal .glass,
+    #budget-modal .glass,
+    #goal-modal .glass,
+    #asset-modal .glass,
+    #settings-modal .glass {
+      width: min(100%, 32rem);
+      max-width: calc(100vw - 2rem - var(--safe-left) - var(--safe-right));
+      overflow-x: hidden;
+    }
+
+  
+    /* Fix definitivo overflow modali su iOS */
+    .modal > .glass {
+      box-sizing: border-box;
+      width: calc(100% - 2rem) !important;
+      max-width: 32rem !important;
+      min-width: 0 !important;
+      overflow-x: hidden !important;
+    }
+
+    .modal form,
+    .modal form > *,
+    .modal .space-y-4,
+    .modal .space-y-4 > * {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .modal form > input,
+    .modal form > select,
+    .modal form > textarea,
+    .modal form > button,
+    .modal .space-y-4 input,
+    .modal .space-y-4 select,
+    .modal .space-y-4 textarea,
+    .modal .space-y-4 button {
+      display: block;
+      width: 100% !important;
+      inline-size: 100% !important;
+      min-width: 0 !important;
+      min-inline-size: 0 !important;
+      max-width: 100% !important;
+      max-inline-size: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    /* I controlli nativi data/ora di Safari possono ignorare la larghezza del box */
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"] {
+      width: 100% !important;
+      inline-size: 100% !important;
+      min-width: 0 !important;
+      min-inline-size: 0 !important;
+      max-width: 100% !important;
+      max-inline-size: 100% !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
+      box-sizing: border-box !important;
+    }
+
+    input[type="date"]::-webkit-date-and-time-value,
+    input[type="datetime-local"]::-webkit-date-and-time-value,
+    input[type="month"]::-webkit-date-and-time-value,
+    input[type="time"]::-webkit-date-and-time-value {
+      min-width: 0 !important;
+      width: 100% !important;
+      text-align: left;
+    }
+
+    @media (max-width: 640px) {
+      .modal {
+        padding-left: max(1rem, var(--safe-left)) !important;
+        padding-right: max(1rem, var(--safe-right)) !important;
+      }
+
+      .modal > .glass {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
+  
+    /* Finora UX refresh */
+    .tap {
+      transition: transform .12s ease, opacity .12s ease, border-color .18s ease, background-color .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tap:active { transform: scale(.97); }
+    .quick-action {
+      min-height: 58px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:.55rem;
+      font-weight:800;
+      border-radius:1rem;
+    }
+    .filter-chip {
+      border:1px solid rgb(30 41 59);
+      background:rgba(15,23,42,.72);
+      color:rgb(148 163 184);
+      border-radius:999px;
+      padding:.55rem .8rem;
+      font-size:.72rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .filter-chip.active {
+      border-color:rgba(16,185,129,.4);
+      background:rgba(16,185,129,.12);
+      color:rgb(52 211 153);
+    }
+    .empty-state {
+      border:1px dashed rgb(51 65 85);
+      background:rgba(15,23,42,.42);
+      border-radius:1rem;
+      padding:1.1rem;
+      text-align:center;
+    }
+    .nav-fab {
+      width:58px;height:58px;border-radius:999px;
+      margin:-25px auto 0;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 12px 32px rgba(16,185,129,.28);
+    }
+    .analysis-detail-collapsed { display:none; }
+    @media (min-width: 640px) {
+      .nav-fab { width:54px;height:54px; }
+    }
+
+  
+    /* Finora premium polish */
+    :root { --finora-glow: rgba(16,185,129,.18); }
+    .brand-mark {
+      position:relative;
+      box-shadow:0 8px 28px var(--finora-glow);
+    }
+    .brand-mark::after{
+      content:"";position:absolute;inset:1px;border-radius:inherit;
+      border:1px solid rgba(255,255,255,.13);pointer-events:none;
+    }
+    .page.active { animation: finoraPageIn .24s cubic-bezier(.2,.8,.2,1); }
+    @keyframes finoraPageIn {
+      from { opacity:0; transform:translateY(5px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    .glass, .empty-state { transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+    @media (hover:hover) {
+      .glass.interactive:hover { border-color:rgba(16,185,129,.24); transform:translateY(-1px); }
+    }
+    .premium-gradient {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(16,185,129,.12), transparent 35%),
+        radial-gradient(circle at 95% 10%, rgba(34,211,238,.07), transparent 30%);
+    }
+    .onboarding-dot { width:7px;height:7px;border-radius:999px;background:rgb(51 65 85);transition:.2s ease; }
+    .onboarding-dot.active { width:22px;background:rgb(52 211 153); }
+    .onboarding-slide { display:none; }
+    .onboarding-slide.active { display:block; animation:finoraSlide .22s ease; }
+    @keyframes finoraSlide { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:none} }
+    .success-pop { animation:successPop .28s cubic-bezier(.2,.8,.2,1); }
+    @keyframes successPop { 0%{transform:translate(-50%,8px) scale(.96);opacity:0} 100%{transform:translate(-50%,0) scale(1);opacity:1} }
+    .kbd {
+      border:1px solid rgb(51 65 85);background:rgb(15 23 42);border-radius:.4rem;
+      padding:.08rem .35rem;font-size:.6rem;color:rgb(148 163 184);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
+    }
+
+  
+    /* Product-ready UX */
+    .status-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.38rem .62rem;border-radius:999px;font-size:.64rem;font-weight:800;border:1px solid rgb(30 41 59);background:rgba(15,23,42,.78);color:rgb(148 163 184)}
+    .status-dot{width:.45rem;height:.45rem;border-radius:999px;background:currentColor;box-shadow:0 0 0 3px currentColor/10}
+    .insight-card{border:1px solid rgb(30 41 59);background:rgba(15,23,42,.55);border-radius:1rem;padding:.9rem}
+    .form-error{font-size:.68rem;color:rgb(251 113 133);margin-top:.35rem}
+    .field-invalid{border-color:rgba(244,63,94,.7)!important;box-shadow:0 0 0 2px rgba(244,63,94,.08)}
+    .notif-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:rgb(244 63 94);color:white;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid rgb(2 6 23)}
+    .sr-only-focusable:not(:focus){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+
+    /* =========================================================
+       FINORA MOCKUP STYLE — visual redesign only
+       Keeps all existing features and data flows.
+       ========================================================= */
+
+    :root{
+      --finora-blue:#2563eb;
+      --finora-blue-2:#1d4ed8;
+      --finora-green:#10b981;
+      --finora-red:#ef4444;
+      --finora-purple:#8b5cf6;
+      --finora-orange:#f59e0b;
+      --finora-text:#0f172a;
+      --finora-muted:#64748b;
+      --finora-page:#f5f7fb;
+      --finora-card:#ffffff;
+      --finora-border:#e8edf5;
+      --finora-shadow:0 10px 35px rgba(15,23,42,.07);
+    }
+
+    html.light body{
+      background:var(--finora-page)!important;
+      color:var(--finora-text)!important;
+    }
+    html.light .bg-slate-950{background:var(--finora-page)!important}
+    html.light .bg-slate-900{background:#fff!important}
+    html.light .bg-slate-800{background:#eef2f7!important}
+    html.light .bg-slate-700{background:#e7ecf3!important}
+    html.light .text-white,
+    html.light .text-slate-100,
+    html.light .text-slate-200{color:#0f172a!important}
+    html.light .text-slate-300{color:#334155!important}
+    html.light .text-slate-400{color:#64748b!important}
+    html.light .text-slate-500{color:#8190a5!important}
+    html.light .text-slate-600{color:#94a3b8!important}
+    html.light .border-slate-800,
+    html.light .border-slate-700{border-color:var(--finora-border)!important}
+
+    html.light .glass{
+      background:rgba(255,255,255,.96)!important;
+      border:1px solid var(--finora-border)!important;
+      box-shadow:var(--finora-shadow);
+      backdrop-filter:blur(18px);
+    }
+
+    html.light header{
+      background:rgba(245,247,251,.9)!important;
+      border-bottom:0!important;
+      box-shadow:none!important;
+    }
+    html.light header .max-w-6xl{padding-top:.9rem;padding-bottom:.7rem}
+    html.light header button{
+      background:#fff!important;
+      border:1px solid var(--finora-border)!important;
+      box-shadow:0 4px 16px rgba(15,23,42,.04);
+      color:#0f172a!important;
+    }
+    html.light .brand-mark{
+      background:linear-gradient(145deg,#19c985,#06b679)!important;
+      box-shadow:0 9px 24px rgba(16,185,129,.20)!important;
+    }
+
+    html.light main{max-width:72rem}
+    html.light .page{padding-bottom:.4rem}
+    html.light h1,html.light h2,html.light h3{letter-spacing:-.025em}
+    html.light h2{color:#0f172a}
+    html.light input,
+    html.light select,
+    html.light textarea{
+      background:#f8fafc!important;
+      color:#0f172a!important;
+      border-color:#e5eaf1!important;
+    }
+    html.light input::placeholder,
+    html.light textarea::placeholder{color:#94a3b8}
+
+    /* Main blue wallet card */
+    html.light .finora-balance-card{
+      color:#fff!important;
+      border:0!important;
+      background:
+        radial-gradient(circle at 92% 5%,rgba(255,255,255,.20),transparent 30%),
+        linear-gradient(145deg,#2f74ee 0%,#2464df 52%,#1555c9 100%)!important;
+      box-shadow:0 18px 34px rgba(37,99,235,.25)!important;
+      overflow:hidden;
+      position:relative;
+    }
+    html.light .finora-balance-card::after{
+      content:"";position:absolute;right:-50px;bottom:-90px;width:220px;height:220px;
+      border-radius:999px;border:35px solid rgba(255,255,255,.05);pointer-events:none
+    }
+    html.light .finora-balance-card .text-slate-500,
+    html.light .finora-balance-card .text-slate-400{color:rgba(255,255,255,.72)!important}
+    html.light .finora-balance-card #kpi-balance{color:#fff!important;font-size:2.35rem}
+    html.light .finora-balance-card #home-month-label{
+      color:#dbeafe!important;background:rgba(12,55,145,.28)!important;border:1px solid rgba(255,255,255,.12)
+    }
+    html.light .finora-balance-card .finora-mini-stat{
+      background:rgba(255,255,255,.10)!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+      backdrop-filter:blur(7px)
+    }
+    html.light .finora-balance-card .finora-mini-stat p:first-child{color:rgba(255,255,255,.7)!important}
+
+    /* Quick action tiles */
+    .finora-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+    .finora-quick-tile{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:94px;padding:.8rem .45rem;border-radius:1.15rem;text-align:center;
+      font-size:.72rem;font-weight:700;gap:.55rem
+    }
+    .finora-quick-icon{
+      width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:.95rem
+    }
+    html.light .finora-quick-tile{
+      background:#fff;border:1px solid var(--finora-border);box-shadow:0 5px 18px rgba(15,23,42,.045);color:#334155
+    }
+    html.light .finora-quick-tile:nth-child(1) .finora-quick-icon{background:#eaf2ff;color:#2563eb}
+    html.light .finora-quick-tile:nth-child(2) .finora-quick-icon{background:#fff1f2;color:#f43f5e}
+    html.light .finora-quick-tile:nth-child(3) .finora-quick-icon{background:#ecfdf5;color:#10b981}
+    html.light .finora-quick-tile:nth-child(4) .finora-quick-icon{background:#f3e8ff;color:#8b5cf6}
+
+    /* Section titles and insights */
+    .finora-section-head{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+    .finora-section-head h2{font-size:1rem;font-weight:800}
+    html.light .insight-card{
+      background:#fff!important;border:1px solid var(--finora-border)!important;
+      box-shadow:0 5px 18px rgba(15,23,42,.045)
+    }
+    html.light #subscription-alert{
+      background:#fff9e8!important;border-color:#fde7a3!important;color:#a16207!important;
+      box-shadow:0 5px 16px rgba(146,64,14,.04)
+    }
+
+    /* Compact modern transaction/card surfaces */
+    html.light #recent-transactions > *,
+    html.light #transactions-list > *{
+      background:#fff!important;border-color:#edf1f6!important;box-shadow:none!important
+    }
+    html.light .empty-state{
+      background:#fff!important;border-color:#dbe3ec!important;color:#64748b!important
+    }
+
+    /* Analysis page */
+    html.light #page-analysis .glass{
+      box-shadow:0 7px 24px rgba(15,23,42,.055)
+    }
+    html.light #page-analysis select{
+      background:#eef2f7!important;border:0!important;border-radius:999px!important
+    }
+    html.light #ai-report-card{
+      background:linear-gradient(180deg,#fbfffd,#f6fffb)!important;
+      border-color:#ccefe0!important;
+    }
+
+    /* Better semantic colors in light mode */
+    html.light .text-emerald-400{color:#10b981!important}
+    html.light .text-cyan-400{color:#2563eb!important}
+    html.light .text-rose-400{color:#ef476f!important}
+    html.light .text-amber-400{color:#e69a00!important}
+    html.light .bg-brand-600{background:#2563eb!important}
+    html.light .bg-emerald-500{background:#10b981!important}
+    html.light .bg-cyan-500\/10{background:#eaf2ff!important}
+    html.light .border-cyan-500\/15{border-color:#d9e6ff!important}
+
+    /* Bottom navigation */
+    html.light .navglass{
+      background:rgba(255,255,255,.94)!important;
+      border-top:1px solid #edf1f6!important;
+      box-shadow:0 -10px 30px rgba(15,23,42,.05);
+      backdrop-filter:blur(20px)
+    }
+    html.light .navbtn{color:#8b99ac!important}
+    html.light .navbtn.text-emerald-400{color:#2563eb!important}
+    html.light .nav-fab{
+      background:linear-gradient(145deg,#2e7af2,#1d62df)!important;color:#fff!important;
+      box-shadow:0 10px 24px rgba(37,99,235,.35)!important;
+      border:4px solid #fff
+    }
+
+    /* Modal redesign */
+    html.light .modal{background:rgba(15,23,42,.34)!important;backdrop-filter:blur(7px)}
+    html.light .modal > .glass{
+      border:1px solid #edf1f6!important;box-shadow:0 30px 70px rgba(15,23,42,.20)!important;
+      border-radius:1.55rem!important
+    }
+    html.light .modal button.bg-slate-800{background:#f0f3f8!important;color:#334155!important}
+    html.light .modal .bg-brand-600{background:#2563eb!important;color:#fff!important}
+
+    /* Dark mode gets the same shape language while retaining dark colors */
+    html:not(.light) .glass{border-radius:1.35rem}
+    html:not(.light) .finora-balance-card{
+      background:linear-gradient(145deg,#1d4ed8,#153fa5)!important;border-color:rgba(96,165,250,.18)!important
+    }
+    html:not(.light) .finora-quick-tile{background:rgba(30,41,59,.72);border:1px solid rgba(255,255,255,.07)}
+    html:not(.light) .finora-quick-icon{background:rgba(59,130,246,.12);color:#60a5fa}
+    html:not(.light) .nav-fab{background:#2563eb!important;color:#fff!important;box-shadow:0 12px 32px rgba(37,99,235,.3)!important}
+
+    @media(max-width:640px){
+      header .max-w-6xl{padding-left:1rem;padding-right:1rem}
+      main{padding:.8rem 1rem 6.4rem!important}
+      #page-home{gap:1rem}
+      .finora-quick-grid{gap:.45rem}
+      .finora-quick-tile{min-height:82px;border-radius:1rem;font-size:.64rem;padding:.65rem .25rem}
+      .finora-quick-icon{width:36px;height:36px;border-radius:12px}
+      html.light .finora-balance-card #kpi-balance{font-size:2rem}
+    }
+
+
+
+    /* =========================================================
+       DARK THEME REFINEMENT — matched to the new mockup style
+       ========================================================= */
+    body, header, nav, .glass, button, input, select, textarea, .navglass, .finora-quick-tile {
+      transition: background-color .22s ease, color .22s ease, border-color .22s ease, box-shadow .22s ease, opacity .22s ease;
+    }
+
+    html:not(.light) body{
+      background:
+        radial-gradient(circle at top, rgba(37,99,235,.12), transparent 22%),
+        linear-gradient(180deg, #07111f 0%, #08111d 28%, #0a1320 100%) !important;
+      color:#e5eefb !important;
+    }
+    html:not(.light) .bg-slate-950{background:transparent!important}
+    html:not(.light) .bg-slate-900{background:#0f1a2d!important}
+    html:not(.light) .bg-slate-800{background:#15233a!important}
+    html:not(.light) .bg-slate-700{background:#1b2a43!important}
+    html:not(.light) .text-slate-100{color:#f8fbff!important}
+    html:not(.light) .text-slate-200{color:#d7e4f5!important}
+    html:not(.light) .text-slate-300{color:#bfd0e5!important}
+    html:not(.light) .text-slate-400{color:#8fa4bf!important}
+    html:not(.light) .text-slate-500{color:#7590ae!important}
+    html:not(.light) .border-slate-800,
+    html:not(.light) .border-slate-700{border-color:rgba(148,163,184,.10)!important}
+
+    html:not(.light) header{
+      background:rgba(8,17,29,.84)!important;
+      border-bottom:1px solid rgba(148,163,184,.10)!important;
+      backdrop-filter:blur(18px);
+    }
+    html:not(.light) .brand-mark{
+      background:linear-gradient(145deg,#2fd59b,#10b981)!important;
+      box-shadow:0 10px 28px rgba(16,185,129,.18)!important;
+      color:#082012!important;
+    }
+    html:not(.light) #home-greeting{color:#6ee7b7!important}
+    html:not(.light) #home-greeting-title{color:#f8fbff!important}
+
+    html:not(.light) .glass{
+      background:linear-gradient(180deg, rgba(15,24,41,.92), rgba(11,20,34,.96))!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 18px 48px rgba(2,8,23,.34), inset 0 1px 0 rgba(255,255,255,.02)!important;
+      backdrop-filter:blur(18px);
+    }
+
+    html:not(.light) .finora-balance-card{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,255,255,.12), transparent 24%),
+        linear-gradient(145deg,#2d6deb 0%, #2356c7 56%, #173e8f 100%)!important;
+      border:1px solid rgba(96,165,250,.18)!important;
+      box-shadow:0 24px 48px rgba(19,56,130,.42)!important;
+    }
+    html:not(.light) .finora-balance-card::after{
+      content:"";position:absolute;right:-60px;bottom:-90px;width:240px;height:240px;border-radius:999px;
+      border:34px solid rgba(255,255,255,.05);pointer-events:none
+    }
+    html:not(.light) .finora-balance-card .text-slate-500,
+    html:not(.light) .finora-balance-card .text-slate-400{color:rgba(255,255,255,.70)!important}
+    html:not(.light) .finora-balance-card #kpi-balance{color:#fff!important;font-size:2.35rem}
+    html:not(.light) .finora-balance-card #home-month-label{
+      background:rgba(9,22,54,.35)!important;
+      color:#dbeafe!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+    }
+    html:not(.light) .finora-balance-card .finora-mini-stat{
+      background:rgba(255,255,255,.08)!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+      backdrop-filter:blur(7px)
+    }
+
+    html:not(.light) .finora-quick-tile{
+      background:linear-gradient(180deg, rgba(17,27,44,.94), rgba(13,22,35,.98))!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 10px 26px rgba(2,8,23,.18)!important;
+      color:#dce8f8!important;
+    }
+    html:not(.light) .finora-quick-icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+    html:not(.light) .finora-quick-tile:nth-child(1) .finora-quick-icon{background:rgba(37,99,235,.16);color:#7cb2ff}
+    html:not(.light) .finora-quick-tile:nth-child(2) .finora-quick-icon{background:rgba(239,68,68,.13);color:#ff8e98}
+    html:not(.light) .finora-quick-tile:nth-child(3) .finora-quick-icon{background:rgba(16,185,129,.14);color:#5ce3b0}
+    html:not(.light) .finora-quick-tile:nth-child(4) .finora-quick-icon{background:rgba(139,92,246,.15);color:#b69cff}
+
+    html:not(.light) .insight-card,
+    html:not(.light) #recent-transactions > *,
+    html:not(.light) #transactions-list > *{
+      background:linear-gradient(180deg, rgba(13,22,35,.96), rgba(10,18,31,.96))!important;
+      border-color:rgba(148,163,184,.08)!important;
+      box-shadow:0 10px 26px rgba(2,8,23,.18)!important;
+    }
+    html:not(.light) #subscription-alert{
+      background:rgba(245,158,11,.10)!important;
+      border-color:rgba(245,158,11,.22)!important;
+      color:#f6c963!important;
+    }
+    html:not(.light) .empty-state{
+      background:rgba(15,23,42,.72)!important;
+      border-color:rgba(148,163,184,.12)!important;
+      color:#94a3b8!important;
+    }
+
+    html:not(.light) input,
+    html:not(.light) select,
+    html:not(.light) textarea{
+      background:#0b1422!important;
+      color:#edf5ff!important;
+      border-color:rgba(148,163,184,.12)!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+    }
+    html:not(.light) input::placeholder,
+    html:not(.light) textarea::placeholder{color:#6f85a1!important}
+
+    html:not(.light) .navglass{
+      background:rgba(8,16,29,.88)!important;
+      border-top:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 -12px 30px rgba(2,8,23,.28)!important;
+      backdrop-filter:blur(20px);
+    }
+    html:not(.light) .navbtn{color:#7891ad!important}
+    html:not(.light) .navbtn.text-emerald-400{color:#7cb2ff!important}
+    html:not(.light) .nav-fab{
+      background:linear-gradient(145deg,#3a7cff,#255de0)!important;
+      color:#fff!important;
+      box-shadow:0 14px 34px rgba(37,99,235,.35)!important;
+      border:4px solid rgba(8,16,29,.95);
+    }
+
+    html:not(.light) #page-analysis .glass,
+    html:not(.light) #page-budget .glass,
+    html:not(.light) #page-assets .glass,
+    html:not(.light) #page-goals .glass,
+    html:not(.light) #page-more .glass{
+      box-shadow:0 16px 38px rgba(2,8,23,.28)!important;
+    }
+    html:not(.light) #ai-report-card{
+      background:linear-gradient(180deg, rgba(10,38,53,.88), rgba(12,28,48,.95))!important;
+      border-color:rgba(34,197,94,.16)!important;
+    }
+    html:not(.light) .modal{
+      background:rgba(2,8,23,.70)!important;
+      backdrop-filter:blur(10px)
+    }
+    html:not(.light) .modal > .glass{
+      border-radius:1.6rem!important;
+      box-shadow:0 28px 80px rgba(2,8,23,.52)!important;
+    }
+    html:not(.light) .modal .bg-brand-600{background:#2563eb!important;color:#fff!important}
+    html:not(.light) .modal button.bg-slate-800{background:#15233a!important;color:#dce8f8!important}
+
+    html:not(.light) .status-pill{
+      background:rgba(16,185,129,.10)!important;
+      border:1px solid rgba(16,185,129,.18)!important;
+      color:#86efac!important;
+    }
+    html:not(.light) .status-dot{background:#34d399!important;box-shadow:0 0 0 6px rgba(16,185,129,.12)}
+
+    @media (max-width: 640px){
+      html:not(.light) .finora-balance-card #kpi-balance{font-size:2rem}
+    }
+
+
+
+    /* =========================================================
+       LIGHT THEME READABILITY FIX
+       Fix grey cards / chips / pills with low contrast
+       ========================================================= */
+    html.light .filter-chip{
+      background:#eef2f7!important;
+      border-color:#d7e1ee!important;
+      color:#64748b!important;
+      box-shadow:0 2px 8px rgba(15,23,42,.04);
+    }
+    html.light .filter-chip.active{
+      background:#eafaf3!important;
+      border-color:#95e4c3!important;
+      color:#10b981!important;
+    }
+    html.light .status-pill{
+      background:#f3f6fb!important;
+      border-color:#d8e1ee!important;
+      color:#334155!important;
+      box-shadow:0 4px 12px rgba(15,23,42,.05);
+    }
+    html.light .status-dot{
+      background:#10b981!important;
+      box-shadow:0 0 0 6px rgba(16,185,129,.10)!important;
+    }
+    html.light .kbd{
+      background:#eef2f7!important;
+      border-color:#d8e1ee!important;
+      color:#334155!important;
+    }
+    html.light .bg-slate-900\/50{
+      background:#f7f9fc!important;
+      border-color:#e5edf6!important;
+    }
+    html.light .bg-slate-800{
+      background:#eef2f7!important;
+      color:#334155!important;
+      border-color:#d7e1ee!important;
+    }
+    html.light .bg-slate-800.text-slate-300,
+    html.light .bg-slate-800.text-slate-400,
+    html.light .bg-slate-800.text-slate-500{
+      color:#334155!important;
+    }
+    html.light #analysis-empty,
+    html.light #analysis-local-summary-card,
+    html.light #stats-grid > div,
+    html.light #settings-modal .bg-slate-900\/50,
+    html.light #recent-transactions > .bg-slate-900\/50,
+    html.light #transactions-list > .bg-slate-900\/50{
+      background:#f7f9fc!important;
+      border:1px solid #e5edf6!important;
+      box-shadow:0 6px 18px rgba(15,23,42,.04)!important;
+    }
+    html.light #analysis-empty strong{color:#334155!important}
+    html.light #settings-modal .text-slate-500,
+    html.light #settings-modal .text-slate-600,
+    html.light #analysis-empty,
+    html.light #analysis-local-summary-card,
+    html.light #stats-grid .text-\[10px\]{
+      color:#64748b!important;
+    }
+    html.light .bg-emerald-500\/10{
+      background:#eafaf3!important;
+      color:#10b981!important;
+    }
+    html.light .bg-rose-500\/5{
+      background:#fff4f6!important;
+    }
+
+
+    /* =========================================================
+       THEME SWITCH STABILITY FIX
+       Evita glitch di compositing della card saldo passando light <-> dark
+       ========================================================= */
+    .finora-balance-card{
+      min-height:0!important;
+      height:auto!important;
+      isolation:isolate;
+      contain:paint;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      transform:none!important;
+      transition:box-shadow .18s ease,border-color .18s ease!important;
+    }
+    .finora-balance-card::after{
+      display:none!important;
+      content:none!important;
+    }
+    .finora-balance-card > *{
+      position:relative;
+      z-index:1;
+    }
+    html.light .finora-balance-card{
+      background-color:#2563eb!important;
+      background-image:linear-gradient(145deg,#2f74ee 0%,#2464df 52%,#1555c9 100%)!important;
+    }
+    html:not(.light) .finora-balance-card{
+      background-color:#2356c7!important;
+      background-image:linear-gradient(145deg,#2d6deb 0%,#2356c7 56%,#173e8f 100%)!important;
+    }
+    html.theme-switching .finora-balance-card,
+    html.theme-switching .glass,
+    html.theme-switching header,
+    html.theme-switching nav{
+      transition:none!important;
+    }
+
+
+    /* Settings modal: viewport-safe and always closable */
+    #settings-modal{
+      overflow:hidden!important;
+    }
+    #settings-modal > .glass{
+      width:min(100%,32rem)!important;
+      max-width:min(32rem,calc(100vw - 2rem - var(--safe-left) - var(--safe-right)))!important;
+      max-height:calc(100dvh - 2rem - var(--safe-top) - var(--safe-bottom))!important;
+      min-height:0!important;
+      padding:0!important;
+      overflow:hidden!important;
+    }
+    #settings-modal > .glass > .space-y-4{
+      min-height:0!important;
+      overflow-y:auto!important;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+    }
+    #settings-modal > .glass > .sticky{
+      background:inherit!important;
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    @media (max-width:640px){
+      #settings-modal{
+        align-items:flex-start!important;
+        padding-top:max(1rem,var(--safe-top))!important;
+        padding-bottom:max(1rem,var(--safe-bottom))!important;
+      }
+      #settings-modal > .glass{
+        max-height:calc(100dvh - max(1rem,var(--safe-top)) - max(1rem,var(--safe-bottom)))!important;
+      }
+    }
+
+
+    /* =========================================================
+       FINORA VISUAL UNIFORMITY PASS
+       One visual language across Home, Movimenti, Analisi,
+       Budget, Patrimonio, Obiettivi, Abbonamenti, Altro, modali.
+       ========================================================= */
+
+    :root{
+      --ui-radius-xl:1.45rem;
+      --ui-radius-lg:1.1rem;
+      --ui-radius-md:.9rem;
+      --ui-gap:1rem;
+      --ui-blue:#2563eb;
+      --ui-blue-soft:#eaf2ff;
+      --ui-green:#10b981;
+      --ui-red:#ef476f;
+      --ui-violet:#8b5cf6;
+      --ui-amber:#f59e0b;
+    }
+
+    /* Page rhythm */
+    .page{max-width:100%;margin:0 auto}
+    .page > * + *{margin-top:1rem}
+    .page h2,.page h3{line-height:1.2}
+    .page h2{font-weight:800}
+    .page h3{font-weight:750}
+
+    /* Unified content cards */
+    .glass{
+      border-radius:var(--ui-radius-xl)!important;
+    }
+    html.light .glass{
+      background:#fff!important;
+      border:1px solid #e7edf5!important;
+      box-shadow:0 8px 28px rgba(15,23,42,.055)!important;
+    }
+    html:not(.light) .glass{
+      background:linear-gradient(180deg,rgba(15,24,41,.94),rgba(10,18,31,.98))!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      box-shadow:0 14px 38px rgba(2,8,23,.24)!important;
+    }
+
+    /* Section headers */
+    .finora-section-head,
+    .page .flex.justify-between:has(> h2),
+    .page .flex.justify-between:has(> h3){
+      align-items:center;
+    }
+    .page button.text-emerald-400,
+    .page button.text-cyan-400{
+      font-weight:700;
+    }
+
+    /* Compact surface items */
+    #recent-transactions > *,
+    #transactions-list > *,
+    #subscriptions-list > *,
+    #budgets-list > *,
+    #goals-list > *,
+    #assets-list > *{
+      border-radius:1rem!important;
+    }
+
+    html.light #recent-transactions > *,
+    html.light #transactions-list > *,
+    html.light #subscriptions-list > *,
+    html.light #budgets-list > *,
+    html.light #goals-list > *,
+    html.light #assets-list > *{
+      background:#fff!important;
+      border:1px solid #edf1f6!important;
+    }
+
+    html:not(.light) #recent-transactions > *,
+    html:not(.light) #transactions-list > *,
+    html:not(.light) #subscriptions-list > *,
+    html:not(.light) #budgets-list > *,
+    html:not(.light) #goals-list > *,
+    html:not(.light) #assets-list > *{
+      background:#0d1727!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+
+    /* All secondary buttons follow same neutral style */
+    html.light button.bg-slate-800,
+    html.light label.bg-slate-800{
+      background:#f1f4f8!important;
+      border:1px solid #e2e8f0!important;
+      color:#334155!important;
+    }
+    html:not(.light) button.bg-slate-800,
+    html:not(.light) label.bg-slate-800{
+      background:#15233a!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+      color:#dce8f8!important;
+    }
+
+    /* Primary CTA consistency */
+    .bg-brand-600{
+      background:var(--ui-blue)!important;
+      color:#fff!important;
+      box-shadow:0 8px 18px rgba(37,99,235,.16);
+    }
+    .bg-brand-600:active{transform:scale(.985)}
+
+    /* Filters / pills */
+    .filter-chip{
+      min-height:38px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    html.light .filter-chip{
+      background:#f2f5f9!important;
+      color:#64748b!important;
+      border:1px solid #dde5ef!important;
+    }
+    html.light .filter-chip.active{
+      background:#eaf2ff!important;
+      color:#2563eb!important;
+      border-color:#b8d2ff!important;
+    }
+    html:not(.light) .filter-chip{
+      background:#132033!important;
+      color:#91a6c0!important;
+      border:1px solid rgba(148,163,184,.10)!important;
+    }
+    html:not(.light) .filter-chip.active{
+      background:rgba(37,99,235,.16)!important;
+      color:#7cb2ff!important;
+      border-color:rgba(96,165,250,.28)!important;
+    }
+
+    /* Unified inputs */
+    input,select,textarea{
+      border-radius:.9rem!important;
+      min-height:44px;
+    }
+    html.light input,html.light select,html.light textarea{
+      background:#f8fafc!important;
+      color:#0f172a!important;
+      border:1px solid #e3e9f1!important;
+    }
+    html:not(.light) input,html:not(.light) select,html:not(.light) textarea{
+      background:#0b1422!important;
+      color:#eef5ff!important;
+      border:1px solid rgba(148,163,184,.12)!important;
+    }
+    input:focus,select:focus,textarea:focus{
+      outline:none!important;
+      border-color:#60a5fa!important;
+      box-shadow:0 0 0 3px rgba(37,99,235,.10)!important;
+    }
+
+    /* Analysis */
+    #page-analysis #analysis-empty,
+    #page-analysis #analysis-local-summary-card{
+      border-radius:1rem!important;
+    }
+    html.light #page-analysis #analysis-empty,
+    html.light #page-analysis #analysis-local-summary-card{
+      background:#f7f9fc!important;
+      color:#64748b!important;
+      border:1px solid #e6edf5!important;
+    }
+    html:not(.light) #page-analysis #analysis-empty,
+    html:not(.light) #page-analysis #analysis-local-summary-card{
+      background:#0d1727!important;
+      color:#91a6c0!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+    #ai-report-card{
+      border-radius:1.2rem!important;
+    }
+
+    /* Statistics and small metric tiles */
+    #stats-grid > div{
+      border-radius:1rem!important;
+    }
+    html.light #stats-grid > div{
+      background:#f8fafc!important;
+      border:1px solid #edf1f6!important;
+    }
+    html:not(.light) #stats-grid > div{
+      background:#0d1727!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+
+    /* Settings blocks */
+    #settings-modal .space-y-4 > .rounded-2xl{
+      border-radius:1rem!important;
+    }
+    html.light #settings-modal .space-y-4 > .rounded-2xl{
+      background:#f8fafc!important;
+      border:1px solid #e6edf5!important;
+    }
+    html:not(.light) #settings-modal .space-y-4 > .rounded-2xl{
+      background:#0d1727!important;
+      border:1px solid rgba(148,163,184,.08)!important;
+    }
+
+    /* Quick add and action cards */
+    .finora-quick-tile{
+      border-radius:1.05rem!important;
+      min-height:88px;
+    }
+    .finora-quick-icon{
+      width:38px;height:38px;border-radius:12px;
+    }
+
+    /* Empty states */
+    .empty-state{
+      border-radius:1rem!important;
+    }
+    html.light .empty-state{
+      background:#fff!important;
+      border:1px dashed #cfd9e6!important;
+    }
+    html:not(.light) .empty-state{
+      background:#0d1727!important;
+      border:1px dashed rgba(148,163,184,.16)!important;
+    }
+
+    /* Modals */
+    .modal > .glass{
+      border-radius:1.5rem!important;
+    }
+    .modal .sticky,
+    .modal .border-b{
+      border-color:rgba(148,163,184,.10)!important;
+    }
+    html.light .modal .sticky{
+      background:rgba(255,255,255,.96)!important;
+    }
+    html:not(.light) .modal .sticky{
+      background:rgba(15,24,41,.96)!important;
+    }
+
+    /* Bottom navigation */
+    .navbtn{
+      min-height:48px;
+      border-radius:.9rem;
+    }
+    html.light .navbtn.text-emerald-400{
+      color:#2563eb!important;
+    }
+    html:not(.light) .navbtn.text-emerald-400{
+      color:#7cb2ff!important;
+    }
+
+    /* More page shortcut cards */
+    #page-more .grid > button.glass{
+      min-height:124px;
+    }
+    #page-more .grid > button.glass p:first-of-type{
+      font-weight:800;
+    }
+
+    /* Better responsive rhythm */
+    @media(max-width:640px){
+      .page > * + *{margin-top:.85rem}
+      .glass{border-radius:1.2rem!important}
+      .finora-quick-tile{min-height:82px}
+      .modal > .glass{border-radius:1.35rem!important}
+    }
+
+
+    /* =========================================================
+       FIX: hero balance card in light theme lost visual hierarchy
+       because the generic .glass rule was overriding the special
+       balance-card styles. Restore the dedicated card look.
+       ========================================================= */
+    html.light .glass.finora-balance-card{
+      background-color:#2563eb!important;
+      background-image:linear-gradient(145deg,#2f74ee 0%,#2464df 52%,#1555c9 100%)!important;
+      color:#fff!important;
+      border:0!important;
+      box-shadow:0 18px 34px rgba(37,99,235,.25)!important;
+      overflow:hidden;
+      position:relative;
+    }
+
+    html.light .glass.finora-balance-card .text-slate-500,
+    html.light .glass.finora-balance-card .text-slate-400{
+      color:rgba(255,255,255,.78)!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-balance{
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      color:#ffffff!important;
+      text-shadow:none!important;
+      font-size:2.35rem!important;
+      line-height:1.1!important;
+    }
+
+    html.light .glass.finora-balance-card #home-month-label{
+      color:#dbeafe!important;
+      background:rgba(12,55,145,.28)!important;
+      border:1px solid rgba(255,255,255,.12)!important;
+    }
+
+    html.light .glass.finora-balance-card .finora-mini-stat{
+      background:rgba(255,255,255,.10)!important;
+      border:1px solid rgba(255,255,255,.10)!important;
+      backdrop-filter:blur(7px);
+      -webkit-backdrop-filter:blur(7px);
+    }
+
+    html.light .glass.finora-balance-card .finora-mini-stat p:first-child{
+      color:rgba(255,255,255,.74)!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-expense{
+      color:#ff7a97!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-saving.text-emerald-400{
+      color:#7ff3d0!important;
+    }
+
+    html.light .glass.finora-balance-card #kpi-saving.text-rose-400{
+      color:#ff8aa2!important;
+    }
+
+    @media (max-width: 640px){
+      html.light .glass.finora-balance-card #kpi-balance{
+        font-size:2rem!important;
+      }
+    }
+
+
+    /* Subscription checkbox alignment */
+    #subscription-modal .subscription-checkbox{
+      width:1rem!important;
+      inline-size:1rem!important;
+      min-width:1rem!important;
+      min-inline-size:1rem!important;
+      max-width:1rem!important;
+      max-inline-size:1rem!important;
+      height:1rem!important;
+      min-height:1rem!important;
+      margin:0!important;
+      padding:0!important;
+      flex:0 0 1rem!important;
+      accent-color:#2563eb;
+    }
+    #subscription-modal label[for="sub-active"]{
+      width:max-content;
+      max-width:100%;
+      min-height:2rem;
+      align-items:center!important;
+    }
