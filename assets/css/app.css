@@ -1139,3 +1139,20 @@ body{font-family:Inter,sans-serif;-webkit-tap-highlight-color:transparent}
       min-height:2rem;
       align-items:center!important;
     }
+
+/* Budget progress — beta.2 */
+.budget-percent{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:2.8rem;
+  padding:.18rem .48rem;
+  border-radius:999px;
+  font-size:.68rem;
+  line-height:1;
+  font-weight:800;
+  background:rgba(37,99,235,.08);
+}
+html:not(.light) .budget-percent{
+  background:rgba(96,165,250,.10);
+}
