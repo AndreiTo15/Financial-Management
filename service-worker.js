@@ -1,11 +1,30 @@
-const CACHE_NAME = 'finora-refactor-v1';
+const CACHE_NAME = 'finora-1.0.0-beta.1-refactor-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
   './assets/css/app.css',
   './assets/js/config.js',
-  './assets/js/app.js',
+  './assets/js/state.js',
+  './assets/js/utils.js',
+  './assets/js/auth.js',
+  './assets/js/onboarding.js',
+  './assets/js/offline.js',
+  './assets/js/notifications.js',
+  './assets/js/ui.js',
+  './assets/js/transactions.js',
+  './assets/js/budgets.js',
+  './assets/js/subscriptions.js',
+  './assets/js/categories.js',
+  './assets/js/goals.js',
+  './assets/js/wealth.js',
+  './assets/js/analysis.js',
+  './assets/js/settings.js',
+  './assets/js/charts.js',
+  './assets/js/data-io.js',
+  './assets/js/namespace.js',
+  './assets/js/events.js',
+  './assets/js/bootstrap.js',
   './assets/js/pwa.js'
 ];
 
