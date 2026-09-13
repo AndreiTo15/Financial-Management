@@ -76,8 +76,47 @@ function deleteSubscription(id){
     toast('Abbonamento eliminato');
   })
 }
+function subscriptionChargeDateForMonth(subscription,year,monthIndex){
+  const requestedDay=Math.max(1,Number(subscription?.charge_day||1));
+  const lastDay=new Date(year,monthIndex+1,0).getDate();
+  return new Date(year,monthIndex,Math.min(requestedDay,lastDay),12,0,0,0);
+}
+
+function nextSubscriptionChargeDate(subscription,now=new Date()){
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12,0,0,0);
+  const thisMonth=subscriptionChargeDateForMonth(subscription,now.getFullYear(),now.getMonth());
+
+  // Gli addebiti con scadenza oggi vengono processati all'accesso da
+  // process_due_subscriptions(). Dopo il pagamento, la prossima vera
+  // scadenza è quindi quella del mese successivo.
+  if(thisMonth>today) return thisMonth;
+
+  return subscriptionChargeDateForMonth(subscription,now.getFullYear(),now.getMonth()+1);
+}
+
+function upcomingSubscriptions(days=3,now=new Date()){
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12,0,0,0);
+  const limit=new Date(today);
+  limit.setDate(limit.getDate()+days);
+
+  return subscriptions
+    .filter(s=>s.active)
+    .map(s=>({subscription:s,date:nextSubscriptionChargeDate(s,now)}))
+    .filter(x=>x.date>today&&x.date<=limit)
+    .sort((a,b)=>a.date-b.date);
+}
+
 function renderSubscriptionAlert(){
-  const d=new Date().getDate();const upcoming=subscriptions.filter(s=>s.active&&s.charge_day>=d&&s.charge_day<=d+3);const el=document.getElementById('subscription-alert');
-  if(upcoming.length){el.classList.remove('hidden');el.innerHTML=`<i class="fa-solid fa-bell mr-1"></i> ${upcoming.length} abbonament${upcoming.length===1?'o':'i'} in addebito nei prossimi 3 giorni.`}else el.classList.add('hidden')
+  const el=document.getElementById('subscription-alert');
+  if(!el)return;
+
+  const upcoming=upcomingSubscriptions(3);
+  if(upcoming.length){
+    el.classList.remove('hidden');
+    el.innerHTML=`<i class="fa-solid fa-bell mr-1"></i> ${upcoming.length} abbonament${upcoming.length===1?'o':'i'} in addebito nei prossimi 3 giorni.`;
+  }else{
+    el.classList.add('hidden');
+    el.innerHTML='';
+  }
 }
 

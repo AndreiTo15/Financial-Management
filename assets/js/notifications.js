@@ -7,10 +7,17 @@ function buildNotifications(){
     if(pct>=100)list.push({id:`budget-over-${b.id}`,level:'danger',icon:'fa-triangle-exclamation',title:`Budget ${b.category} superato`,text:`Hai utilizzato il ${pct.toFixed(0)}% del budget mensile.`});
     else if(pct>=80)list.push({id:`budget-near-${b.id}`,level:'warn',icon:'fa-gauge-high',title:`Budget ${b.category} quasi al limite`,text:`Hai già utilizzato il ${pct.toFixed(0)}% del budget.`});
   });
-  subscriptions.filter(s=>s.active).forEach(s=>{
-    const day=Number(s.billing_day||1),today=now.getDate();
-    let delta=day-today;if(delta<0)delta+=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
-    if(delta<=3)list.push({id:`sub-${s.id}-${month}`,level:'warn',icon:'fa-repeat',title:`${s.name} tra ${delta===0?'oggi':delta+' giorni'}`,text:`Addebito previsto: ${fmt(Number(s.amount||0))}.`});
+  upcomingSubscriptions(3,now).forEach(({subscription:s,date})=>{
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12,0,0,0);
+    const delta=Math.round((date-today)/86400000);
+    const occurrence=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    list.push({
+      id:`sub-${s.id}-${occurrence}`,
+      level:'warn',
+      icon:'fa-repeat',
+      title:`${s.name} tra ${delta} ${delta===1?'giorno':'giorni'}`,
+      text:`Addebito previsto: ${fmt(Number(s.amount||0))}.`
+    });
   });
   const history=completedMonthlyHistory(6),avg=averageHistory(history);
   if(avg.monthsAvailable>=3&&avg.expenses){
