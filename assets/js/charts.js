@@ -10,40 +10,67 @@ function renderWealthChart(){
   if(charts.wealth)charts.wealth.destroy();charts.wealth=new Chart(document.getElementById('wealth-chart'),{type:'line',data:{labels:snapshots.map(s=>new Date(s.snapshot_date).toLocaleDateString('it-IT')),datasets:[{label:'Patrimonio',data:snapshots.map(s=>Number(s.net_worth)),tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}})
 }
 
-let viewportFixTimer=null;
-function refreshVisibleChartsAfterResize(){
-  clearTimeout(viewportFixTimer);
-  viewportFixTimer=setTimeout(()=>{
-    // iOS può lasciare i canvas con le dimensioni della precedente orientazione.
-    // Ricreiamo soltanto i grafici della pagina attualmente visibile.
+// Viewport handling
+// Su mobile la barra del browser cambia altezza mentre si scorre e genera numerosi
+// eventi `resize` / `visualViewport.resize`. Ricreare i grafici in quei casi
+// provocava il refresh visibile 3-4 volte durante lo scroll della Home.
+//
+// Regola:
+// - scroll / variazioni della sola altezza: ignorate;
+// - variazioni reali della larghezza: semplice Chart.resize();
+// - cambio orientamento: ricreazione controllata una sola volta.
+let chartViewportTimer=null;
+let lastChartViewportWidth=Math.round(window.visualViewport?.width||window.innerWidth||0);
+
+function resizeVisibleCharts(){
+  const home=document.getElementById('page-home');
+  const wealth=document.getElementById('page-wealth');
+
+  if(home?.classList.contains('active')){
+    try{ charts.monthly?.resize(); }catch{}
+    try{ charts.category?.resize(); }catch{}
+  }
+  if(wealth?.classList.contains('active')){
+    try{ charts.wealth?.resize(); }catch{}
+  }
+}
+
+function handleChartViewportResize(){
+  const currentWidth=Math.round(window.visualViewport?.width||window.innerWidth||0);
+  const widthDelta=Math.abs(currentWidth-lastChartViewportWidth);
+
+  // Safari/iOS modifica soprattutto l'altezza del viewport quando la toolbar
+  // compare/scompare durante lo scroll. In quel caso non tocchiamo i canvas.
+  if(widthDelta<12) return;
+
+  lastChartViewportWidth=currentWidth;
+  clearTimeout(chartViewportTimer);
+  chartViewportTimer=setTimeout(resizeVisibleCharts,120);
+}
+
+function rebuildVisibleChartsAfterOrientation(){
+  clearTimeout(chartViewportTimer);
+  chartViewportTimer=setTimeout(()=>{
+    lastChartViewportWidth=Math.round(window.visualViewport?.width||window.innerWidth||0);
+
     const home=document.getElementById('page-home');
     const wealth=document.getElementById('page-wealth');
 
-    if(home && home.classList.contains('active')){
-      try{ renderCharts(); }catch(e){ console.warn('Chart resize home:',e); }
+    if(home?.classList.contains('active')){
+      try{ renderCharts(); }catch(e){ console.warn('Chart orientation home:',e); }
     }
-    if(wealth && wealth.classList.contains('active')){
-      try{ renderWealthChart(); }catch(e){ console.warn('Chart resize wealth:',e); }
+    if(wealth?.classList.contains('active')){
+      try{ renderWealthChart(); }catch(e){ console.warn('Chart orientation wealth:',e); }
     }
 
-    // Secondo passaggio dopo che Safari ha terminato il nuovo layout.
-    setTimeout(()=>{
-      try{ charts.monthly?.resize(); }catch{}
-      try{ charts.category?.resize(); }catch{}
-      try{ charts.wealth?.resize(); }catch{}
-    },180);
-  },220);
+    // Ultimo resize dopo che Safari ha assestato il layout.
+    setTimeout(resizeVisibleCharts,180);
+  },260);
 }
 
-window.addEventListener('orientationchange',()=>{
-  refreshVisibleChartsAfterResize();
-  setTimeout(refreshVisibleChartsAfterResize,450);
-});
+window.addEventListener('orientationchange',rebuildVisibleChartsAfterOrientation,{passive:true});
+window.addEventListener('resize',handleChartViewportResize,{passive:true});
 
-window.addEventListener('resize',refreshVisibleChartsAfterResize,{passive:true});
-
-// Su iOS visualViewport è spesso più affidabile del solo window.resize.
 if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',refreshVisibleChartsAfterResize,{passive:true});
+  window.visualViewport.addEventListener('resize',handleChartViewportResize,{passive:true});
 }
-
