@@ -10,8 +10,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="./assets/js/config.js?v=1.0.0-beta.8"></script>
-    <link rel="stylesheet" href="./assets/css/app.css?v=1.0.0-beta.8">
+    <script src="./assets/js/config.js?v=1.0.0-beta.9"></script>
+    <link rel="stylesheet" href="./assets/css/app.css?v=1.0.0-beta.9">
 
 
   <link rel="manifest" href="./manifest.json">
@@ -30,34 +30,34 @@
       <div class="w-16 h-16 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
         <i class="fa-solid fa-wallet text-white text-2xl"></i>
       </div>
-      <h1 class="text-2xl font-extrabold text-white">Gestione Finanze</h1>
-      <p class="text-sm text-slate-400 mt-1">V2 · Budget, patrimonio, obiettivi e sincronizzazione</p>
+      <h1 class="text-2xl font-extrabold text-white">Finora</h1>
+      <p class="text-sm text-slate-400 mt-1">Budget, patrimonio, obiettivi e sincronizzazione</p>
     </div>
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
       <div id="auth-tabs" class="flex gap-2 p-1 bg-slate-950 rounded-2xl mb-6">
         <button id="tab-login" data-action="auth-mode" data-mode="login" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold">Accedi</button>
         <button id="tab-register" data-action="auth-mode" data-mode="register" class="flex-1 py-2.5 rounded-xl text-slate-400 text-sm font-bold">Registrati</button>
       </div>
-      <form id="login-form" onsubmit="login(event)" class="space-y-4">
+      <form id="login-form" data-submit="auth-login" class="space-y-4">
         <input id="login-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <input id="login-password" type="password" required placeholder="Password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <div class="text-right"><button type="button" data-action="auth-mode" data-mode="forgot" class="text-xs text-emerald-400 font-semibold">Password dimenticata?</button></div>
         <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Accedi</button>
       </form>
-      <form id="register-form" onsubmit="register(event)" class="space-y-4 hidden">
+      <form id="register-form" data-submit="auth-register" class="space-y-4 hidden">
         <input id="reg-user" required minlength="2" maxlength="30" placeholder="Username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <input id="reg-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <input id="reg-password" type="password" minlength="6" required placeholder="Password (min. 6 caratteri)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Crea account</button>
       </form>
-      <form id="forgot-form" onsubmit="forgotPassword(event)" class="space-y-4 hidden">
+      <form id="forgot-form" data-submit="auth-forgot" class="space-y-4 hidden">
         <h3 class="font-bold text-white">Recupera password</h3>
         <p class="text-xs text-slate-400">Riceverai una mail con il link per scegliere una nuova password.</p>
         <input id="forgot-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <button class="w-full py-3 bg-brand-600 rounded-xl font-bold">Invia email</button>
         <button type="button" data-action="auth-mode" data-mode="login" class="w-full text-xs text-slate-400">Torna all'accesso</button>
       </form>
-      <form id="reset-form" onsubmit="updatePassword(event)" class="space-y-4 hidden">
+      <form id="reset-form" data-submit="auth-update-password" class="space-y-4 hidden">
         <h3 class="font-bold text-white">Imposta nuova password</h3>
         <input id="new-password" type="password" minlength="6" required placeholder="Nuova password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
         <input id="new-password2" type="password" minlength="6" required placeholder="Ripeti password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm">
@@ -301,20 +301,20 @@
 
   <button data-action="toggle-advanced-filters" class="tap text-xs text-slate-400"><i class="fa-solid fa-sliders mr-1"></i> Filtri avanzati</button>
   <div id="advanced-filters" class="hidden glass rounded-2xl p-3 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
-    <input id="filter-search" oninput="renderTransactions()" placeholder="Cerca descrizione..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
-    <select id="filter-type" onchange="syncFilterChips();renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <input id="filter-search" data-input="render-transactions" placeholder="Cerca descrizione..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <select id="filter-type" data-change="filter-type" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
       <option value="">Tutti i tipi</option><option>INCOME</option><option>EXPENSE</option><option>INVESTMENT</option>
     </select>
-    <select id="filter-category" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></select>
-    <input id="filter-from" type="date" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
-    <input id="filter-to" type="date" onchange="renderTransactions()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <select id="filter-category" data-change="render-transactions" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></select>
+    <input id="filter-from" type="date" data-change="render-transactions" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+    <input id="filter-to" type="date" data-change="render-transactions" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
   </div>
   <div id="transactions-list" class="space-y-2"></div>
 </section>
 
 <section id="page-budgets" class="page space-y-4">
   <div class="flex justify-between items-center"><h2 class="text-xl font-bold">Budget</h2><button data-action="open-budget" class="px-3 py-2 rounded-xl bg-brand-600 text-xs font-bold"><i class="fa-solid fa-plus mr-1"></i> Budget</button></div>
-  <div class="glass rounded-2xl p-3 flex items-center gap-3"><label class="text-xs text-slate-400">Mese</label><input id="budget-month" type="month" onchange="renderBudgets()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></div>
+  <div class="glass rounded-2xl p-3 flex items-center gap-3"><label class="text-xs text-slate-400">Mese</label><input id="budget-month" type="month" data-change="render-budgets" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs"></div>
   <div id="budgets-list" class="grid md:grid-cols-2 gap-3"></div>
 </section>
 
@@ -419,8 +419,8 @@
     <div class="flex flex-wrap gap-2">
       <button data-action="export-csv" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Esporta CSV</button>
       <button data-action="export-backup" class="px-3 py-2 rounded-xl bg-slate-800 text-xs">Backup JSON</button>
-      <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa JSON<input id="import-json" type="file" accept=".json" class="hidden" onchange="importBackup(event)"></label>
-      <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa CSV<input id="import-csv" type="file" accept=".csv,text/csv" class="hidden" onchange="importCSV(event)"></label>
+      <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa JSON<input id="import-json" type="file" accept=".json" class="hidden" data-change="import-backup"></label>
+      <label class="px-3 py-2 rounded-xl bg-slate-800 text-xs cursor-pointer">Importa CSV<input id="import-csv" type="file" accept=".csv,text/csv" class="hidden" data-change="import-csv"></label>
     </div>
     <p class="text-[11px] text-slate-500 mt-2">CSV atteso: data,tipo,importo,categoria,descrizione. Per formati bancari specifici servirà una mappatura dedicata.</p>
   </div>
@@ -554,7 +554,7 @@
 <div id="transaction-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg max-h-[90vh] overflow-auto">
     <div class="flex justify-between mb-4"><h3 id="transaction-title" class="font-bold">Movimento</h3><button data-action="close-modal" data-target="transaction-modal"><i class="fa-solid fa-xmark"></i></button></div>
-    <form onsubmit="saveTransaction(event)" class="space-y-3">
+    <form data-submit="save-transaction" class="space-y-3">
       <input id="tx-id" type="hidden"><input id="tx-type" type="hidden">
       <input id="tx-amount" aria-describedby="tx-amount-error" inputmode="decimal" type="number" step="0.01" min="0.01" required placeholder="Importo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <select id="tx-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select><p id="tx-category-error" class="form-error hidden"></p>
@@ -568,7 +568,7 @@
 <div id="subscription-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
     <div class="flex justify-between mb-4"><h3 class="font-bold">Abbonamento</h3><button data-action="close-modal" data-target="subscription-modal"><i class="fa-solid fa-xmark"></i></button></div>
-    <form onsubmit="saveSubscription(event)" class="space-y-3">
+    <form data-submit="save-subscription" class="space-y-3">
       <input id="sub-id" type="hidden">
       <input id="sub-name" required placeholder="Nome (es. Netflix)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <input id="sub-amount" type="number" step="0.01" min="0.01" required placeholder="Importo mensile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -586,7 +586,7 @@
 <div id="category-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
     <div class="flex justify-between mb-4"><h3 class="font-bold">Categoria</h3><button data-action="close-modal" data-target="category-modal"><i class="fa-solid fa-xmark"></i></button></div>
-    <form onsubmit="saveCategory(event)" class="space-y-3">
+    <form data-submit="save-category" class="space-y-3">
       <input id="cat-id" type="hidden"><input id="cat-old-name" type="hidden">
       <input id="cat-name" required placeholder="Nome categoria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <select id="cat-icon" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -607,7 +607,7 @@
 <div id="budget-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
     <div class="flex justify-between mb-4"><h3 class="font-bold">Budget mensile</h3><button data-action="close-modal" data-target="budget-modal"><i class="fa-solid fa-xmark"></i></button></div>
-    <form onsubmit="saveBudget(event)" class="space-y-3">
+    <form data-submit="save-budget" class="space-y-3">
       <input id="budget-id" type="hidden">
       <select id="budget-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3"></select>
       <input id="budget-form-month" type="month" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -620,7 +620,7 @@
 <div id="goal-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
     <div class="flex justify-between mb-4"><h3 class="font-bold">Obiettivo</h3><button data-action="close-modal" data-target="goal-modal"><i class="fa-solid fa-xmark"></i></button></div>
-    <form onsubmit="saveGoal(event)" class="space-y-3">
+    <form data-submit="save-goal" class="space-y-3">
       <input id="goal-id" type="hidden">
       <input id="goal-name" required placeholder="Nome obiettivo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <select id="goal-type" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -638,7 +638,7 @@
 <div id="asset-modal" class="modal fixed inset-0 z-[80] bg-black/70 items-center justify-center p-4">
   <div class="glass rounded-3xl p-5 w-full max-w-lg">
     <div class="flex justify-between mb-4"><h3 class="font-bold">Asset</h3><button data-action="close-modal" data-target="asset-modal"><i class="fa-solid fa-xmark"></i></button></div>
-    <form onsubmit="saveAsset(event)" class="space-y-3">
+    <form data-submit="save-asset" class="space-y-3">
       <input id="asset-id" type="hidden">
       <input id="asset-name" required placeholder="Nome asset" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
       <select id="asset-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3">
@@ -684,7 +684,7 @@
       </div>
       <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
         <div class="flex items-center justify-between gap-3">
-          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 1.0.0-beta.8 · PWA</p></div>
+          <div><p class="font-bold text-sm">Informazioni</p><p class="text-xs text-slate-500 mt-1">Finora 1.0.0-beta.9 · PWA</p></div>
           <span id="settings-network-status" class="status-pill"><span class="status-dot"></span><span>Online</span></span>
         </div>
         <div class="flex flex-wrap gap-3 mt-3 text-xs">
@@ -826,28 +826,28 @@
   </div>
 </div>
 
-  <script src="./assets/js/state.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/utils.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/auth.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/onboarding.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/offline.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/notifications.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/ui.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/transactions.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/budgets.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/subscriptions.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/categories.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/goals.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/wealth.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/analysis.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/settings.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/charts.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/data-io.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/diagnostics.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/namespace.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/events.js?v=1.0.0-beta.8" defer></script>
-  <script src="./assets/js/bootstrap.js?v=1.0.0-beta.8" defer></script>
+  <script src="./assets/js/state.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/utils.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/auth.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/onboarding.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/offline.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/notifications.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/ui.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/transactions.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/budgets.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/subscriptions.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/categories.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/goals.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/wealth.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/analysis.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/settings.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/charts.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/data-io.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/diagnostics.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/namespace.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/events.js?v=1.0.0-beta.9" defer></script>
+  <script src="./assets/js/bootstrap.js?v=1.0.0-beta.9" defer></script>
 
-  <script src="./assets/js/pwa.js?v=1.0.0-beta.8" defer></script>
+  <script src="./assets/js/pwa.js?v=1.0.0-beta.9" defer></script>
 </body>
 </html>
