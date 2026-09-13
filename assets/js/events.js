@@ -1,4 +1,4 @@
-// Finora — delegated click events
+// Finora — delegated UI events
 (function bindFinoraActions(){
   const handlers={
     'auth-mode':el=>Finora.auth.mode(el.dataset.mode),
@@ -84,4 +84,69 @@
     event.preventDefault();
     handler(el,event);
   });
+
+
+  const submitHandlers={
+    'auth-login':(el,event)=>Finora.auth.login(event),
+    'auth-register':(el,event)=>Finora.auth.register(event),
+    'auth-forgot':(el,event)=>Finora.auth.forgotPassword(event),
+    'auth-update-password':(el,event)=>Finora.auth.updatePassword(event),
+
+    'save-transaction':(el,event)=>Finora.transactions.save(event),
+    'save-subscription':(el,event)=>Finora.subscriptions.save(event),
+    'save-category':(el,event)=>Finora.categories.save(event),
+    'save-budget':(el,event)=>Finora.budgets.save(event),
+    'save-goal':(el,event)=>Finora.goals.save(event),
+    'save-asset':(el,event)=>Finora.wealth.saveAsset(event)
+  };
+
+  const changeHandlers={
+    'filter-type':()=>{
+      Finora.ui.syncFilterChips();
+      Finora.transactions.render();
+    },
+    'render-transactions':()=>Finora.transactions.render(),
+    'render-budgets':()=>Finora.budgets.render(),
+    'import-backup':(el,event)=>Finora.data.importBackup(event),
+    'import-csv':(el,event)=>Finora.data.importCSV(event)
+  };
+
+  const inputHandlers={
+    'render-transactions':()=>Finora.transactions.render()
+  };
+
+  document.addEventListener('submit',event=>{
+    const el=event.target.closest('[data-submit]');
+    if(!el)return;
+    const handler=submitHandlers[el.dataset.submit];
+    if(!handler){
+      console.warn('[Finora] Unknown data-submit:',el.dataset.submit);
+      return;
+    }
+    event.preventDefault();
+    handler(el,event);
+  });
+
+  document.addEventListener('change',event=>{
+    const el=event.target.closest('[data-change]');
+    if(!el)return;
+    const handler=changeHandlers[el.dataset.change];
+    if(!handler){
+      console.warn('[Finora] Unknown data-change:',el.dataset.change);
+      return;
+    }
+    handler(el,event);
+  });
+
+  document.addEventListener('input',event=>{
+    const el=event.target.closest('[data-input]');
+    if(!el)return;
+    const handler=inputHandlers[el.dataset.input];
+    if(!handler){
+      console.warn('[Finora] Unknown data-input:',el.dataset.input);
+      return;
+    }
+    handler(el,event);
+  });
+
 })();

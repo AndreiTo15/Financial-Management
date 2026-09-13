@@ -1,6 +1,6 @@
 // Finora — public application namespace
 window.Finora = {
-  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.8',channel:'beta',refactor:3}),
+  meta: Object.freeze({name:'Finora',version:'1.0.0-beta.9',channel:'beta',refactor:4}),
 
   pwa: {
     check:()=>checkPWAUpdate(true),
@@ -23,7 +23,7 @@ window.Finora = {
 
   ui: {
     openModal,closeModal,confirmAction,goPage,openQuickAdd,quickAddType,
-    togglePrivacy,toggleTheme,toggleAdvancedFilters,setQuickFilter,
+    togglePrivacy,toggleTheme,toggleAdvancedFilters,setQuickFilter,syncFilterChips,
     toggleAnalysisDetails,openSetupWizard,saveSetupWizard,
     showOnboarding,nextOnboarding,finishOnboarding,
     toast,premiumToast,copyDiagnostics,openDiagnostics,renderDiagnostics,clearDiagnostics
@@ -35,10 +35,12 @@ window.Finora = {
   },
 
   transactions: {
-    open:openTransactionModal,edit:editTransaction,remove:deleteTransaction,save:saveTransaction
+    open:openTransactionModal,edit:editTransaction,remove:deleteTransaction,
+    save:saveTransaction,render:renderTransactions
   },
   budgets: {
-    open:openBudgetModal,edit:editBudget,remove:deleteBudget,save:saveBudget,addExpense:addBudgetExpense
+    open:openBudgetModal,edit:editBudget,remove:deleteBudget,
+    save:saveBudget,addExpense:addBudgetExpense,render:renderBudgets
   },
   subscriptions: {
     open:openSubscriptionModal,edit:editSubscription,remove:deleteSubscription,

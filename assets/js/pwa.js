@@ -65,7 +65,7 @@ if('serviceWorker' in navigator){
   });
   window.addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=1.0.0-beta.8');
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=1.0.0-beta.9');
       watchPWARegistration(reg);
       setTimeout(()=>checkPWAUpdate(false),2500);
     }catch(err){
